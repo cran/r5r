@@ -44,8 +44,7 @@ head(points)
 #  max_walk_dist <- 5000
 #  max_trip_duration <- 120
 #  departure_datetime <- as.POSIXct("13-03-2019 14:00:00",
-#                                   format = "%d-%m-%Y %H:%M:%S",
-#                                   tz = "America/Sao_Paulo")
+#                                   format = "%d-%m-%Y %H:%M:%S")
 #  
 #  # calculate a travel time matrix
 #  ttm <- travel_time_matrix(r5r_core = r5r_core,
@@ -69,8 +68,7 @@ knitr::include_graphics("https://github.com/ipeaGIT/r5r/blob/master/r-package/in
 #  mode <- c("WALK", "TRANSIT")
 #  max_walk_dist <- 10000
 #  departure_datetime <- as.POSIXct("13-03-2019 14:00:00",
-#                                   format = "%d-%m-%Y %H:%M:%S",
-#                                   tz = "America/Sao_Paulo")
+#                                   format = "%d-%m-%Y %H:%M:%S")
 #  
 #  # calculate detailed itineraries
 #  dit <- detailed_itineraries(r5r_core = r5r_core,
