@@ -18,12 +18,12 @@
 #'
 #' @return An rJava object to connect with R5 routing engine
 #' @family setup
-#' @examples \donttest{
+#' @examples \dontrun{
 #'
 #' library(r5r)
 #'
 #' # directory with street network and gtfs files
-#' path <- system.file("extdata", package = "r5r")
+#' path <- system.file("extdata/poa", package = "r5r")
 #'
 #' r5r_core <- setup_r5(data_path = path, temp_dir = TRUE)
 #' }

@@ -14,9 +14,9 @@ are supplied all running cores are stopped.}
 Stops running r5r cores.
 }
 \examples{
-\donttest{library(r5r)
+\dontrun{library(r5r)
 
-path <- system.file("extdata", package = "r5r")
+path <- system.file("extdata/poa", package = "r5r")
 
 r5r_core <- setup_r5(data_path = path)
 

@@ -22,15 +22,15 @@ library(ggplot2)
 library(mapview)
 
 ## -----------------------------------------------------------------------------
-data_path <- system.file("extdata", package = "r5r")
+data_path <- system.file("extdata/poa", package = "r5r")
 list.files(data_path)
 
 ## -----------------------------------------------------------------------------
-poi <- fread(system.file("extdata/poa_points_of_interest.csv", package = "r5r"))
+poi <- fread(file.path(data_path, "poa_points_of_interest.csv"))
 head(poi)
 
 ## -----------------------------------------------------------------------------
-points <- fread(system.file("extdata/poa_hexgrid.csv", package = "r5r"))
+points <- fread(file.path(data_path, "poa_hexgrid.csv"))
 points <- points[ c(sample(1:nrow(points), 10, replace=TRUE)), ]
 head(points)
 
@@ -50,10 +50,10 @@ head(points)
 #  ttm <- travel_time_matrix(r5r_core = r5r_core,
 #                            origins = points,
 #                            destinations = points,
-#                            mode,
-#                            departure_datetime,
-#                            max_walk_dist,
-#                            max_trip_duration,
+#                            mode = mode,
+#                            departure_datetime = departure_datetime,
+#                            max_walk_dist = max_walk_dist,
+#                            max_trip_duration = max_trip_duration,
 #                            verbose = FALSE)
 #  
 #  head(ttm)
@@ -101,7 +101,7 @@ knitr::include_graphics("https://github.com/ipeaGIT/r5r/blob/master/r-package/in
 knitr::include_graphics("https://github.com/ipeaGIT/r5r/blob/master/r-package/inst/img/vig_detailed_ggplot.png?raw=true")
 
 ## ---- message = FALSE, eval = FALSE-------------------------------------------
-#  mapview(df, zcol = 'option')
+#  mapview(dit, zcol = 'option')
 
 ## ----mapview output, echo = FALSE, out.width='80%', message = FALSE-----------
 knitr::include_graphics("https://github.com/ipeaGIT/r5r/blob/master/r-package/inst/img/vig_detailed_mapview.png?raw=true")

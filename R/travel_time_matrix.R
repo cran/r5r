@@ -11,6 +11,22 @@
 #' @param departure_datetime POSIXct object. If working with public transport
 #'                           networks, please check \code{calendar.txt} within
 #'                           the GTFS file for valid dates.
+#' @param time_window numeric. Time window in minutes for which r5r will
+#'                    calculate multiple travel time matrices departing each
+#'                    minute. By default, the number of simulations is 5 times
+#'                    the size of 'time_window' set by the user. Defaults window
+#'                    size to '1', the function only considers 5 departure times.
+#'                    This parameter is only used with frequency-based GTFS files.
+#'                    See details for further information.
+#' @param percentiles numeric vector. Defaults to '50', returning the median
+#'                    travel time for a given time_window. If a numeric vector is passed,
+#'                    for example c(25, 50, 75), the function will return
+#'                    additional columns with the travel times within percentiles
+#'                    of trips. For example, if the 25 percentile of trips between
+#'                    A and B is 15 minutes, this means that 25% of all trips
+#'                    taken between A and B within the set time window are shorter
+#'                    than 15 minutes. For more details, see R5 documentation at
+#'                    'https://docs.conveyal.com/analysis/methodology#accounting-for-variability'
 #' @param max_walk_dist numeric. Maximum walking distance (in meters) for the
 #'                      whole trip. Defaults to no restrictions on walking, as
 #'                      long as \code{max_trip_duration} is respected.
@@ -39,34 +55,40 @@
 #'   WALK, BICYCLE, CAR, BICYCLE_RENT, CAR_PARK
 #'
 #'
+#' # Routing algorithm:
+#' The travel_time_matrix function uses an R5-specific extension to the RAPTOR
+#' routing algorithm (see Conway et al., 2017). This RAPTOR extension uses a
+#' systematic sample of one departure per minute over the time window set by the
+#' user in the 'time_window' parameter. A detailed description of base RAPTOR
+#' can be found in Delling et al (2015).
+#' - Conway, M. W., Byrd, A., & van der Linden, M. (2017). Evidence-based transit
+#'  and land use sketch planning using interactive accessibility methods on
+#'  combined schedule and headway-based networks. Transportation Research Record,
+#'  2653(1), 45-53.
+#'  - Delling, D., Pajor, T., & Werneck, R. F. (2015). Round-based public transit
+#'  routing. Transportation Science, 49(3), 591-604.
+#'
 #' @family routing
 #' @examples \donttest{
 #' library(r5r)
 #'
 #' # build transport network
-#' data_path <- system.file("extdata", package = "r5r")
+#' data_path <- system.file("extdata/spo", package = "r5r")
 #' r5r_core <- setup_r5(data_path = data_path)
 #'
 #' # load origin/destination points
-#' points <- read.csv(system.file("extdata/poa_hexgrid.csv", package = "r5r"))[1:5,]
+#' points <- read.csv(file.path(data_path, "spo_hexgrid.csv"))[1:5,]
 #'
-#' mode <- c("WALK", "TRANSIT")
-#' max_walk_dist <- Inf
-#' max_trip_duration <- 120L
-#' departure_datetime <- as.POSIXct("13-03-2019 14:00:00",
-#'                                  format = "%d-%m-%Y %H:%M:%S")
+#' departure_datetime <- as.POSIXct("13-03-2019 14:00:00", format = "%d-%m-%Y %H:%M:%S")
 #'
 #' # estimate travel time matrix
 #' ttm <- travel_time_matrix(r5r_core,
 #'                           origins = points,
 #'                           destinations = points,
-#'                           mode,
-#'                           departure_datetime,
-#'                           max_walk_dist,
-#'                           max_trip_duration)
-#'
-#' stop_r5(r5r_core)
-#' rJava::.jgc(R.gc = TRUE)
+#'                           mode = c("WALK", "TRANSIT"),
+#'                           departure_datetime = departure_datetime,
+#'                           max_walk_dist = Inf,
+#'                           max_trip_duration = 120L)
 #'
 #' }
 #' @export
@@ -76,6 +98,8 @@ travel_time_matrix <- function(r5r_core,
                                destinations,
                                mode = "WALK",
                                departure_datetime = Sys.time(),
+                               time_window = 1L,
+                               percentiles = 50L,
                                max_walk_dist = Inf,
                                max_trip_duration = 120L,
                                walk_speed = 3.6,
@@ -123,7 +147,23 @@ travel_time_matrix <- function(r5r_core,
   destinations <- assert_points_input(destinations, "destinations")
 
 
+  # time window
+  checkmate::assert_numeric(time_window)
+  time_window <- as.integer(time_window)
+  draws <- time_window *5
+  draws <- as.integer(draws)
+
+  # percentiles
+  checkmate::assert_numeric(percentiles)
+  percentiles <- as.integer(percentiles)
+
+
   # set r5r_core options ----------------------------------------------------
+
+  # time window
+  r5r_core$setTimeWindowSize(time_window)
+  r5r_core$setPercentiles(percentiles)
+  r5r_core$setNumberOfMonteCarloDraws(draws)
 
   # set bike and walk speed
   set_speed(r5r_core, walk_speed, "walk")

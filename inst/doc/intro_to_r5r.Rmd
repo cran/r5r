@@ -79,21 +79,21 @@ To illustrate functionality, the package includes a small sample data for the ci
 * The spatial coordinates of a regular hexagonal grid covering the sample area, in a `.csv` file, which can be used as origin/destination pairs in a travel time matrix calculation.
 
 ```{r}
-data_path <- system.file("extdata", package = "r5r")
+data_path <- system.file("extdata/poa", package = "r5r")
 list.files(data_path)
 ```
 
 The points of interest data can be seen below.  In this example, we will be looking at transport alternatives between some of those places.
 
 ```{r}
-poi <- fread(system.file("extdata/poa_points_of_interest.csv", package = "r5r"))
+poi <- fread(file.path(data_path, "poa_points_of_interest.csv"))
 head(poi)
 ```
 
 The data with origin destination pairs is shown below. In this example, we will be building a travel time matrix between ten random points in this data set.
 
 ```{r}
-points <- fread(system.file("extdata/poa_hexgrid.csv", package = "r5r"))
+points <- fread(file.path(data_path, "poa_hexgrid.csv"))
 points <- points[ c(sample(1:nrow(points), 10, replace=TRUE)), ]
 head(points)
 ```
@@ -127,10 +127,10 @@ departure_datetime <- as.POSIXct("13-03-2019 14:00:00",
 ttm <- travel_time_matrix(r5r_core = r5r_core,
                           origins = points,
                           destinations = points,
-                          mode,
-                          departure_datetime,
-                          max_walk_dist,
-                          max_trip_duration,
+                          mode = mode,
+                          departure_datetime = departure_datetime,
+                          max_walk_dist = max_walk_dist,
+                          max_trip_duration = max_trip_duration,
                           verbose = FALSE)
 
 head(ttm)
@@ -198,7 +198,7 @@ knitr::include_graphics("https://github.com/ipeaGIT/r5r/blob/master/r-package/in
 **Interactive visualization** with `mapview`:
 
 ```{r, message = FALSE, eval = FALSE}
-mapview(df, zcol = 'option')
+mapview(dit, zcol = 'option')
 ```
 
 ```{r mapview output, echo = FALSE, out.width='80%', message = FALSE}

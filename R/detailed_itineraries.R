@@ -40,6 +40,17 @@
 #'   ## Non transit modes
 #'   WALK, BICYCLE, CAR, BICYCLE_RENT, CAR_PARK
 #'
+#'
+#' # Routing algorithm:
+#'  The detailed_itineraries function uses an R5-specific extension to the
+#'  McRAPTOR routing algorithm to find paths that are optimal or less than
+#'  optimal, with some heuristics around multiple access modes, riding the same
+#'  patterns, etc. The specific extension to McRAPTOR to do suboptimal
+#'  path routing are not documented yet, but a detailed description of base
+#'  McRAPTOR can be found in Delling et al (2015).
+#'  - Delling, D., Pajor, T., & Werneck, R. F. (2015). Round-based public transit
+#'   routing. Transportation Science, 49(3), 591-604.
+#'
 #' @return A LINESTRING sf with detailed information about the itineraries
 #'         between specified origins and destinations. Distances are in meters
 #'         and travel times are in minutes.
@@ -51,31 +62,22 @@
 #' library(r5r)
 #'
 #' # build transport network
-#' data_path <- system.file("extdata", package = "r5r")
+#' data_path <- system.file("extdata/poa", package = "r5r")
 #' r5r_core <- setup_r5(data_path = data_path)
 #'
 #' # load origin/destination points
 #' points <- read.csv(file.path(data_path, "poa_points_of_interest.csv"))
 #'
 #' # inputs
-#' origins <- points[10,]
-#' destinations <- points[12,]
-#' mode <- c("WALK", "TRANSIT")
-#' max_walk_dist <- 1000
-#' max_trip_duration <- 120L
-#' departure_datetime <- as.POSIXct("13-03-2019 14:00:00",
-#'                                  format = "%d-%m-%Y %H:%M:%S")
+#' departure_datetime <- as.POSIXct("13-03-2019 14:00:00", format = "%d-%m-%Y %H:%M:%S")
 #'
 #' dit <- detailed_itineraries(r5r_core,
-#'                             origins,
-#'                             destinations,
-#'                             mode,
-#'                             departure_datetime,
-#'                             max_walk_dist)
-#'
-#' stop_r5(r5r_core)
-#' rJava::.jgc(R.gc = TRUE)
-#'
+#'                             origins = points[10,],
+#'                             destinations = points[12,],
+#'                             mode = c("WALK", "TRANSIT"),
+#'                             departure_datetime = departure_datetime,
+#'                             max_walk_dist = 1000,
+#'                             max_trip_duration = 120L)
 #' }
 #' @export
 
