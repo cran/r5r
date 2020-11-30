@@ -79,7 +79,7 @@
 #' # load origin/destination points
 #' points <- read.csv(file.path(data_path, "spo_hexgrid.csv"))[1:5,]
 #'
-#' departure_datetime <- as.POSIXct("13-03-2019 14:00:00", format = "%d-%m-%Y %H:%M:%S")
+#' departure_datetime <- as.POSIXct("13-05-2019 14:00:00", format = "%d-%m-%Y %H:%M:%S")
 #'
 #' # estimate travel time matrix
 #' ttm <- travel_time_matrix(r5r_core,
@@ -89,6 +89,8 @@
 #'                           departure_datetime = departure_datetime,
 #'                           max_walk_dist = Inf,
 #'                           max_trip_duration = 120L)
+#'
+#' stop_r5(r5r_core)
 #'
 #' }
 #' @export
@@ -203,6 +205,17 @@ travel_time_matrix <- function(r5r_core,
   travel_times <- jdx::convertToR(travel_times)
   travel_times <- data.table::rbindlist(travel_times)
 
-  return(travel_times)
+  # convert eventual list columns to integer
+  for(j1 in seq_along(travel_times)) {
+    cl1 <- class(travel_times[[j1]])
+    if(cl1 == 'list') {
+      data.table::set(travel_times, i = NULL, j = j1, value = unlist(travel_times[[j1]]))}
+    }
 
+  # replace travel-times of inviable trips with NAs
+  for(j in seq(from = 3, to = length(travel_times))){
+    data.table::set(travel_times, i=which(travel_times[[j]]>max_trip_duration), j=j, value=NA_integer_)
+    }
+
+return(travel_times)
 }

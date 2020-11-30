@@ -43,7 +43,7 @@ head(points)
 #  mode <- c("WALK", "TRANSIT")
 #  max_walk_dist <- 5000
 #  max_trip_duration <- 120
-#  departure_datetime <- as.POSIXct("13-03-2019 14:00:00",
+#  departure_datetime <- as.POSIXct("13-05-2019 14:00:00",
 #                                   format = "%d-%m-%Y %H:%M:%S")
 #  
 #  # calculate a travel time matrix
@@ -67,7 +67,7 @@ knitr::include_graphics("https://github.com/ipeaGIT/r5r/blob/master/r-package/in
 #  destinations <- poi[12,]
 #  mode <- c("WALK", "TRANSIT")
 #  max_walk_dist <- 10000
-#  departure_datetime <- as.POSIXct("13-03-2019 14:00:00",
+#  departure_datetime <- as.POSIXct("13-05-2019 14:00:00",
 #                                   format = "%d-%m-%Y %H:%M:%S")
 #  
 #  # calculate detailed itineraries

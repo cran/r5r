@@ -2,7 +2,18 @@
 
 
 -------------------------------------------------------
-# r5r v0.2.0 dev
+# r5r v0.2-1 dev
+
+
+**Minor changes**
+* expanded number of routes in the sample GTFS for Porto Alegre, allowing for more
+complex/realistic examples.
+* Fixes format of columns of the output of `travel_matrix_function` when the user 
+sets `time_window` parameter. Closes #127.
+* remove repeated bus route alternatives from the output from `detailed_itineraries`
+
+-------------------------------------------------------
+# r5r v0.2-0
 
 **Major changes**
 
