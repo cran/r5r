@@ -80,33 +80,28 @@ select_mode <- function(mode) {
   # assign modes accordingly
   direct_modes <- mode[which(mode %chin% dr_modes)]
   transit_mode <- mode[which(mode %chin% tr_modes)]
-  if ("TRANSIT" %in% transit_mode) transit_mode <- tr_modes
+  if ("TRANSIT" %in% transit_mode){ transit_mode <- tr_modes }
 
   # if only a direct_mode is passed, all others are empty
   if (length(direct_modes) != 0 & length(transit_mode) == 0) {
     egress_mode <- access_mode <- mode[which(mode %chin% c('WALK', 'BICYCLE'))]
     if (length(access_mode) == 0){ egress_mode <- access_mode <- 'WALK' }
-    if (direct_modes == "CAR"){ egress_mode <- access_mode <- 'CAR' }
+    if (sum(direct_modes %in% "CAR")>0){ direct_modes <- egress_mode <- access_mode <- 'CAR' }
     transit_mode <- ""
   } else
 
     # if only transit mode is passed, assume 'WALK' as access_ and egress_modes
     if (length(transit_mode) != 0 & length(direct_modes) == 0) {
       egress_mode <- access_mode <- mode[which(mode %chin% c('WALK', 'BICYCLE'))]
-      if (length(access_mode) == 0){ egress_mode <- access_mode <- 'WALK' }
-      direct_modes <- ""
+      if (length(access_mode) == 0){ direct_modes <- egress_mode <- access_mode <- 'WALK' }
 
     } else
 
       # if transit & direct modes are passed, consider direct as access & egress_modes
       if (length(transit_mode) != 0 & length(direct_modes) != 0) {
-        access_mode <- direct_modes[which(direct_modes %chin% c('WALK', 'BICYCLE', 'CAR'))]
-        egress_mode <- access_mode <- unique(c('WALK', access_mode))
+        access_mode <- egress_mode <- direct_modes[which(direct_modes %chin% c('WALK', 'BICYCLE', 'CAR'))]
       }
 
-  # removes CAR and BICYCLE from egress_mode, since a transit user (probably)
-  # won't have to these modes after a transit ride
-  egress_mode <- egress_mode[! egress_mode %chin% c("CAR", "BICYCLE")]
 
   # create output as a list
   mode_list <- list('direct_modes' = paste0(direct_modes, collapse = ";"),
@@ -119,6 +114,11 @@ select_mode <- function(mode) {
 
 }
 
+
+mode_list <- list('direct_modes' = "WALK" ,
+                  'transit_mode' = "TRANSIT;TRAM;SUBWAY;RAIL;BUS;FERRY;CABLE_CAR;GONDOLA;FUNICULAR",
+                  'access_mode'  = 'WALK',
+                  'egress_mode'  = 'WALK')
 
 
 #' Generate date and departure time strings from POSIXct

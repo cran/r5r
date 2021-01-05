@@ -20,6 +20,7 @@ library(sf)
 library(data.table)
 library(ggplot2)
 library(mapview)
+mapviewOptions(platform = 'leafgl')
 
 ## -----------------------------------------------------------------------------
 data_path <- system.file("extdata/poa", package = "r5r")

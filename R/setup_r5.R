@@ -31,11 +31,15 @@
 #' @export
 
 setup_r5 <- function(data_path,
-                     version = "4.9.0",
+                     version = "6.0.1",
                      verbose = TRUE,
                      temp_dir = FALSE) {
 
-  # check Java version installed locally
+  # check inputs ------------------------------------------------------------
+  checkmate::assert_logical(verbose)
+  checkmate::assert_logical(temp_dir)
+
+  # check Java version installed locally ------------------------------------------------------------
     rJava::.jinit()
     ver <- rJava::.jcall("java.lang.System","S","getProperty","java.version")
     ver <- as.numeric(gsub("\\..*","",ver))
@@ -44,7 +48,6 @@ setup_r5 <- function(data_path,
                         11.0.8 can be freely downloaded from
                         https://www.oracle.com/java/technologies/javase-jdk11-downloads.html")}
 
-  checkmate::assert_logical(verbose)
 
   # check directory input
   if (is.null(data_path)){ stop("Please provide data_path.")}
@@ -85,6 +88,9 @@ setup_r5 <- function(data_path,
   }
 
   # start R5 JAR
+  r5r_jar <- file.path(.libPaths()[1], "r5r", "jar", "r5r_0_3_0.jar")
+
+  rJava::.jaddClassPath(path = r5r_jar)
   rJava::.jaddClassPath(path = jar_file)
 
   # check if data_path already has a network.dat file
