@@ -57,68 +57,65 @@ set_max_street_time <- function(max_walk_dist, walk_speed, max_trip_duration) {
 #' Select transport mode
 #'
 #' @param mode character string passed from routing functions.
+#' @param mode_egress character string passed from routing functions.
 #'
 #' @family support functions
 
-select_mode <- function(mode) {
-
-  mode <- toupper(unique(mode))
+select_mode <- function(mode, mode_egress) {
 
   # list all available modes
   dr_modes  <- c('WALK','BICYCLE','CAR','BICYCLE_RENT','CAR_PARK')
   tr_modes  <- c('TRANSIT', 'TRAM','SUBWAY','RAIL','BUS','FERRY','CABLE_CAR','GONDOLA','FUNICULAR')
   all_modes <- c(tr_modes, dr_modes)
 
-  # check for invalid input
+  # check for invalid input --------------------------------------------------
+  mode <- toupper(unique(mode))
+  mode_egress <- toupper(unique(mode_egress))[1]
+
   lapply(mode, function(x) {
     if (!x %chin% all_modes) {
       stop(paste0(x, " is not a valid 'mode'.\nPlease use one of the following: ",
-                  paste(unique(all_modes), collapse = ", ")))
-    }
-  })
+                  paste(unique(all_modes), collapse = ", "))) }
+    })
+  lapply(mode_egress, function(x) {
+    if (!x %chin% dr_modes) {
+      stop(paste0(x, " is not a valid 'mode'.\nPlease use one of the following: ",
+                  paste(unique(dr_modes), collapse = ", "))) }
+    })
 
-  # assign modes accordingly
+  # assign modes accordingly  --------------------------------------------------
   direct_modes <- mode[which(mode %chin% dr_modes)]
   transit_mode <- mode[which(mode %chin% tr_modes)]
-  if ("TRANSIT" %in% transit_mode){ transit_mode <- tr_modes }
 
-  # if only a direct_mode is passed, all others are empty
-  if (length(direct_modes) != 0 & length(transit_mode) == 0) {
-    egress_mode <- access_mode <- mode[which(mode %chin% c('WALK', 'BICYCLE'))]
-    if (length(access_mode) == 0){ egress_mode <- access_mode <- 'WALK' }
-    if (sum(direct_modes %in% "CAR")>0){ direct_modes <- egress_mode <- access_mode <- 'CAR' }
+  # No public transport
+  if ( length(transit_mode) == 0) {
+    if (sum(mode %in% c('WALK', 'BICYCLE')>0)){ direct_modes <- access_mode <- mode[which(mode %chin% c('WALK', 'BICYCLE'))][1] }
+    if (sum(mode %in% "CAR")>0){ direct_modes <- access_mode <- 'CAR' }
     transit_mode <- ""
-  } else
+    mode_egress <- ""
 
-    # if only transit mode is passed, assume 'WALK' as access_ and egress_modes
-    if (length(transit_mode) != 0 & length(direct_modes) == 0) {
-      egress_mode <- access_mode <- mode[which(mode %chin% c('WALK', 'BICYCLE'))]
-      if (length(access_mode) == 0){ direct_modes <- egress_mode <- access_mode <- 'WALK' }
+  } else {
 
-    } else
+  # with public transport
+    # all pt modes
+    if ("TRANSIT" %in% transit_mode){ transit_mode <- tr_modes }
 
-      # if transit & direct modes are passed, consider direct as access & egress_modes
-      if (length(transit_mode) != 0 & length(direct_modes) != 0) {
-        access_mode <- egress_mode <- direct_modes[which(direct_modes %chin% c('WALK', 'BICYCLE', 'CAR'))]
-      }
+    # if only transit mode is passed, assume 'WALK' as access_mode
+    if (length(direct_modes) == 0) { access_mode <- direct_modes <- 'WALK' }
 
+    # if transit & direct modes are passed, consider direct as access & egress_modes
+    if (length(direct_modes) != 0) { access_mode <- direct_modes }
+  }
 
   # create output as a list
   mode_list <- list('direct_modes' = paste0(direct_modes, collapse = ";"),
                     'transit_mode' = paste0(transit_mode, collapse = ";"),
                     'access_mode'  = paste0(access_mode, collapse = ";"),
-                    'egress_mode'  = paste0(egress_mode, collapse = ";"))
-
+                    'egress_mode'  = paste0(mode_egress[1], collapse = ";"))
 
   return(mode_list)
-
 }
 
-
-mode_list <- list('direct_modes' = "WALK" ,
-                  'transit_mode' = "TRANSIT;TRAM;SUBWAY;RAIL;BUS;FERRY;CABLE_CAR;GONDOLA;FUNICULAR",
-                  'access_mode'  = 'WALK',
-                  'egress_mode'  = 'WALK')
 
 
 #' Generate date and departure time strings from POSIXct
@@ -274,4 +271,44 @@ set_max_rides <- function(r5r_core, max_rides) {
 
   r5r_core$setMaxTransfers(as.integer(max_rides))
 
+}
+
+
+
+
+
+#' Download metadata of R5 jar files
+#' @description Support function to download metadata internally used in r5r
+#' @family general support functions
+#'
+download_metadata <- function(){
+
+  # address of JAR folder and metadata file
+  jar_folder <- file.path(.libPaths()[1], "r5r", "jar")
+  metadata_file <- file.path(jar_folder, "metadata.csv")
+
+  # IF metadata has been downloaded before
+  if (checkmate::test_file_exists(metadata_file)) {
+
+    # skip
+
+    } else {
+
+  # Download medata
+    # test server connection
+    metadata_link <- 'https://www.ipea.gov.br/geobr/r5r/metadata.csv'
+    t <- try( open.connection(con = url(metadata_link), open="rt", timeout=2),silent=TRUE)
+    if("try-error" %in% class(t)){stop('Internet connection problem. If this is not a connection problem in your network, please try r5r again in a few minutes.')}
+    suppressWarnings(try(close.connection(con),silent=TRUE))
+
+    # download it and save it to JAR folder
+    utils::download.file(url=metadata_link, destfile=metadata_file,
+                         overwrite=TRUE, quiet=TRUE)
+  }
+
+  # read metadata
+  metadata <- utils::read.csv(metadata_file,
+                              colClasses = 'character', header = T, sep = ';')
+
+  return(metadata)
 }

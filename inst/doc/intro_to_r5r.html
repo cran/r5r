@@ -12,7 +12,7 @@
 
 <meta name="author" content="Rafael H. M. Pereira, Marcus Saraiva, Daniel Herszenhut, Carlos Kaue Braga" />
 
-<meta name="date" content="2021-01-05" />
+<meta name="date" content="2021-01-07" />
 
 <title>r5r: Rapid Realistic Routing with R5 in R</title>
 
@@ -339,7 +339,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">r5r: Rapid Realistic Routing with R5 in R</h1>
 <h4 class="author">Rafael H. M. Pereira, Marcus Saraiva, Daniel Herszenhut, Carlos Kaue Braga</h4>
-<h4 class="date">2021-01-05</h4>
+<h4 class="date">2021-01-07</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 <code>r5r</code> is an R package for rapid realistic routing on multimodal transport networks (walk, bike, public transport and car) using R<sup>5</sup>. The package allows users to generate detailed routing analysis or calculate travel time matrices using seamless parallel computing on top of the R<sup>5</sup> Java machine <a href="https://github.com/conveyal/r5" class="uri">https://github.com/conveyal/r5</a>
@@ -370,10 +370,9 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">library</span>(r5r)</span>
 <span id="cb3-2"><a href="#cb3-2"></a><span class="kw">library</span>(sf)</span>
 <span id="cb3-3"><a href="#cb3-3"></a><span class="kw">library</span>(data.table)</span>
-<span id="cb3-4"><a href="#cb3-4"></a><span class="co">#&gt; Warning: package &#39;data.table&#39; was built under R version 4.0.3</span></span>
-<span id="cb3-5"><a href="#cb3-5"></a><span class="kw">library</span>(ggplot2)</span>
-<span id="cb3-6"><a href="#cb3-6"></a><span class="kw">library</span>(mapview)</span>
-<span id="cb3-7"><a href="#cb3-7"></a><span class="kw">mapviewOptions</span>(<span class="dt">platform =</span> <span class="st">&#39;leafgl&#39;</span>)</span></code></pre></div>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="kw">library</span>(ggplot2)</span>
+<span id="cb3-5"><a href="#cb3-5"></a><span class="kw">library</span>(mapview)</span>
+<span id="cb3-6"><a href="#cb3-6"></a><span class="kw">mapviewOptions</span>(<span class="dt">platform =</span> <span class="st">&#39;leafgl&#39;</span>)</span></code></pre></div>
 <p>The <code>r5r</code> package has 3 fundamental functions.</p>
 <ol style="list-style-type: decimal">
 <li><p><code>setup_r5()</code> to initialize an instance of <code>r5r</code>, that also builds a routable transport network given an Open Street Map street network and public transport feeds in GTFS format;</p></li>
@@ -414,12 +413,12 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb6-2"><a href="#cb6-2"></a>points &lt;-<span class="st"> </span>points[ <span class="kw">c</span>(<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(points), <span class="dv">10</span>, <span class="dt">replace=</span><span class="ot">TRUE</span>)), ]</span>
 <span id="cb6-3"><a href="#cb6-3"></a><span class="kw">head</span>(points)</span>
 <span id="cb6-4"><a href="#cb6-4"></a><span class="co">#&gt;                 id       lon       lat population schools</span></span>
-<span id="cb6-5"><a href="#cb6-5"></a><span class="co">#&gt; 1: 89a9012a307ffff -51.22079 -30.09566        443       0</span></span>
-<span id="cb6-6"><a href="#cb6-6"></a><span class="co">#&gt; 2: 89a90128287ffff -51.18009 -30.06724        694       0</span></span>
-<span id="cb6-7"><a href="#cb6-7"></a><span class="co">#&gt; 3: 89a9012916bffff -51.14578 -30.04658       1388       0</span></span>
-<span id="cb6-8"><a href="#cb6-8"></a><span class="co">#&gt; 4: 89a901282b3ffff -51.18307 -30.06560        652       0</span></span>
-<span id="cb6-9"><a href="#cb6-9"></a><span class="co">#&gt; 5: 89a901291cbffff -51.14325 -30.05928       1552       0</span></span>
-<span id="cb6-10"><a href="#cb6-10"></a><span class="co">#&gt; 6: 89a901285d3ffff -51.21131 -30.08676       1107       0</span></span></code></pre></div>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="co">#&gt; 1: 89a9012a3d3ffff -51.21209 -30.10610         27       0</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="co">#&gt; 2: 89a90129cb7ffff -51.18526 -30.04461        960       0</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="co">#&gt; 3: 89a90e934b7ffff -51.16207 -29.99801         14       0</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="co">#&gt; 4: 89a9012b113ffff -51.17548 -30.10368          0       0</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="co">#&gt; 5: 89a90128363ffff -51.19132 -30.04410        979       0</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="co">#&gt; 6: 89a90129b7bffff -51.16516 -29.99914          0       0</span></span></code></pre></div>
 </div>
 <div id="build-routable-transport-network-with-setup_r5" class="section level2">
 <h2>Build routable transport network with <code>setup_r5()</code></h2>
