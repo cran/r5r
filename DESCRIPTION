@@ -1,7 +1,7 @@
 Type: Package
 Package: r5r
 Title: Rapid Realistic Routing with 'R5'
-Version: 0.3-1
+Version: 0.3-2
 Authors@R: c(
             person(given="Marcus", family="Saraiva", email="marcus.saraiva@gmail.com", role="aut", comment = c(ORCID = "0000-0001-6218-2338")),
             person(given="Rafael H. M.", family="Pereira", email="rafa.pereira.br@gmail.com", role=c("aut", "cre"), comment = c(ORCID = "0000-0003-2125-7465")),
@@ -16,7 +16,7 @@ Description: Rapid realistic routing on multimodal transport networks (walk,
              <https://github.com/conveyal/r5>. The package allows users to 
              generate detailed routing analysis or calculate travel time matrices
              using seamless parallel computing on top of the R5 Java machine.
-Date: 2021-01-07
+Date: 2021-01-08
 URL: https://github.com/ipeaGIT/r5r
 BugReports: https://github.com/ipeaGIT/r5r/issues
 License: MIT + file LICENSE
@@ -30,7 +30,7 @@ SystemRequirements: Java JDK (>= 11.0)
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2021-01-07 12:09:06 UTC; user
+Packaged: 2021-01-08 12:05:11 UTC; user
 Author: Marcus Saraiva [aut] (<https://orcid.org/0000-0001-6218-2338>),
   Rafael H. M. Pereira [aut, cre]
     (<https://orcid.org/0000-0003-2125-7465>),
@@ -41,4 +41,4 @@ Author: Marcus Saraiva [aut] (<https://orcid.org/0000-0001-6218-2338>),
   Ipea - Institue for Applied Economic Research [cph, fnd]
 Maintainer: Rafael H. M. Pereira <rafa.pereira.br@gmail.com>
 Repository: CRAN
-Date/Publication: 2021-01-07 16:10:06 UTC
+Date/Publication: 2021-01-08 16:10:03 UTC

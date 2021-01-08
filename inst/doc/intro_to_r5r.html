@@ -12,7 +12,7 @@
 
 <meta name="author" content="Rafael H. M. Pereira, Marcus Saraiva, Daniel Herszenhut, Carlos Kaue Braga" />
 
-<meta name="date" content="2021-01-07" />
+<meta name="date" content="2021-01-08" />
 
 <title>r5r: Rapid Realistic Routing with R5 in R</title>
 
@@ -339,7 +339,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">r5r: Rapid Realistic Routing with R5 in R</h1>
 <h4 class="author">Rafael H. M. Pereira, Marcus Saraiva, Daniel Herszenhut, Carlos Kaue Braga</h4>
-<h4 class="date">2021-01-07</h4>
+<h4 class="date">2021-01-08</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 <code>r5r</code> is an R package for rapid realistic routing on multimodal transport networks (walk, bike, public transport and car) using R<sup>5</sup>. The package allows users to generate detailed routing analysis or calculate travel time matrices using seamless parallel computing on top of the R<sup>5</sup> Java machine <a href="https://github.com/conveyal/r5" class="uri">https://github.com/conveyal/r5</a>
@@ -413,12 +413,12 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb6-2"><a href="#cb6-2"></a>points &lt;-<span class="st"> </span>points[ <span class="kw">c</span>(<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(points), <span class="dv">10</span>, <span class="dt">replace=</span><span class="ot">TRUE</span>)), ]</span>
 <span id="cb6-3"><a href="#cb6-3"></a><span class="kw">head</span>(points)</span>
 <span id="cb6-4"><a href="#cb6-4"></a><span class="co">#&gt;                 id       lon       lat population schools</span></span>
-<span id="cb6-5"><a href="#cb6-5"></a><span class="co">#&gt; 1: 89a9012a3d3ffff -51.21209 -30.10610         27       0</span></span>
-<span id="cb6-6"><a href="#cb6-6"></a><span class="co">#&gt; 2: 89a90129cb7ffff -51.18526 -30.04461        960       0</span></span>
-<span id="cb6-7"><a href="#cb6-7"></a><span class="co">#&gt; 3: 89a90e934b7ffff -51.16207 -29.99801         14       0</span></span>
-<span id="cb6-8"><a href="#cb6-8"></a><span class="co">#&gt; 4: 89a9012b113ffff -51.17548 -30.10368          0       0</span></span>
-<span id="cb6-9"><a href="#cb6-9"></a><span class="co">#&gt; 5: 89a90128363ffff -51.19132 -30.04410        979       0</span></span>
-<span id="cb6-10"><a href="#cb6-10"></a><span class="co">#&gt; 6: 89a90129b7bffff -51.16516 -29.99914          0       0</span></span></code></pre></div>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="co">#&gt; 1: 89a90129ccbffff -51.16409 -30.04780       1685       0</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="co">#&gt; 2: 89a9012a397ffff -51.22422 -30.10506       1074       0</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="co">#&gt; 3: 89a9012865bffff -51.16245 -30.08261         34       0</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="co">#&gt; 4: 89a901285c7ffff -51.21417 -30.08236        285       0</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="co">#&gt; 5: 89a90e924cbffff -51.20497 -30.00546         76       0</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="co">#&gt; 6: 89a90e9269bffff -51.19262 -30.00097        269       0</span></span></code></pre></div>
 </div>
 <div id="build-routable-transport-network-with-setup_r5" class="section level2">
 <h2>Build routable transport network with <code>setup_r5()</code></h2>
