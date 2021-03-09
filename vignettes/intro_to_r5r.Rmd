@@ -1,16 +1,14 @@
 ---
-title: 'r5r: Rapid Realistic Routing with R5 in R'
+title: 'Intro to r5r: Rapid Realistic Routing with R5 in R'
 author: "Rafael H. M. Pereira, Marcus Saraiva, Daniel Herszenhut, Carlos Kaue Braga"
 date: "`r Sys.Date()`"
-output:
-  rmarkdown::html_vignette: default
-  github_document: default
+output: rmarkdown::html_vignette
 abstract: "`r5r` is an R package for rapid realistic routing on multimodal transport networks (walk, bike, public transport and car) using R<sup>5</sup>. The package allows users to generate detailed routing analysis or calculate travel time matrices using seamless parallel computing on top of the R<sup>5</sup> Java machine <https://github.com/conveyal/r5>"
 urlcolor: blue
 vignette: >
-  %\VignetteIndexEntry{r5r-intro} 
-  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Intro to r5r: Rapid Realistic Routing with R5 in R} 
   %\VignetteEngine{knitr::rmarkdown} 
+  \usepackage[utf8]{inputenc}
 ---
 
 ```{r, include = FALSE}
@@ -18,6 +16,18 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
+# removes files created by 'setup_r5()'
+data_path <- system.file("extdata/poa", package = "r5r")
+existing_files <- list.files(data_path)
+files_to_keep <- c(
+  "poa_hexgrid.csv", 
+  "poa_osm.pbf", 
+  "poa_points_of_interest.csv", 
+  "poa.zip"
+)
+files_to_remove <- existing_files[! existing_files %in% files_to_keep]
+invisible(file.remove(file.path(data_path, files_to_remove)))
 ```
 
 # Introduction 
@@ -49,7 +59,7 @@ Note: It's very important to allocate enough memory before attaching `r5r` or an
 
 Then we can load the packages used in this vignette:
 
-```{r, message = FALSE}
+```{r, message = FALSE, warning = FALSE}
 library(r5r)
 library(sf)
 library(data.table)
@@ -78,6 +88,7 @@ To illustrate functionality, the package includes a small sample data for the ci
 * A public transport feed in `GTFS.zip` format;
 * A *points of interest* file, in `.csv` format, containing the names and spatial coordinates of 15 places within Porto Alegre;
 * The spatial coordinates of a regular hexagonal grid covering the sample area, in a `.csv` file, which can be used as origin/destination pairs in a travel time matrix calculation.
+
 
 ```{r}
 data_path <- system.file("extdata/poa", package = "r5r")
@@ -159,11 +170,11 @@ departure_datetime <- as.POSIXct("13-05-2019 14:00:00",
 
 # calculate detailed itineraries
 dit <- detailed_itineraries(r5r_core = r5r_core,
-                            origins,
-                            destinations,
-                            mode,
-                            departure_datetime,
-                            max_walk_dist,
+                            origins = origins,
+                            destinations = destinations,
+                            mode = mode,
+                            departure_datetime = departure_datetime,
+                            max_walk_dist = max_walk_dist,
                             shortest_path = FALSE,
                             verbose = FALSE)
 

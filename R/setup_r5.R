@@ -18,7 +18,7 @@
 #'
 #' @return An rJava object to connect with R5 routing engine
 #' @family setup
-#' @examples \dontrun{
+#' @examples \dontrun{ if (interactive()) {
 #'
 #' library(r5r)
 #'
@@ -27,7 +27,7 @@
 #'
 #' r5r_core <- setup_r5(data_path = path, temp_dir = TRUE)
 #'
-#' }
+#' } }
 #' @export
 
 setup_r5 <- function(data_path,
@@ -43,11 +43,14 @@ setup_r5 <- function(data_path,
     rJava::.jinit()
     ver <- rJava::.jcall("java.lang.System","S","getProperty","java.version")
     ver <- as.numeric(gsub("\\..*","",ver))
-    if (ver < 11){stop("This package requires the Java SE Development Kit 11.0.8
-                        or higher. Please update your Java installation. The jdk
-                        11.0.8 can be freely downloaded from
-                        https://www.oracle.com/java/technologies/javase-jdk11-downloads.html")}
-
+    if (ver < 11){
+      stop(
+        "This package requires the Java SE Development Kit 11.\n",
+        "Please update your Java installation. The jdk 11 can be downloaded from either:\n",
+        "  - openjdk: https://jdk.java.net/java-se-ri/11\n",
+        "  - oracle: https://www.oracle.com/java/technologies/javase-jdk11-downloads.html"
+      )
+    }
 
   # check directory input
   if (is.null(data_path)){ stop("Please provide data_path.")}
@@ -86,7 +89,7 @@ setup_r5 <- function(data_path,
   }
 
   # start R5 JAR
-  r5r_jar <- file.path(.libPaths()[1], "r5r", "jar", "r5r_0_3_0.jar")
+  r5r_jar <- file.path(.libPaths()[1], "r5r", "jar", "r5r_0_3_4.jar")
 
   rJava::.jaddClassPath(path = r5r_jar)
   rJava::.jaddClassPath(path = jar_file)

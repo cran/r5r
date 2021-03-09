@@ -131,6 +131,7 @@ posix_to_string <- function(datetime) {
   checkmate::assert_posixct(datetime)
 
   tz = attr(datetime, "tzone")
+  if(is.null(tz)){tz <- ""}
 
   datetime_list <- list(
     date = strftime(datetime, format = "%Y-%m-%d", tz = tz),
@@ -170,8 +171,7 @@ assert_points_input <- function(df, name) {
       data.table::setDT(df)
       data.table::setnames(df, "x", "lon")
       data.table::setnames(df, "y", "lat")
-      data.table::setnames(df, names(df)[1], "id")
-
+      checkmate::assert_names(names(df), must.include = c("id"), .var.name = name)
     }
 
     checkmate::assert_names(names(df), must.include = c("id", "lat", "lon"), .var.name = name)
@@ -269,11 +269,39 @@ set_max_rides <- function(r5r_core, max_rides) {
   # R5 defaults maxTransfers to 8L
   if (is.infinite(max_rides)) max_rides <- 8L
 
-  r5r_core$setMaxTransfers(as.integer(max_rides))
+  r5r_core$setMaxRides(as.integer(max_rides))
 
 }
 
+#' Set suboptimal minutes
+#'
+#' @description Set suboptimalMinutes parameter in R5.
+#'
+#' @param r5r_core rJava object to connect with R5 routing engine
+#' @param suboptimal_minutes numeric. The number of suboptimal minutes in a public transport
+#'                  point-to-point query. From R5's documentation:
+#'                  This parameter compensates for the fact that GTFS does not
+#'                  contain information about schedule deviation (lateness).
+#'                  The min-max travel time range for some trains is zero, since
+#'                  the trips are reported to always have the same timings in the
+#'                  schedule. Such an option does not overlap (temporally) its
+#'                  alternatives, and is too easily eliminated by an alternative
+#'                  that is only marginally better. We want to effectively push
+#'                  the max travel time of alternatives out a bit to account for
+#'                  the fact that they don't always run on schedule.
+#'
+#' @family support functions
 
+set_suboptimal_minutes <- function(r5r_core, suboptimal_minutes) {
+
+  checkmate::assert_numeric(suboptimal_minutes)
+
+  # R5 defaults subOptimalMinutes to 5L
+  if (is.infinite(suboptimal_minutes)) suboptimal_minutes <- 5L
+
+  r5r_core$setSuboptimalMinutes(as.integer(suboptimal_minutes))
+
+}
 
 
 
@@ -284,7 +312,7 @@ set_max_rides <- function(r5r_core, max_rides) {
 download_metadata <- function(){
 
   # create tempfile to save metadata
-  metadata_file <- file.path(tempdir(), "metadata.csv")
+  metadata_file <- file.path(tempdir(), "metadata_r5r.csv")
 
   # IF metadata has been downloaded before
   if (checkmate::test_file_exists(metadata_file)) {

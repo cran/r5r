@@ -4,6 +4,18 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
+# removes files created by 'setup_r5()'
+data_path <- system.file("extdata/poa", package = "r5r")
+existing_files <- list.files(data_path)
+files_to_keep <- c(
+  "poa_hexgrid.csv", 
+  "poa_osm.pbf", 
+  "poa_points_of_interest.csv", 
+  "poa.zip"
+)
+files_to_remove <- existing_files[! existing_files %in% files_to_keep]
+invisible(file.remove(file.path(data_path, files_to_remove)))
+
 ## ---- eval = FALSE------------------------------------------------------------
 #  # CRAN
 #  install.packages('r5r')
@@ -14,7 +26,7 @@ knitr::opts_chunk$set(
 ## ---- message = FALSE, eval = FALSE-------------------------------------------
 #  options(java.parameters = "-Xmx2G")
 
-## ---- message = FALSE---------------------------------------------------------
+## ---- message = FALSE, warning = FALSE----------------------------------------
 library(r5r)
 library(sf)
 library(data.table)
@@ -73,11 +85,11 @@ knitr::include_graphics("https://github.com/ipeaGIT/r5r/blob/master/r-package/in
 #  
 #  # calculate detailed itineraries
 #  dit <- detailed_itineraries(r5r_core = r5r_core,
-#                              origins,
-#                              destinations,
-#                              mode,
-#                              departure_datetime,
-#                              max_walk_dist,
+#                              origins = origins,
+#                              destinations = destinations,
+#                              mode = mode,
+#                              departure_datetime = departure_datetime,
+#                              max_walk_dist = max_walk_dist,
 #                              shortest_path = FALSE,
 #                              verbose = FALSE)
 #  

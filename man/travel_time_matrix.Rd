@@ -80,7 +80,9 @@ or FALSE to show only eventual ERROR messages.}
 }
 \value{
 A data.table with travel time estimates (in minutes) between origin
-destination pairs by a given transport mode.
+destination pairs by a given transport mode. Note that origins/destinations
+that were beyond the maximum travel time, and/or origins that were far from
+the street network are not returned in the data.table.
 }
 \description{
 Fast computation of travel time estimates between one or
@@ -117,7 +119,7 @@ routing. Transportation Science, 49(3), 591-604.
 }
 
 \examples{
-\donttest{
+\dontrun{ if (interactive()) {
 library(r5r)
 
 # build transport network
@@ -140,7 +142,7 @@ ttm <- travel_time_matrix(r5r_core,
 
 stop_r5(r5r_core)
 
-}
+} }
 }
 \seealso{
 Other routing: 
