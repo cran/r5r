@@ -10,11 +10,14 @@ stop_r5(...)
 \item{...}{\code{r5r_core} objects currently running. By default, if no cores
 are supplied all running cores are stopped.}
 }
+\value{
+No return value, called for side effects.
+}
 \description{
 Stops running r5r cores.
 }
 \examples{
-\dontrun{ if (interactive()) {
+if (interactive()) {
   library(r5r)
 
   path <- system.file("extdata/poa", package = "r5r")
@@ -22,6 +25,23 @@ Stops running r5r cores.
   r5r_core <- setup_r5(data_path = path)
 
   stop_r5(r5r_core)
-} }
+}
 
 }
+\seealso{
+Other support functions: 
+\code{\link{assert_points_input}()},
+\code{\link{check_connection}()},
+\code{\link{download_metadata}()},
+\code{\link{posix_to_string}()},
+\code{\link{select_mode}()},
+\code{\link{set_max_lts}()},
+\code{\link{set_max_rides}()},
+\code{\link{set_max_street_time}()},
+\code{\link{set_n_threads}()},
+\code{\link{set_speed}()},
+\code{\link{set_suboptimal_minutes}()},
+\code{\link{set_verbose}()},
+\code{\link{street_network_to_sf}()}
+}
+\concept{support functions}

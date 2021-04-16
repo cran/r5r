@@ -11,19 +11,26 @@ set_verbose(r5r_core, verbose)
 
 \item{verbose}{logical, passed from function above}
 }
+\value{
+No return value, called for side effects.
+}
 \description{
 Set verbose argument
 }
 \seealso{
 Other support functions: 
 \code{\link{assert_points_input}()},
+\code{\link{check_connection}()},
+\code{\link{download_metadata}()},
 \code{\link{posix_to_string}()},
 \code{\link{select_mode}()},
+\code{\link{set_max_lts}()},
 \code{\link{set_max_rides}()},
 \code{\link{set_max_street_time}()},
 \code{\link{set_n_threads}()},
 \code{\link{set_speed}()},
 \code{\link{set_suboptimal_minutes}()},
+\code{\link{stop_r5}()},
 \code{\link{street_network_to_sf}()}
 }
 \concept{support functions}

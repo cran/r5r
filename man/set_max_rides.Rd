@@ -12,19 +12,26 @@ set_max_rides(r5r_core, max_rides)
 \item{max_rides}{numeric. The max number of public transport rides
 allowed in the same trip. Passed from routing function.}
 }
+\value{
+No return value, called for side effects.
+}
 \description{
 Set maxTransfers parameter in R5.
 }
 \seealso{
 Other support functions: 
 \code{\link{assert_points_input}()},
+\code{\link{check_connection}()},
+\code{\link{download_metadata}()},
 \code{\link{posix_to_string}()},
 \code{\link{select_mode}()},
+\code{\link{set_max_lts}()},
 \code{\link{set_max_street_time}()},
 \code{\link{set_n_threads}()},
 \code{\link{set_speed}()},
 \code{\link{set_suboptimal_minutes}()},
 \code{\link{set_verbose}()},
+\code{\link{stop_r5}()},
 \code{\link{street_network_to_sf}()}
 }
 \concept{support functions}

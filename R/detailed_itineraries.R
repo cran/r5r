@@ -24,6 +24,11 @@
 #' @param bike_speed numeric. Average cycling speed in km/h. Defaults to 12 km/h.
 #' @param max_rides numeric. The max number of public transport rides allowed in
 #'                  the same trip. Defaults to 3.
+#' @param max_lts  numeric (between 1 and 4). The maximum level of traffic stress
+#'                 that cyclists will tolerate. A value of 1 means cyclists will
+#'                 only travel through the quietest streets, while a value of 4
+#'                 indicates cyclists can travel through any road. Defaults to 2.
+#'                 See details for more information.
 #' @param shortest_path logical. Whether the function should only return the
 #'                      fastest route alternative (the default) or multiple
 #'                      alternatives.
@@ -34,8 +39,9 @@
 #' @param drop_geometry logical. Indicates whether R5 should drop segment's
 #'                      geometry column. It can be helpful for saving memory.
 #'
-#' @details R5 allows for multiple combinations of transport modes. The options
-#'          include:
+#' @details
+#'  # Transpor modes:
+#'  R5 allows for multiple combinations of transport modes. The options include:
 #'
 #'   ## Transit modes
 #'   TRAM, SUBWAY, RAIL, BUS, FERRY, CABLE_CAR, GONDOLA, FUNICULAR. The option
@@ -44,6 +50,28 @@
 #'   ## Non transit modes
 #'   WALK, BICYCLE, CAR, BICYCLE_RENT, CAR_PARK
 #'
+#' # max_lts, Maximum Level of Traffic Stress:
+#' When cycling is enabled in R5, setting `max_lts` will allow cycling only on
+#' streets with a given level of danger/stress. Setting `max_lts` to 1, for example,
+#' will allow cycling only on separated bicycle infrastructure or low-traffic
+#' streets; routing will revert to walking when traversing any links with LTS
+#' exceeding 1. Setting `max_lts` to 3 will allow cycling on links with LTS 1, 2,
+#' or 3.
+#'
+#' The default methodology for assigning LTS values to network edges is based on
+#' commonly tagged attributes of OSM ways. See more info about LTS at
+#' \url{https://docs.conveyal.com/learn-more/traffic-stress}. In summary:
+#'
+#'- **LTS 1**: Tolerable for children. This includes low-speed, low-volume streets,
+#'  as well as those with separated bicycle facilities (such as parking-protected
+#'  lanes or cycle tracks).
+#'- **LTS 2**: Tolerable for the mainstream adult population. This includes streets
+#'  where cyclists have dedicated lanes and only have to interact with traffic at
+#'  formal crossing.
+#'- **LTS 3**: Tolerable for “enthused and confident” cyclists. This includes streets
+#'  which may involve close proximity to moderate- or high-speed vehicular traffic.
+#'- **LTS 4**: Tolerable for only “strong and fearless” cyclists. This includes streets
+#'  where cyclists are required to mix with moderate- to high-speed vehicular traffic.
 #'
 #' # Routing algorithm:
 #'  The detailed_itineraries function uses an R5-specific extension to the
@@ -61,7 +89,7 @@
 #'
 #' @family routing
 #'
-#' @examples \dontrun{ if (interactive()) {
+#' @examples if (interactive()) {
 #' library(r5r)
 #'
 #' # build transport network
@@ -83,7 +111,7 @@
 #'                             max_trip_duration = 120L)
 #'
 #' stop_r5(r5r_core)
-#' } }
+#' }
 #' @export
 
 detailed_itineraries <- function(r5r_core,
@@ -97,6 +125,7 @@ detailed_itineraries <- function(r5r_core,
                                  walk_speed = 3.6,
                                  bike_speed = 12,
                                  max_rides = 3,
+                                 max_lts = 2,
                                  shortest_path = TRUE,
                                  n_threads = Inf,
                                  verbose = TRUE,
@@ -185,6 +214,9 @@ detailed_itineraries <- function(r5r_core,
 
   # set max transfers
   set_max_rides(r5r_core, max_rides)
+
+  # max_lts
+  set_max_lts(r5r_core, max_lts)
 
   # set suboptimal minutes
   # if only the shortest path is requested, set suboptimal minutes to 0 minutes,

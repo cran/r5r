@@ -16,19 +16,26 @@ Passed from routing functions.}
 \item{max_trip_duration}{numeric, Maximum trip duration in seconds. Defaults
 to 120 minutes (2 hours). Passed from routing functions.}
 }
+\value{
+An \code{integer} representing the maximum number of minutes walking
+}
 \description{
 Set max street time
 }
 \seealso{
 Other support functions: 
 \code{\link{assert_points_input}()},
+\code{\link{check_connection}()},
+\code{\link{download_metadata}()},
 \code{\link{posix_to_string}()},
 \code{\link{select_mode}()},
+\code{\link{set_max_lts}()},
 \code{\link{set_max_rides}()},
 \code{\link{set_n_threads}()},
 \code{\link{set_speed}()},
 \code{\link{set_suboptimal_minutes}()},
 \code{\link{set_verbose}()},
+\code{\link{stop_r5}()},
 \code{\link{street_network_to_sf}()}
 }
 \concept{support functions}
