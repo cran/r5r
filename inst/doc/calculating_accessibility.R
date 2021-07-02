@@ -28,7 +28,7 @@ knitr::opts_chunk$set(
 #  # routing inputs
 #  mode <- c("WALK", "TRANSIT")
 #  max_walk_dist <- 1000 # in meters
-#  max_trip_duration <- 60 # in minutes
+#  travel_time_cutoff <- 21 # in minutes
 #  departure_datetime <- as.POSIXct("13-05-2019 14:00:00",
 #                                   format = "%d-%m-%Y %H:%M:%S")
 #  
@@ -36,38 +36,34 @@ knitr::opts_chunk$set(
 #  percentiles <- 50
 #  
 #  # calculate travel time matrix
-#  ttm <- travel_time_matrix(r5r_core,
-#                            origins = points,
-#                            destinations = points,
-#                            mode = mode,
-#                            departure_datetime = departure_datetime,
-#                            max_walk_dist = max_walk_dist,
-#                            max_trip_duration = max_trip_duration,
-#                            time_window = time_window,
-#                            percentiles = percentiles,
-#                            verbose = FALSE)
+#  access <- accessibility(r5r_core,
+#                          origins = points,
+#                          destinations = points,
+#                          mode = mode,
+#                          opportunities_colname = "schools",
+#                          decay_function = "step",
+#                          cutoffs = travel_time_cutoff,
+#                          departure_datetime = departure_datetime,
+#                          max_walk_dist = max_walk_dist,
+#                          time_window = time_window,
+#                          percentiles = percentiles,
+#                          verbose = FALSE)
 #  
-#  head(ttm)
-#  #>             fromId            toId travel_time
-#  #> 1: 89a901291abffff 89a901291abffff           2
-#  #> 2: 89a901291abffff 89a901295b7ffff          45
-#  #> 3: 89a901291abffff 89a9012809bffff          49
-#  #> 4: 89a901291abffff 89a901285cfffff          38
-#  #> 5: 89a901291abffff 89a90129977ffff          52
-#  #> 6: 89a901291abffff 89a90128e27ffff          48
-
-## ---- message = FALSE, eval = FALSE-------------------------------------------
-#  # merge schools information to travel time matrix
-#  ttm[points, on=c('toId' ='id'), schools := i.schools]
 #  
-#  # calculate number of schools accessible
-#  access <- ttm[travel_time <= 20, .(acc = sum(schools)), by=fromId]
+#  head(access)
+#  #>            from_id percentile cutoff accessibility
+#  #> 1: 89a901291abffff         50     21             3
+#  #> 2: 89a9012a3cfffff         50     21             0
+#  #> 3: 89a901295b7ffff         50     21             6
+#  #> 4: 89a901284a3ffff         50     21             1
+#  #> 5: 89a9012809bffff         50     21             5
+#  #> 6: 89a901285cfffff         50     21             3
 
 ## ---- message = FALSE, eval = FALSE-------------------------------------------
 #  # interpolate estimates to get spatially smooth result
 #  access.interp <- access %>%
-#    inner_join(points, by=c('fromId'='id')) %>%
-#    with(interp(lon, lat, acc)) %>%
+#    inner_join(points, by=c('from_id'='id')) %>%
+#    with(interp(lon, lat, accessibility)) %>%
 #                          with(cbind(acc=as.vector(z),  # Column-major order
 #                                     x=rep(x, times=length(y)),
 #                                     y=rep(y, each=length(x)))) %>% as.data.frame() %>% na.omit()
@@ -82,7 +78,7 @@ knitr::opts_chunk$set(
 #  # plot
 #  ggplot(na.omit(access.interp)) +
 #    geom_contour_filled(aes(x=x, y=y, z=acc), alpha=.8) +
-#    geom_sf(data = street_net$edges, color = "gray55", size=0.1, alpha = 0.7) +
+#    geom_sf(data = street_net$edges, color = "gray55", size=0.1, alpha = 0.9) +
 #    scale_fill_viridis_d(direction = -1, option = 'B') +
 #    scale_x_continuous(expand=c(0,0)) +
 #    scale_y_continuous(expand=c(0,0)) +

@@ -12,6 +12,7 @@ detailed_itineraries(
   mode_egress = "WALK",
   departure_datetime = Sys.time(),
   max_walk_dist = Inf,
+  max_bike_dist = Inf,
   max_trip_duration = 120L,
   walk_speed = 3.6,
   bike_speed = 12,
@@ -45,6 +46,10 @@ the GTFS file for valid dates.}
 whole trip. Defaults to no restrictions on walking, as
 long as \code{max_trip_duration} is respected.}
 
+\item{max_bike_dist}{numeric. Maximum cycling distance (in meters) for the
+whole trip. Defaults to no restrictions on cycling, as
+long as \code{max_trip_duration} is respected.}
+
 \item{max_trip_duration}{numeric. Maximum trip duration in minutes. Defaults
 to 120 minutes (2 hours).}
 
@@ -68,8 +73,10 @@ alternatives.}
 \item{n_threads}{numeric. The number of threads to use in parallel computing.
 Defaults to use all available threads (Inf).}
 
-\item{verbose}{logical. TRUE to show detailed output messages (the default)
-or FALSE to show only eventual ERROR messages.}
+\item{verbose}{logical. \code{TRUE} to show detailed output messages (the default).
+If verbose is set to \code{FALSE}, r5r prints a progress counter and
+eventual \code{ERROR} messages. Setting \code{verbose} to  \code{FALSE} imposes
+a small penalty for computation efficiency.}
 
 \item{drop_geometry}{logical. Indicates whether R5 should drop segment's
 geometry column. It can be helpful for saving memory.}
@@ -83,7 +90,7 @@ and travel times are in minutes.
 Fast computation of (multiple) detailed itineraries between one
 or many origin destination pairs.
 }
-\section{Transpor modes:}{
+\section{Transport modes:}{
 R5 allows for multiple combinations of transport modes. The options include:
 \subsection{Transit modes}{
 
@@ -162,6 +169,7 @@ stop_r5(r5r_core)
 }
 \seealso{
 Other routing: 
+\code{\link{accessibility}()},
 \code{\link{travel_time_matrix}()}
 }
 \concept{routing}
