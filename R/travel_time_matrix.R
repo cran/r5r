@@ -4,8 +4,9 @@
 #'              multiple origin destination pairs.
 #'
 #' @param r5r_core a rJava object to connect with R5 routing engine
-#' @param origins,destinations a spatial sf POINT object, or a data.frame
-#'                containing the columns 'id', 'lon', 'lat'
+#' @param origins,destinations a spatial sf POINT object with WGS84 CRS, or a
+#'                             data.frame containing the columns 'id', 'lon',
+#'                             'lat'.
 #' @param mode string. Transport modes allowed for the trips. Defaults to
 #'             "WALK". See details for other options.
 #' @param mode_egress string. Transport mode used after egress from public
@@ -13,14 +14,15 @@
 #'                    Defaults to "WALK".
 #' @param departure_datetime POSIXct object. If working with public transport
 #'                           networks, please check \code{calendar.txt} within
-#'                           the GTFS file for valid dates.
+#'                           the GTFS file for valid dates. See details for
+#'                           further information on how datetimes are parsed.
 #' @param time_window numeric. Time window in minutes for which r5r will
 #'                    calculate multiple travel time matrices departing each
 #'                    minute. By default, the number of simulations is 5 times
 #'                    the size of 'time_window' set by the user. Defaults window
-#'                    size to '1', the function only considers 5 departure times.
-#'                    This parameter is only used with frequency-based GTFS files.
-#'                    See details for further information.
+#'                    size to '1', the function only considers 5 departure
+#'                    times. This parameter is only used with frequency-based
+#'                    GTFS files. See details for further information.
 #' @param percentiles numeric vector. Defaults to '50', returning the median
 #'                    travel time for a given time_window. If a numeric vector is passed,
 #'                    for example c(25, 50, 75), the function will return
@@ -31,12 +33,43 @@
 #'                    than 15 minutes. Only the first 5 cut points of the percentiles
 #'                    are considered. For more details, see R5 documentation at
 #'                    'https://docs.conveyal.com/analysis/methodology#accounting-for-variability'
-#' @param max_walk_dist numeric. Maximum walking distance (in meters) for the
-#'                      whole trip. Defaults to no restrictions on walking, as
-#'                      long as \code{max_trip_duration} is respected.
-#' @param max_bike_dist numeric. Maximum cycling distance (in meters) for the
-#'                      whole trip. Defaults to no restrictions on cycling, as
-#'                      long as \code{max_trip_duration} is respected.
+#' @param breakdown logic. If `FALSE` (default), the function returns a simple
+#'                  output with columns origin, destination and travel time
+#'                  percentiles. If `TRUE`, r5r breaks down the trip information
+#'                  and returns more columns with estimates of `access_time`,
+#'                  `waiting_time`, `ride_time`, `transfer_time`, `total_time` , `n_rides`
+#'                  and `route`. Warning: Setting `TRUE` makes the function
+#'                  significantly slower.
+#'
+#' @param breakdown_stat string. If `min`, all the brokendown trip informantion
+#'        is based on the trip itinerary with the smallest waiting time in the
+#'        time window. If `breakdown_stat = mean`, the information is based on
+#'        the trip itinerary whose waiting time is the closest to the average
+#'        waiting time in the time window.
+#' @param max_walk_dist numeric. Maximum walking distance (in meters) to access
+#'                      and egress the transit network, or to make transfers
+#'                      within the network. Defaults to no restrictions as long
+#'                      as `max_trip_duration` is respected. The max distance is
+#'                      considered separately for each leg (e.g. if you set
+#'                      `max_walk_dist` to 1000, you could potentially walk up
+#'                      to 1 km to reach transit, and up to _another_  1 km to
+#'                      reach the destination after leaving transit). Obs: if you
+#'                      want to set the maximum walking distance considering
+#'                      walking-only trips you have to set the `max_trip_duration`
+#'                      accordingly (e.g. to set a distance of 1 km assuming a
+#'                      walking speed of 3.6 km/h you have to set `max_trip_duration = 1 / 3.6 * 60`).
+#' @param max_bike_dist numeric. Maximum cycling distance (in meters) to access
+#'                      and egress the transit network. Defaults to no
+#'                      restrictions as long as `max_trip_duration` is respected.
+#'                      The max distance is considered separately for each leg
+#'                      (e.g. if you set `max_bike_dist` to 1000, you could
+#'                      potentially cycle up to 1 km to reach transit, and up
+#'                      to _another_ 1 km to reach the destination after leaving
+#'                      transit). Obs: if you want to set the maximum cycling
+#'                      distance considering cycling-only trips you have to set
+#'                      the `max_trip_duration` accordingly (e.g. to set a
+#'                      distance of 5 km assuming a cycling speed of 12 km/h you
+#'                      have to set `max_trip_duration = 5 / 12 * 60`).
 #' @param max_trip_duration numeric. Maximum trip duration in minutes. Defaults
 #'                          to 120 minutes (2 hours).
 #' @param walk_speed numeric. Average walk speed in km/h. Defaults to 3.6 km/h.
@@ -51,9 +84,12 @@
 #' @param n_threads numeric. The number of threads to use in parallel computing.
 #'                  Defaults to use all available threads (Inf).
 #' @param verbose logical. `TRUE` to show detailed output messages (the default).
-#'                If verbose is set to `FALSE`, r5r prints a progress counter and
-#'                eventual `ERROR` messages. Setting `verbose` to  `FALSE` imposes
-#'                a small penalty for computation efficiency.
+#' @param progress logical. `TRUE` to show a progress counter. Only works when
+#'                `verbose` is set to `FALSE`, so the progress counter does not
+#'                interfere with R5's output messages. Setting `progress` to `TRUE`
+#'                may impose a small penalty for computation efficiency, because
+#'                the progress counter must be synchronized among all active
+#'                threads.
 #'
 #' @return A data.table with travel time estimates (in minutes) between origin
 #' destination pairs by a given transport mode. Note that origins/destinations
@@ -80,8 +116,9 @@
 #' or 3.
 #'
 #' The default methodology for assigning LTS values to network edges is based on
-#' commonly tagged attributes of OSM ways. See more info about LTS at
-#' \url{https://docs.conveyal.com/learn-more/traffic-stress}. In summary:
+#' commonly tagged attributes of OSM ways. See more info about LTS in the original
+#' documentation of R5 from Conveyal at \url{https://docs.conveyal.com/learn-more/traffic-stress}.
+#' In summary:
 #'
 #'- **LTS 1**: Tolerable for children. This includes low-speed, low-volume streets,
 #'  as well as those with separated bicycle facilities (such as parking-protected
@@ -93,6 +130,9 @@
 #'  which may involve close proximity to moderate- or high-speed vehicular traffic.
 #'- **LTS 4**: Tolerable for only “strong and fearless” cyclists. This includes streets
 #'  where cyclists are required to mix with moderate- to high-speed vehicular traffic.
+#'
+#'  For advanced users, you can provide custom LTS values by adding a tag
+#'  <key = "lts> to the `osm.pbf` file
 #'
 #' # Routing algorithm:
 #' The travel_time_matrix function uses an R5-specific extension to the RAPTOR
@@ -107,13 +147,25 @@
 #'  - Delling, D., Pajor, T., & Werneck, R. F. (2015). Round-based public transit
 #'  routing. Transportation Science, 49(3), 591-604.
 #'
+#' # Datetime parsing
+#'
+#' `r5r` ignores the timezone attribute of datetime objects when parsing dates
+#' and times, using the study area's timezone instead. For example, let's say
+#' you are running some calculations using Rio de Janeiro, Brazil, as your study
+#' area. The datetime `as.POSIXct("13-05-2019 14:00:00",
+#' format = "%d-%m-%Y %H:%M:%S")` will be parsed as May 13th, 2019, 14:00h in
+#' Rio's local time, as expected. But `as.POSIXct("13-05-2019 14:00:00",
+#' format = "%d-%m-%Y %H:%M:%S", tz = "Europe/Paris")` will also be parsed as
+#' the exact same date and time in Rio's local time, perhaps surprisingly,
+#' ignoring the timezone attribute.
+#'
 #' @family routing
 #' @examples if (interactive()) {
 #' library(r5r)
 #'
 #' # build transport network
 #' data_path <- system.file("extdata/spo", package = "r5r")
-#' r5r_core <- setup_r5(data_path = data_path)
+#' r5r_core <- setup_r5(data_path = data_path, temp_dir = TRUE)
 #'
 #' # load origin/destination points
 #' points <- read.csv(file.path(data_path, "spo_hexgrid.csv"))[1:5,]
@@ -142,6 +194,8 @@ travel_time_matrix <- function(r5r_core,
                                departure_datetime = Sys.time(),
                                time_window = 1L,
                                percentiles = 50L,
+                               breakdown = FALSE,
+                               breakdown_stat = "MEAN",
                                max_walk_dist = Inf,
                                max_bike_dist = Inf,
                                max_trip_duration = 120L,
@@ -150,7 +204,8 @@ travel_time_matrix <- function(r5r_core,
                                max_rides = 3,
                                max_lts = 2,
                                n_threads = Inf,
-                               verbose = TRUE) {
+                               verbose = TRUE,
+                               progress = TRUE) {
 
 
   # set data.table options --------------------------------------------------
@@ -178,7 +233,7 @@ travel_time_matrix <- function(r5r_core,
   departure <- posix_to_string(departure_datetime)
 
   # max trip duration
-  checkmate::assert_numeric(max_trip_duration)
+  checkmate::assert_numeric(max_trip_duration, lower=1)
   max_trip_duration <- as.integer(max_trip_duration)
 
   # max_walking_distance, max_bike_distance, and max_street_time
@@ -193,9 +248,11 @@ travel_time_matrix <- function(r5r_core,
   origins      <- assert_points_input(origins, "origins")
   destinations <- assert_points_input(destinations, "destinations")
 
+  checkmate::assert_subset("id", names(origins))
+  checkmate::assert_subset("id", names(destinations))
 
   # time window
-  checkmate::assert_numeric(time_window)
+  checkmate::assert_numeric(time_window, lower=1)
   time_window <- as.integer(time_window)
   draws <- time_window *5
   draws <- as.integer(draws)
@@ -206,6 +263,10 @@ travel_time_matrix <- function(r5r_core,
   checkmate::assert_numeric(percentiles)
   percentiles <- as.integer(percentiles)
 
+  # travel times breakdown
+  checkmate::assert_logical(breakdown)
+  breakdown_stat <- assert_breakdown_stat(breakdown_stat)
+
 
   # set r5r_core options ----------------------------------------------------
 
@@ -213,6 +274,10 @@ travel_time_matrix <- function(r5r_core,
   r5r_core$setTimeWindowSize(time_window)
   r5r_core$setPercentiles(percentiles)
   r5r_core$setNumberOfMonteCarloDraws(draws)
+
+  # travel times breakdown
+  r5r_core$setTravelTimesBreakdown(breakdown)
+  r5r_core$setTravelTimesBreakdownStat(breakdown_stat)
 
   # set bike and walk speed
   set_speed(r5r_core, walk_speed, "walk")
@@ -230,6 +295,8 @@ travel_time_matrix <- function(r5r_core,
   # set verbose
   set_verbose(r5r_core, verbose)
 
+  # set progress
+  set_progress(r5r_core, progress)
 
   # call r5r_core method ----------------------------------------------------
 
@@ -253,20 +320,22 @@ travel_time_matrix <- function(r5r_core,
   # process results ---------------------------------------------------------
 
   # convert travel_times from java object to data.table
-  travel_times <- jdx::convertToR(travel_times)
-  travel_times <- data.table::rbindlist(travel_times)
+  if (!verbose & progress) { cat("Preparing final output...") }
 
-  # convert eventual list columns to integer
-  for(j1 in seq_along(travel_times)) {
-    cl1 <- class(travel_times[[j1]])
-    if(cl1 == 'list') {
-      data.table::set(travel_times, i = NULL, j = j1, value = unlist(travel_times[[j1]]))}
+  travel_times <- java_to_dt(travel_times)
+
+  # only perform following operations when result is not empty
+  if (nrow(travel_times) > 0) {
+    # replace travel-times of nonviable trips with NAs
+    #   the first column with travel time information is column 3, because
+    #     columns 1 and 2 contain the id's of OD point (hence from = 3)
+    #   the percentiles parameter indicates how many travel times columns we'll,
+    #     have, with a minimum of 1 (in which case, to = 3).
+    for(j in seq(from = 3, to = (length(percentiles) + 2))){
+      data.table::set(travel_times, i=which(travel_times[[j]]>max_trip_duration), j=j, value=NA_integer_)
     }
+  }
 
-  # replace travel-times of inviable trips with NAs
-  for(j in seq(from = 3, to = length(travel_times))){
-    data.table::set(travel_times, i=which(travel_times[[j]]>max_trip_duration), j=j, value=NA_integer_)
-    }
-
-return(travel_times)
+  if (!verbose & progress) { cat(" DONE!\n") }
+  return(travel_times)
 }

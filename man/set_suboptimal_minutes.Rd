@@ -29,10 +29,11 @@ Set suboptimalMinutes parameter in R5.
 }
 \seealso{
 Other support functions: 
+\code{\link{assert_breakdown_stat}()},
 \code{\link{assert_decay_function}()},
 \code{\link{assert_points_input}()},
 \code{\link{check_connection}()},
-\code{\link{download_metadata}()},
+\code{\link{filename_from_metadata}()},
 \code{\link{find_snap}()},
 \code{\link{posix_to_string}()},
 \code{\link{select_mode}()},
@@ -40,9 +41,11 @@ Other support functions:
 \code{\link{set_max_rides}()},
 \code{\link{set_max_street_time}()},
 \code{\link{set_n_threads}()},
+\code{\link{set_progress}()},
 \code{\link{set_speed}()},
 \code{\link{set_verbose}()},
 \code{\link{stop_r5}()},
-\code{\link{street_network_to_sf}()}
+\code{\link{street_network_to_sf}()},
+\code{\link{transit_network_to_sf}()}
 }
 \concept{support functions}

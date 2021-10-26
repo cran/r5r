@@ -28,7 +28,7 @@
 #'
 #' # build transport network
 #' path <- system.file("extdata/spo", package = "r5r")
-#' r5r_core <- setup_r5(data_path = path)
+#' r5r_core <- setup_r5(data_path = path, temp_dir = TRUE)
 #'
 #' # load origin/destination points
 #' points <- read.csv(file.path(path, "spo_hexgrid.csv"))
@@ -60,11 +60,12 @@ find_snap <- function(r5r_core,
 
   # snap points to street network
   snap_df <- r5r_core$findSnapPoints(points$id, points$lat, points$lon, mode)
-  snap_df <- jdx::convertToR(snap_df)
-  data.table::setDT(snap_df)
+  snap_df <- java_to_dt(snap_df)
 
   snap_df[found == FALSE, `:=`(snap_lat = NA, snap_lon = NA, distance = NA)]
 
   return(snap_df)
 }
+
+
 

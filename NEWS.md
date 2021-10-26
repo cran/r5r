@@ -1,13 +1,46 @@
 # log history of r5r package development
 
 -------------------------------------------------------
-# r5r v0.5-0 (dev)
+# r5r v0.6.0 (dev)
+
+**Major changes**
+
+- Updated R5 to version 6.4. Closes [#182](https://github.com/ipeaGIT/r5r/issues/182).
+
+- Significant performance improvements in all functions, due to a faster method
+for consolidating outputs. Closes [#180](https://github.com/ipeaGIT/r5r/issues/180)
+
+- New function `transit_network_to_sf()`, to extract the public transport network 
+from R5 as simple features. Closes [#179](https://github.com/ipeaGIT/r5r/issues/179)
+
+- New `progress` parameter in the `accessibility()`, `travel_time_matrix`, and
+`detailed_itineraries()` functions, to show or hide the progress counter 
+indicator. Closes [#186](https://github.com/ipeaGIT/r5r/issues/186)
+
+- Created new support function `java_to_dt()` and removed dependency on the `jdx` package. Closes [#206](https://github.com/ipeaGIT/r5r/issues/206)
+
+- Reduced r5r's internet dependency quite considerably. Internet is now only required to download the latest R5 jar if it hasn't been downloaded before. Closes [#197](https://github.com/ipeaGIT/r5r/issues/197).
+
+- Added two new parameters `breakdown` and `breakdown_stat` to the `travel_time_matrix()`. This allows users to breakdown the travel time information by trip subcomponents (access time, waiting time, traveling time etc). It allows one to extract more information but it makes computation time slower. Closes [#194](https://github.com/ipeaGIT/r5r/issues/194)
+
+**Minor changes**
+
+- New `setup_r5()` parameter, `overwrite`, that forces the building of a new `network.dat`, even if one already exists.
+- Improved documentation of parameter `departure_datetime` to clarify the parameter must be set to local time. Closes [#188](https://github.com/ipeaGIT/r5r/issues/188)
+- Improved documentation regarding personalized LTS values. [Closes #190](https://github.com/ipeaGIT/r5r/issues/190).
+- Improved documentation of `transit_network_to_sf()` regarding stops that are not snapped to road network. [Closes #192](https://github.com/ipeaGIT/r5r/issues/192).
+- Improved documentation of `max_walking_dist` and `max_cycling_dist` parameters. [Closes #193]( https://github.com/ipeaGIT/r5r/issues/193).
+- Started raising an error if the CRS of origins/destinations is not WGS 84. Closes [#201](https://github.com/ipeaGIT/r5r/issues/201).
+
+
+
+-------------------------------------------------------
+# r5r v0.5.0
 
 **Major changes**
 - New function `accessibility()` to calculate access to opportunities. Closes [#169](https://github.com/ipeaGIT/r5r/issues/169)
 
-- New function `find_snap()` to help the used identify where in the street network
-the input of origin and destination points are snapped to. Closes [168](https://github.com/ipeaGIT/r5r/issues/168).
+- New function `find_snap()` to help users identify where in the street network the input of origin and destination points are snapped to. Closes [168](https://github.com/ipeaGIT/r5r/issues/168).
 
 - New parameter `max_bike_dist` added to routing and accessibility functions. Closes [#174](https://github.com/ipeaGIT/r5r/issues/174)
 
@@ -19,7 +52,7 @@ street network for walking and cycling according to the terrain's slopes. Ideall
 
 - The size of poa.zip sample GTFS data has been reduced due to CRAN policies. Closes [#172](https://github.com/ipeaGIT/r5r/issues/172).
 
-- Progress counter implmenented. Closes [150](https://github.com/ipeaGIT/r5r/issues/150). When the `verbose` parameter is set to `FALSE`, r5r prints a progress counter and eventual `ERROR` messages. This comes with a minor penalty for computation performance. Hence we have kept `verbose` defautls to `TRUE`.
+- Progress counter Implemented. Closes [150](https://github.com/ipeaGIT/r5r/issues/150). When the `verbose` parameter is set to `FALSE`, r5r prints a progress counter and eventual `ERROR` messages. This comes with a minor penalty for computation performance. Hence we have kept `verbose` defautls to `TRUE`.
 
 
 **Bug fixes**
