@@ -1,10 +1,11 @@
 Type: Package
 Package: r5r
 Title: Rapid Realistic Routing with 'R5'
-Version: 0.6.0
+Version: 0.7.0
 Authors@R: c(
             person(given="Marcus", family="Saraiva", email="marcus.saraiva@gmail.com", role="aut", comment = c(ORCID = "0000-0001-6218-2338")),
-            person(given="Rafael H. M.", family="Pereira", email="rafa.pereira.br@gmail.com", role=c("aut", "cre"), comment = c(ORCID = "0000-0003-2125-7465")),
+            person(given="Rafael H. M.", family="Pereira", email="rafa.pereira.br@gmail.com", role="cre", comment = c(ORCID = "0000-0003-2125-7465")),
+            person(given="Rafael H. M.", family="Pereira", email="rafa.pereira.br@gmail.com", role="aut", comment = c(ORCID = "0000-0003-2125-7465")),
             person(given="Daniel", family="Herszenhut", email="dhersz@gmail.com", role="aut", comment = c(ORCID = "0000-0001-8066-1105")),
             person(given="Carlos Kaue Vieira", family="Braga", email="kaue@kauebraga.dev", role="aut", comment = c(ORCID = "0000-0002-6104-7297")),
             person(given="Matthew Wigginton", family="Conway", email="mwconway@asu.edu", role="aut", comment = c(ORCID = "0000-0002-1210-2982")),
@@ -26,7 +27,7 @@ Description: Rapid realistic routing on multimodal transport networks (walk,
              confirm the R5 version implied by the Conveyal user manual (see
              <https://docs.conveyal.com/changelog>) corresponds with the R5 version
              that r5r depends on.
-Date: 2021-10-25
+Date: 2022-02-11
 URL: https://github.com/ipeaGIT/r5r
 BugReports: https://github.com/ipeaGIT/r5r/issues
 License: MIT + file LICENSE
@@ -37,13 +38,13 @@ Suggests: akima, covr, dplyr, ggplot2 (>= 3.3.1), knitr, mapview,
 Imports: checkmate, curl, data.table, httr, methods, raster, rJava (>=
         0.9-10), sf (>= 0.9-3), sfheaders, utils
 SystemRequirements: Java JDK (>= 11.0)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2021-10-25 22:39:56 UTC; user
+Packaged: 2022-02-11 15:42:30 UTC; user
 Author: Marcus Saraiva [aut] (<https://orcid.org/0000-0001-6218-2338>),
-  Rafael H. M. Pereira [aut, cre]
-    (<https://orcid.org/0000-0003-2125-7465>),
+  Rafael H. M. Pereira [cre] (<https://orcid.org/0000-0003-2125-7465>),
+  Rafael H. M. Pereira [aut] (<https://orcid.org/0000-0003-2125-7465>),
   Daniel Herszenhut [aut] (<https://orcid.org/0000-0001-8066-1105>),
   Carlos Kaue Vieira Braga [aut]
     (<https://orcid.org/0000-0002-6104-7297>),
@@ -52,4 +53,4 @@ Author: Marcus Saraiva [aut] (<https://orcid.org/0000-0001-6218-2338>),
   Ipea - Institute for Applied Economic Research [cph, fnd]
 Maintainer: Rafael H. M. Pereira <rafa.pereira.br@gmail.com>
 Repository: CRAN
-Date/Publication: 2021-10-26 13:20:02 UTC
+Date/Publication: 2022-02-11 16:00:02 UTC
