@@ -11,7 +11,7 @@ knitr::opts_chunk$set(
 #  library(sf)
 #  library(data.table)
 #  library(ggplot2)
-#  library(akima)
+#  library(interp)
 #  library(dplyr)
 
 ## ---- message = FALSE, eval = FALSE-------------------------------------------
@@ -68,7 +68,7 @@ knitr::opts_chunk$set(
 #  ttm[points, on=c('toId' ='id'), `:=`(lon = i.lon, lat = i.lat)]
 #  
 #  # interpolate estimates to get spatially smooth result
-#  travel_times.interp <- with(na.omit(ttm), interp(lon, lat, travel_time)) %>%
+#  travel_times.interp <- with(na.omit(ttm), interp::interp(lon, lat, travel_time)) %>%
 #                          with(cbind(travel_time=as.vector(z),  # Column-major order
 #                                     x=rep(x, times=length(y)),
 #                                     y=rep(y, each=length(x)))) %>%

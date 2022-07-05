@@ -2,7 +2,7 @@
 
 
 -------------------------------------------------------
-# r5r v0.7.0 (dev)
+# r5r v0.7.0
 
 **Major changes**
 
@@ -106,7 +106,7 @@ package much easier.
 - Checks origins/destinations inputs to make sure they have and `id` column. Closes [#154](https://github.com/ipeaGIT/r5r/issues/154).
 
 **Bug fixes**
-- Fixed [introductory vignette](https://ipeagit.github.io/r5r/articles/intro_to_r5r.html) to list only files that are included in the package installation. Closes [#111](https://github.com/ipeaGIT/r5r/issues/111).
+- Fixed [introductory vignette](https://ipeagit.github.io/r5r/articles/r5r.html) to list only files that are included in the package installation. Closes [#111](https://github.com/ipeaGIT/r5r/issues/111).
 - Fixed conflict with `{geobr}` package when downloading metadata. Closed [#137](https://github.com/ipeaGIT/r5r/issues/137).
 - Fixed a bug when when parsing date and time from `departure_datetime` in `detailed_itineraries()` and `travel_time_matrix()`. Closes [#147](https://github.com/ipeaGIT/r5r/issues/147).
 **Bug fixes**
