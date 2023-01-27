@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Rafael H. M. Pereira, Marcus Saraiva, Daniel Herszenhut, Carlos Kaue Braga" />
+
+<meta name="date" content="2023-01-27" />
+
+<title>Intro to r5r: Rapid Realistic Routing with R5 in R</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+<style type="text/css">
+p.abstract{
+text-align: center;
+font-weight: bold;
+}
+div.abstract{
+margin: auto;
+width: 90%;
+}
+</style>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Intro to r5r: Rapid Realistic Routing with
+R5 in R</h1>
+<h4 class="author">Rafael H. M. Pereira, Marcus Saraiva, Daniel
+Herszenhut, Carlos Kaue Braga</h4>
+<h4 class="date">2023-01-27</h4>
+<div class="abstract">
+<p class="abstract">Abstract</p>
+<code>r5r</code> is an R package for rapid realistic routing on
+multimodal transport networks (walk, bike, public transport and car)
+using R<sup>5</sup>. The package allows users to generate detailed
+routing analysis or calculate travel time matrices using seamless
+parallel computing on top of the R<sup>5</sup> Java machine <a href="https://github.com/conveyal/r5" class="uri">https://github.com/conveyal/r5</a>
+</div>
+
+
+
+<div id="introduction" class="section level1">
+<h1>1. Introduction</h1>
+<p><strong>r5r</strong> is an <a href="https://github.com/ipeaGIT/r5r">R
+package for rapid realistic routing on multimodal transport networks</a>
+(walk, bike, public transport and car). It provides a simple and
+friendly interface to R<sup>5</sup>, a really fast and open source
+Java-based routing engine developed separately by <a href="https://www.conveyal.com/">Conveyal</a>. R<sup>5</sup> stands for
+<a href="https://github.com/conveyal/r5">Rapid Realistic Routing on
+Real-world and Reimagined networks</a>. More details about
+<strong>r5r</strong> can be found on the <a href="https://ipeagit.github.io/r5r/index.html">package webpage</a> or
+on this <a href="https://doi.org/10.32866/001c.21262">paper</a>.</p>
+</div>
+<div id="installation" class="section level1">
+<h1>2. Installation</h1>
+<p>You can install <code>r5r</code> from CRAN, or the development
+version from github.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># CRAN</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&#39;r5r&#39;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># dev version on github</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;ipeaGIT/r5r&quot;</span>, <span class="at">subdir =</span> <span class="st">&quot;r-package&quot;</span>)</span></code></pre></div>
+<p>Please bear in mind that you need to have <em>Java SE Development Kit
+11</em> installed on your computer to use <code>r5r</code>. No worries,
+you don’t have to pay for it. The jdk 11 is freely available from the
+options below:</p>
+<ul>
+<li><p><a href="https://jdk.java.net/java-se-ri/11">OpenJDK</a></p></li>
+<li><p><a href="https://www.oracle.com/java/technologies/javase-jdk11-downloads.html">Oracle</a></p></li>
+</ul>
+<p>If you don’t know what version of Java you have installed on your
+computer, you can check it by running this on R console.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>  rJava<span class="sc">::</span><span class="fu">.jinit</span>()</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  rJava<span class="sc">::</span><span class="fu">.jcall</span>(<span class="st">&quot;java.lang.System&quot;</span>, <span class="st">&quot;S&quot;</span>, <span class="st">&quot;getProperty&quot;</span>, <span class="st">&quot;java.version&quot;</span>)</span></code></pre></div>
+</div>
+<div id="usage" class="section level1">
+<h1>3. Usage</h1>
+<p>Before we start, we need to increase the memory available to Java.
+This is necessary because, by default, <code>R</code> allocates only
+512MB of memory for Java processes, which is not enough for large
+queries using <code>r5r</code>. To increase available memory to 2GB, for
+example, we need to set the <code>java.parameters</code> option at the
+beginning of the script, as follows:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">java.parameters =</span> <span class="st">&quot;-Xmx2G&quot;</span>)</span></code></pre></div>
+<p>Note: It’s very important to allocate enough memory before loading
+<code>r5r</code> or any other Java-based package, since
+<code>rJava</code> starts a Java Virtual Machine only once for each R
+session. It might be useful to restart your R session and execute the
+code above right after, if you notice that you haven’t succeeded in your
+previous attempts.</p>
+<p>Then we can load the packages used in this vignette:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(r5r)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code></pre></div>
+<p>The <code>r5r</code> package has six <strong>fundamental
+functions</strong>:</p>
+<ol style="list-style-type: decimal">
+<li><p><code>setup_r5()</code> to initialize an instance of
+<code>r5r</code>, that also builds a routable transport
+network;</p></li>
+<li><p><code>accessibility()</code> for fast computation of access to
+opportunities considering a selected decay function;</p></li>
+<li><p><code>travel_time_matrix()</code> for fast computation of travel
+time estimates between origin/destination pairs;</p></li>
+<li><p><code>expanded_travel_time_matrix()</code> for calculating travel
+matrices between origin destination pairs with additional information
+such routes used and total time disaggregated by access, waiting,
+in-vehicle and transfer times.</p></li>
+<li><p><code>detailed_itineraries()</code> to get detailed information
+on one or multiple alternative routes between origin/destination
+pairs.</p></li>
+<li><p><code>pareto_frontier()</code> for analyzing the trade-off
+between the travel time and monetary costs of multiple route
+alternatives between origin/destination pairs.</p></li>
+</ol>
+<p>Most of these functions also allow users to account for monetary
+travel costs when generating travel time matrices and accessibility
+estimates. More info about how to consider monetary costs can be found
+in <a href="https://ipeagit.github.io/r5r/articles/fare_structure.html">this
+vignette</a>.</p>
+<p>The package also includes a few <strong>support
+functions</strong>.</p>
+<ol style="list-style-type: decimal">
+<li><p><code>street_network_to_sf()</code> to extract OpenStreetMap
+network in sf format from a <code>network.dat</code> file.</p></li>
+<li><p><code>transit_network_to_sf()</code> to extract transit network
+in sf format from a <code>network.dat</code> file.</p></li>
+<li><p><code>find_snap()</code> to find snapped locations of input
+points on street network.</p></li>
+<li><p><code>r5r_sitrep()</code> to generate a situation report to help
+debug eventual errors.</p></li>
+</ol>
+<div id="data-requirements" class="section level2">
+<h2>3.1 Data requirements:</h2>
+<p>To use <code>r5r</code>, you will need: - A road network data set
+from OpenStreetMap in <code>.pbf</code> format (<em>mandatory</em>) - A
+public transport feed in <code>GTFS.zip</code> format (optional) - A
+raster file of Digital Elevation Model data in <code>.tif</code> format
+(optional)</p>
+<p>Here are a few places from where you can download these data
+sets:</p>
+<ul>
+<li>OpenStreetMap
+<ul>
+<li><a href="https://docs.ropensci.org/osmextract/">osmextract</a> R
+package</li>
+<li><a href="https://download.geofabrik.de/">geofabrik</a> website</li>
+<li><a href="https://export.hotosm.org/">hot export tool</a>
+website</li>
+<li><a href="https://extract.bbbike.org/">BBBike.org</a> website</li>
+</ul></li>
+<li>GTFS
+<ul>
+<li><a href="http://tidytransit.r-transit.org/">tidytransit</a> R
+package</li>
+<li><a href="https://www.transit.land/">transitland</a> website</li>
+</ul></li>
+<li>Elevation
+<ul>
+<li><a href="https://github.com/jhollist/elevatr">elevatr</a> R
+package</li>
+<li>Nasa’s SRTMGL1 website</li>
+</ul></li>
+</ul>
+<p>Let’s have a quick look at how <code>r5r</code> works using a sample
+data set.</p>
+</div>
+</div>
+<div id="demonstration-on-sample-data" class="section level1">
+<h1>4. Demonstration on sample data</h1>
+<div id="data" class="section level2">
+<h2>Data</h2>
+<p>To illustrate the functionalities of <code>r5r</code>, the package
+includes a small sample data for the city of Porto Alegre (Brazil). It
+includes seven files:</p>
+<ul>
+<li>An OpenStreetMap network: <code>poa_osm.pbf</code></li>
+<li>Two public transport feeds: <code>poa_eptc.zip</code> and
+<code>poa_trensurb.zip</code></li>
+<li>A raster elevation data: <code>poa_elevation.tif</code></li>
+<li>A <code>poa_hexgrid.csv</code> file with spatial coordinates of a
+regular hexagonal grid covering the sample area, which can be used as
+origin/destination pairs in a travel time matrix calculation.</li>
+<li>A <code>poa_points_of_interest.csv</code> file containing the names
+and spatial coordinates of 15 places within Porto Alegre</li>
+<li>A <code>fares_poa.zip</code> file with the fare rules of the city’s
+public transport system.</li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>data_path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata/poa&quot;</span>, <span class="at">package =</span> <span class="st">&quot;r5r&quot;</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">list.files</span>(data_path)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;fares&quot;                      &quot;network.dat&quot;               </span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;network_settings.json&quot;      &quot;poa_elevation.tif&quot;         </span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;poa_eptc.zip&quot;               &quot;poa_hexgrid.csv&quot;           </span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;poa_osm.pbf&quot;                &quot;poa_osm.pbf.mapdb&quot;         </span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;poa_osm.pbf.mapdb.p&quot;        &quot;poa_points_of_interest.csv&quot;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [11] &quot;poa_trensurb.zip&quot;</span></span></code></pre></div>
+<p>The points of interest data can be seen below. In this example, we
+will be looking at transport alternatives between some of those
+places.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>poi <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="fu">file.path</span>(data_path, <span class="st">&quot;poa_points_of_interest.csv&quot;</span>))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(poi)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                     id       lat       lon</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1:       public_market -30.02756 -51.22781</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2: bus_central_station -30.02329 -51.21886</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3:    gasometer_museum -30.03404 -51.24095</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4: santa_casa_hospital -30.03043 -51.22240</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5:            townhall -30.02800 -51.22865</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6:     piratini_palace -30.03363 -51.23068</span></span></code></pre></div>
+<p>The data with origin destination pairs is shown below. In this
+example, we will be using 200 points randomly selected from this data
+set.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>points <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="fu">file.path</span>(data_path, <span class="st">&quot;poa_hexgrid.csv&quot;</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># sample points</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>sampled_rows <span class="ot">&lt;-</span>  <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(points), <span class="dv">200</span>, <span class="at">replace=</span><span class="cn">TRUE</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>points <span class="ot">&lt;-</span> points[ sampled_rows, ]</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(points)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                 id       lon       lat population schools jobs healthcare</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1: 89a901283d7ffff -51.19188 -30.05792        964       1   97          0</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2: 89a9012ae57ffff -51.23258 -30.08633        597       0  122          0</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3: 89a9012b137ffff -51.18430 -30.09600         59       0    0          0</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4: 89a9012b143ffff -51.16621 -30.10031         34       0    0          0</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5: 89a90129e17ffff -51.15449 -30.03613        945       0   42          0</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6: 89a9012a237ffff -51.20591 -30.10386         27       0    0          0</span></span></code></pre></div>
+</div>
+<div id="building-routable-transport-network-with-setup_r5" class="section level2">
+<h2>4.1 Building routable transport network with
+<code>setup_r5()</code></h2>
+<p>The first step is to build the multimodal transport network used for
+routing in R<sup>5</sup>. This is done with the <code>setup_r5</code>
+function. This function does two things: (1) downloads/updates a
+compiled JAR file of R<sup>5</sup> and stores it locally in the
+<code>r5r</code> package directory for future use; and (2) combines the
+osm.pbf and gtfs.zip data sets to build a routable network object.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Indicate the path where OSM and GTFS data are stored</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>r5r_core <span class="ot">&lt;-</span> <span class="fu">setup_r5</span>(<span class="at">data_path =</span> data_path)</span></code></pre></div>
+</div>
+<div id="accessibility-analysis" class="section level2">
+<h2>4.2 Accessibility analysis</h2>
+<p>The faster way to calculate accessibility estimates is using the
+<code>accessibility()</code> function. In this example, we calculate the
+number of schools and health care facilities accessible in less than 60
+minutes by public transport and walking. More details in this vignette
+on <a href="https://ipeagit.github.io/r5r/articles/calculating_accessibility.html">Calculating
+and visualizing Accessibility</a>.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set departure datetime input</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>departure_datetime <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;13-05-2019 14:00:00&quot;</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">format =</span> <span class="st">&quot;%d-%m-%Y %H:%M:%S&quot;</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate accessibility</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>access <span class="ot">&lt;-</span> <span class="fu">accessibility</span>(<span class="at">r5r_core =</span> r5r_core,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">origins =</span> points,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>                        <span class="at">destinations =</span> points,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>                        <span class="at">opportunities_colnames =</span> <span class="fu">c</span>(<span class="st">&quot;schools&quot;</span>, <span class="st">&quot;healthcare&quot;</span>),</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>                        <span class="at">mode =</span> <span class="fu">c</span>(<span class="st">&quot;WALK&quot;</span>, <span class="st">&quot;TRANSIT&quot;</span>),</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>                        <span class="at">departure_datetime =</span> departure_datetime,</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>                        <span class="at">decay_function =</span> <span class="st">&quot;step&quot;</span>,</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>                        <span class="at">cutoffs =</span> <span class="dv">60</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>                        )</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(access)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                 id opportunity percentile cutoff accessibility</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1: 89a901283d7ffff     schools         50     60            27</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2: 89a901283d7ffff  healthcare         50     60            12</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3: 89a9012ae57ffff     schools         50     60            14</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4: 89a9012ae57ffff  healthcare         50     60            10</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5: 89a9012b137ffff     schools         50     60             3</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6: 89a9012b137ffff  healthcare         50     60             3</span></span></code></pre></div>
+</div>
+<div id="routing-analysis" class="section level2">
+<h2>4.3 Routing analysis</h2>
+<p>For fast routing analysis, <strong>r5r</strong> currently has three
+core functions: <code>travel_time_matrix()</code>,
+<code>expanded_travel_time_matrix()</code> and
+<code>detailed_itineraries()</code>.</p>
+<div id="fast-many-to-many-travel-time-matrix" class="section level3">
+<h3>Fast many to many travel time matrix</h3>
+<p>The <code>travel_time_matrix()</code> function is a really simple and
+fast function to compute travel time estimates between one or multiple
+origin/destination pairs. The origin/destination input can be either a
+spatial <code>sf POINT</code> object, or a <code>data.frame</code>
+containing the columns <code>id, lon, lat</code>. The function also
+receives as inputs the <em>max walking distance</em>, in meters, and the
+<em>max trip duration</em>, in minutes. Resulting travel times are also
+output in minutes.</p>
+<p>This function also allows users to very efficiently capture the
+travel time uncertainties inside a given time window considering
+multiple departure times. <a href="https://ipeagit.github.io/r5r/articles/time_window.html">More info
+on this vignette</a>.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set inputs</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>mode <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;WALK&quot;</span>, <span class="st">&quot;TRANSIT&quot;</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>max_walk_time <span class="ot">&lt;-</span> <span class="dv">30</span> <span class="co"># minutes</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>max_trip_duration <span class="ot">&lt;-</span> <span class="dv">120</span> <span class="co"># minutes</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>departure_datetime <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;13-05-2019 14:00:00&quot;</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">format =</span> <span class="st">&quot;%d-%m-%Y %H:%M:%S&quot;</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate a travel time matrix</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>ttm <span class="ot">&lt;-</span> <span class="fu">travel_time_matrix</span>(<span class="at">r5r_core =</span> r5r_core,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>                          <span class="at">origins =</span> poi,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>                          <span class="at">destinations =</span> poi,</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>                          <span class="at">mode =</span> mode,</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>                          <span class="at">departure_datetime =</span> departure_datetime,</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>                          <span class="at">max_walk_time =</span> max_walk_time,</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>                          <span class="at">max_trip_duration =</span> max_trip_duration)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ttm)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          from_id               to_id travel_time_p50</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1: public_market       public_market               0</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2: public_market bus_central_station              13</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3: public_market    gasometer_museum              10</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4: public_market santa_casa_hospital              15</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5: public_market            townhall               3</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6: public_market     piratini_palace              17</span></span></code></pre></div>
+</div>
+<div id="expanded-travel-time-matrix-with-minute-by-minute-estimates" class="section level3">
+<h3>Expanded travel time matrix with minute-by-minute estimates</h3>
+<p>For those interested in more detailed outputs, the
+<code>expanded_travel_time_matrix()</code> works very similarly with
+<code>travel_time_matrix()</code> but it brings much more information.
+It estimates for each origin destination pair the routes used and total
+time disaggregated by access, waiting, in-vehicle and transfer times.
+Please note this function can be very memory intensive for large data
+sets.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate a travel time matrix</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>ettm <span class="ot">&lt;-</span> <span class="fu">expanded_travel_time_matrix</span>(<span class="at">r5r_core =</span> r5r_core,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">origins =</span> poi,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">destinations =</span> poi,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">mode =</span> mode,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                          <span class="at">departure_datetime =</span> departure_datetime,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                          <span class="at">breakdown =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">max_walk_time =</span> max_walk_time,</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">max_trip_duration =</span> max_trip_duration)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ettm)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          from_id               to_id departure_time draw_number access_time</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1: public_market       public_market       14:00:00           1         0.0</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2: public_market bus_central_station       14:00:00           1         2.6</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3: public_market    gasometer_museum       14:00:00           1         2.9</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4: public_market santa_casa_hospital       14:00:00           1         0.0</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5: public_market            townhall       14:00:00           1         0.0</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6: public_market     piratini_palace       14:00:00           1         2.9</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;    wait_time ride_time transfer_time egress_time routes n_rides total_time</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1:       0.0       0.0             0         0.0 [WALK]       0        0.0</span></span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2:       2.4       1.5             0         7.4    D73       1       13.9</span></span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3:       1.1       4.5             0         1.8   2821       1       10.3</span></span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4:       0.0       0.0             0         0.0 [WALK]       0       15.3</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5:       0.0       0.0             0         0.0 [WALK]       0        3.5</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6:       1.1       1.3             0        11.8   2821       1       17.1</span></span></code></pre></div>
+</div>
+<div id="detailed-itineraries" class="section level3">
+<h3>Detailed itineraries</h3>
+<p>Most routing packages only return the fastest route. A key advantage
+of the <code>detailed_itineraries()</code> function is that is allows
+for fast routing analysis while providing multiple alternative routes
+between origin destination pairs. The output also brings detailed
+information for each route alternative at the trip segment level,
+including the transport mode, waiting times, travel time and distance of
+each trip segment.</p>
+<p>In this example below, we want to know some alternative routes
+between one origin/destination pair only.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set inputs</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>origins <span class="ot">&lt;-</span> poi[<span class="dv">10</span>,]</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>destinations <span class="ot">&lt;-</span> poi[<span class="dv">12</span>,]</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>mode <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;WALK&quot;</span>, <span class="st">&quot;TRANSIT&quot;</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>max_walk_time <span class="ot">&lt;-</span> <span class="dv">60</span> <span class="co"># minutes</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>departure_datetime <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;13-05-2019 14:00:00&quot;</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">format =</span> <span class="st">&quot;%d-%m-%Y %H:%M:%S&quot;</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate detailed itineraries</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>det <span class="ot">&lt;-</span> <span class="fu">detailed_itineraries</span>(<span class="at">r5r_core =</span> r5r_core,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>                            <span class="at">origins =</span> origins,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>                            <span class="at">destinations =</span> destinations,</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>                            <span class="at">mode =</span> mode,</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>                            <span class="at">departure_datetime =</span> departure_datetime,</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>                            <span class="at">max_walk_time =</span> max_walk_time,</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>                            <span class="at">shortest_path =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(det)</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 5 features and 16 fields</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Geometry type: LINESTRING</span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Bounding box:  xmin: -51.24094 ymin: -30.05 xmax: -51.19762 ymax: -29.99729</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Geodetic CRS:  WGS 84</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;            from_id  from_lat  from_lon                          to_id    to_lat</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;      to_lon option departure_time total_duration total_distance segment mode</span></span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 -51.22875      1       14:00:54           44.4           9460       1 WALK</span></span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2 -51.22875      1       14:00:54           44.4           9460       2 RAIL</span></span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3 -51.22875      1       14:00:54           44.4           9460       3 WALK</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4 -51.22875      1       14:00:54           44.4           9460       4  BUS</span></span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5 -51.22875      1       14:00:54           44.4           9460       5 WALK</span></span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   segment_duration wait distance  route                       geometry</span></span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1              4.6  0.0      174        LINESTRING (-51.1981 -29.99...</span></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2              6.6  9.5     4796 LINHA1 LINESTRING (-51.19763 -29.9...</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3              5.7  0.0      256        LINESTRING (-51.22827 -30.0...</span></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4             10.4  4.4     4083    188 LINESTRING (-51.22926 -30.0...</span></span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5              3.2  0.0      151        LINESTRING (-51.22949 -30.0...</span></span></code></pre></div>
+<p>The output is a <code>data.frame sf</code> object, so we can easily
+visualize the results.</p>
+<div id="visualize-results" class="section level4">
+<h4>Visualize results</h4>
+<p><strong>Static visualization</strong> with <code>ggplot2</code>
+package: To provide a geographic context for the visualization of the
+results in <code>ggplot2</code>, you can also use the
+<code>street_network_to_sf()</code> function to extract the OSM street
+network used in the routing.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract OSM network</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>street_net <span class="ot">&lt;-</span> <span class="fu">street_network_to_sf</span>(r5r_core)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="co"># extract public transport network</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>transit_net <span class="ot">&lt;-</span> r5r<span class="sc">::</span><span class="fu">transit_network_to_sf</span>(r5r_core)</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> street_net<span class="sc">$</span>edges, <span class="at">color=</span><span class="st">&#39;gray85&#39;</span>) <span class="sc">+</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(<span class="at">data =</span> det, <span class="fu">aes</span>(<span class="at">color=</span>mode)) <span class="sc">+</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(.<span class="sc">~</span>option) <span class="sc">+</span> </span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
+<p><img src="data:image/png;base64,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" width="100%" /></p>
+</div>
+</div>
+<div id="cleaning-up-after-usage" class="section level3">
+<h3>Cleaning up after usage</h3>
+<p><code>r5r</code> objects are still allocated to any amount of memory
+previously set after they are done with their calculations. In order to
+remove an existing <code>r5r</code> object and reallocate the memory it
+had been using, we use the <code>stop_r5</code> function followed by a
+call to Java’s garbage collector, as follows:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>r5r<span class="sc">::</span><span class="fu">stop_r5</span>(r5r_core)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>rJava<span class="sc">::</span><span class="fu">.jgc</span>(<span class="at">R.gc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p>If you have any suggestions or want to report an error, please visit
+<a href="https://github.com/ipeaGIT/r5r">the package GitHub
+page</a>.</p>
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

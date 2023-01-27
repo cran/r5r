@@ -1,5 +1,3 @@
-############# Support functions for r5r
-
 #' Java object to data.table
 #'
 #' @description Converts a Java object returned by r5r_core to an R data.table
@@ -8,8 +6,13 @@
 #'
 #' @return An R data.table
 #' @family java support functions
-
+#'
+#' @keywords internal
 java_to_dt <- function(obj) {
+
+  # check input
+  if(class(obj)[1] != "jobjRef"){
+    stop("Input must be an object of class 'jobjRef'")}
 
   # get column names from Java table
   columns <- obj$getColumnNames()

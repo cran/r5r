@@ -19,23 +19,8 @@ Checks if there is internet connection to Ipea server to download r5r data.
 }
 \seealso{
 Other support functions: 
-\code{\link{assert_breakdown_stat}()},
-\code{\link{assert_decay_function}()},
-\code{\link{assert_points_input}()},
 \code{\link{fileurl_from_metadata}()},
-\code{\link{find_snap}()},
-\code{\link{posix_to_string}()},
-\code{\link{select_mode}()},
-\code{\link{set_max_lts}()},
-\code{\link{set_max_rides}()},
-\code{\link{set_max_street_time}()},
-\code{\link{set_n_threads}()},
-\code{\link{set_progress}()},
-\code{\link{set_speed}()},
-\code{\link{set_suboptimal_minutes}()},
-\code{\link{set_verbose}()},
-\code{\link{stop_r5}()},
-\code{\link{street_network_to_sf}()},
-\code{\link{transit_network_to_sf}()}
+\code{\link{stop_r5}()}
 }
 \concept{support functions}
+\keyword{internal}

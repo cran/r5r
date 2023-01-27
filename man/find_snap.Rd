@@ -7,66 +7,50 @@
 find_snap(r5r_core, points, mode = "WALK")
 }
 \arguments{
-\item{r5r_core}{a rJava object to connect with R5 routing engine}
+\item{r5r_core}{An object to connect with the R5 routing engine, created with
+\code{\link[=setup_r5]{setup_r5()}}.}
 
-\item{points}{a spatial sf POINT object, or a data.frame
-containing the columns 'id', 'lon', 'lat'}
+\item{points}{Either a \verb{POINT sf} object with WGS84 CRS, or a \code{data.frame}
+containing the columns \code{id}, \code{lon} and \code{lat}.}
 
-\item{mode}{string. Defaults to "WALK", also allows "BICYCLE", and "CAR".}
+\item{mode}{A string. Which mode to consider when trying to snap the points
+to the network. Defaults to \code{WALK}, also allows \code{BICYCLE} and \code{CAR}.}
 }
 \value{
-A data.table with the original points as well as their respective
-snapped coordinates on the street network and the Euclidean distance
-between original points and their respective snapped location. Points
-that could not be snapped show \code{NA} coordinates and \code{found = FALSE}.
+A \code{data.table} with the original points, their respective
+snapped coordinates on the street network and the Euclidean distance ( in
+meters) between the original points and their snapped location. Points that
+could not be snapped show \code{NA} coordinates and \code{found = FALSE}.
 }
 \description{
-R5 tries to snap origin and destination points to the street
-network in two rounds. First, it uses a search radius of 300 meters. If the
-first round is unsuccessful, then R5 expands the search radius to 1.6 km.
-Points that aren't linked to the street network after those two rounds are
-returned with \code{NA} coordinates and \code{found = FALSE}. Please note that the
-location of the snapped points depends on the transport mode set by the user.
+Finds the snapped location of points on \code{R5} network. Snapping is a very
+important step of the routing process, which is when the origins and
+destinations specified by the user are actually positioned on the network
+created by \code{R5}. The snapping process in \code{R5} is composed of two rounds.
+First, it tries to snap the points within a radius of 300 meters from
+themselves. If the first round is unsuccessful, then \code{R5} expands the search
+radius to 1.6 km. If yet again it is unsuccessful, then the unsnapped points
+won't be used during the routing process. The snapped location of each point
+depends on the transport mode set by the user, because some network edges
+are not available to specific modes (e.g. a pedestrian-only street cannot be
+used to snap car trips).
 }
 \examples{
-if (interactive()) {
-
+\dontshow{if (identical(tolower(Sys.getenv("NOT_CRAN")), "true")) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 library(r5r)
 
-# build transport network
-path <- system.file("extdata/spo", package = "r5r")
-r5r_core <- setup_r5(data_path = path, temp_dir = TRUE)
+path <- system.file("extdata/poa", package = "r5r")
+r5r_core <- setup_r5(data_path = path)
+points <- read.csv(file.path(path, "poa_hexgrid.csv"))
 
-# load origin/destination points
-points <- read.csv(file.path(path, "spo_hexgrid.csv"))
-
-# find where origin or destination points are snapped
-snap_df <- find_snap(r5r_core,
-                     points = points,
-                     mode = 'CAR')
+snap_df <- find_snap(r5r_core, points, mode = "WALK")
 
 stop_r5(r5r_core)
-}
+\dontshow{\}) # examplesIf}
 }
 \seealso{
-Other support functions: 
-\code{\link{assert_breakdown_stat}()},
-\code{\link{assert_decay_function}()},
-\code{\link{assert_points_input}()},
-\code{\link{check_connection}()},
-\code{\link{fileurl_from_metadata}()},
-\code{\link{posix_to_string}()},
-\code{\link{select_mode}()},
-\code{\link{set_max_lts}()},
-\code{\link{set_max_rides}()},
-\code{\link{set_max_street_time}()},
-\code{\link{set_n_threads}()},
-\code{\link{set_progress}()},
-\code{\link{set_speed}()},
-\code{\link{set_suboptimal_minutes}()},
-\code{\link{set_verbose}()},
-\code{\link{stop_r5}()},
+Other network functions: 
 \code{\link{street_network_to_sf}()},
 \code{\link{transit_network_to_sf}()}
 }
-\concept{support functions}
+\concept{network functions}

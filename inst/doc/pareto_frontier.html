@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+<meta name="date" content="2023-01-27" />
+
+<title>Analyzing the trade-offs between travel time and monetary cost</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+<style type="text/css">
+p.abstract{
+text-align: center;
+font-weight: bold;
+}
+div.abstract{
+margin: auto;
+width: 90%;
+}
+</style>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Analyzing the trade-offs between travel
+time and monetary cost</h1>
+<h4 class="date">2023-01-27</h4>
+<div class="abstract">
+<p class="abstract">Abstract</p>
+This vignette shows how to use the <code>pareto_frontier()</code>
+function to examine the trade-offs between travel time and monetary cost
+in travel time matrices in r5r.
+</div>
+
+
+
+<div id="introduction" class="section level1">
+<h1>1. Introduction</h1>
+<p>In most cases, transport routing models find either the fastest or
+the lowest-cost routes that connect places in a given transport network.
+Sometimes, though, we might want a more sophisticated analysis that
+considers both the time and monetary costs that public transport
+passengers have to face. The problem here is that simultaneously
+accounting for both time and monetary costs is a major challenge for
+routing models because of the trade-offs between the objectives of
+minimizing trip duration and cost <a href="https://www.tandfonline.com/doi/abs/10.1080/13658816.2019.1605075">(ref
+‘Getting Charlie off the MTA’)</a>.</p>
+<p>To address this problem, <code>r5r</code> has a function called
+<code>pareto_frontier()</code>, which calculates the most efficient
+route possibilities between origin destination pairs considering
+multiple combinations of travel time and monetary costs. This vignette
+uses a reproducible example to demonstrate how to use
+<code>pareto_frontier()</code> and interpret its results.</p>
+<div id="what-the-pareto_frontier-means." class="section level2">
+<h2>2. What the <code>pareto_frontier</code> means.</h2>
+<p>Imagine a hypothetical journey from A to B. There are multiple route
+alternatives between this origin and destination with varying
+combinations of travel time and cost (figure below).</p>
+<ul>
+<li>Walking from A to B would be the <strong>cheapest</strong> option
+but it would take 50 minutes.</li>
+<li>The <strong>fastest</strong> option would be to take a bus to a
+subway station and transfer to the subway. This option would only take
+15 minutes, but it would cost $8.</li>
+<li>There are some intermediary alternatives, such as taking:
+<ul>
+<li>a single bus, $3 for 35 min.</li>
+<li>two buses with one transfer, $5 for 29 min.</li>
+<li>taking the subway after walking to the station , $6 for 20 min.</li>
+</ul></li>
+</ul>
+<p>This figure illustrates the Pareto frontier of alternative routes
+from A to B. In other words, it shows the most optimal set of route
+alternatives between A and B. There are certainly other route options,
+but there is no other option that is both faster and cheaper at the same
+time.</p>
+<p><img src="data:image/png;base64,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" width="100%" /></p>
+<p><br></p>
+<p>This kind of abstraction allows us to have a better grasp of the
+trade-offs between travel time and monetary cost passengers face when
+using public transport. It also allows us to calculate
+cumulative-opportunity accessibility metrics with cutoffs for both time
+and cost (e.g. the number of jobs reachable from a given origin with
+limits of 40 minutes and $5) (ref paper by Matt and Anson).</p>
+<p>Let’s see a couple concrete examples showing how <code>r5r</code> can
+calculate the Pareto frontier for multiple origins.</p>
+</div>
+<div id="demonstration-of-pareto_frontier." class="section level2">
+<h2>3. Demonstration of <code>pareto_frontier()</code>.</h2>
+<div id="build-routable-transport-network-with-setup_r5" class="section level3">
+<h3>3.1 Build routable transport network with
+<code>setup_r5()</code></h3>
+<p>First, let’s build the network and create the routing inputs. In this
+example we’ll be using the a sample data set for the city of Porto
+Alegre (Brazil) included in <code>r5r</code>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># increase Java memory</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">java.parameters =</span> <span class="st">&quot;-Xmx2G&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># load libraries</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(r5r)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># build a routable transport network with r5r</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>data_path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata/poa&quot;</span>, <span class="at">package =</span> <span class="st">&quot;r5r&quot;</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>r5r_core <span class="ot">&lt;-</span> <span class="fu">setup_r5</span>(data_path)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># routing inputs</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>mode <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;walk&#39;</span>, <span class="st">&#39;transit&#39;</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>max_trip_duration <span class="ot">&lt;-</span> <span class="dv">90</span> <span class="co"># minutes</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># load origin/destination points of interest</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>points <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="fu">file.path</span>(data_path, <span class="st">&quot;poa_points_of_interest.csv&quot;</span>))</span></code></pre></div>
+</div>
+<div id="set-up-the-fare-structure" class="section level3">
+<h3>3.2 Set up the fare structure</h3>
+<p>Now we need to set what are the fare rules of our public transport
+system. These rules will be used by <code>R5</code> to calculate the
+monetary cost of alternative routes. In the case of Porto Alegre, the
+fare rules are as follows: * Each bus ticket costs R$ 4.80. * Riding a
+second bus adds <code>$</code> 2.40 to the total cost. Subsequent bus
+rides cost the full ticket price of $ 4.80. * Each train ticket costs $
+4.50. Once a passenger enters a train station, she can take an unlimited
+amount of train trips as long as she doesn’t leave a station. * The
+integrated fare between bus and train has a 10% discount, which totals $
+8.37.</p>
+<p>We can create <code>list</code> object with these fare rules with the
+support of the <code>setup_fare_structure()</code> function as shown in
+the code below. A detailed explanation of how to use the fare structure
+of <code>5r5</code> can be found in <a href="https://ipeagit.github.io/r5r/articles/fare_structure.html">(this
+other vignette)</a>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create basic fare structure</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fare_structure <span class="ot">&lt;-</span> <span class="fu">setup_fare_structure</span>(r5r_core, </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">base_fare =</span> <span class="fl">4.8</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">by =</span> <span class="st">&quot;MODE&quot;</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># update the cost of bus and train fares</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>fare_structure<span class="sc">$</span>fares_per_type[, fare <span class="sc">:</span><span class="er">=</span> <span class="fu">fcase</span>(type <span class="sc">==</span> <span class="st">&quot;BUS&quot;</span>, <span class="fl">4.80</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                                             type <span class="sc">==</span> <span class="st">&quot;RAIL&quot;</span>, <span class="fl">4.50</span>)]</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># update the cost of tranfers</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>fare_structure<span class="sc">$</span>fares_per_transfer[, fare <span class="sc">:</span><span class="er">=</span> <span class="fu">fcase</span>(first_leg <span class="sc">==</span> <span class="st">&quot;BUS&quot;</span> <span class="sc">&amp;</span> second_leg <span class="sc">==</span> <span class="st">&quot;BUS&quot;</span>, <span class="fl">7.2</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>                                                 first_leg <span class="sc">!=</span> second_leg, <span class="fl">8.37</span>)]</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># update transfer_time_allowance to 60 minutes</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>fare_structure<span class="sc">$</span>transfer_time_allowance <span class="ot">&lt;-</span> <span class="dv">60</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>fare_structure<span class="sc">$</span>fares_per_type[type <span class="sc">==</span> <span class="st">&quot;RAIL&quot;</span>, unlimited_transfers <span class="sc">:</span><span class="er">=</span> <span class="cn">TRUE</span>]</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>fare_structure<span class="sc">$</span>fares_per_type[type <span class="sc">==</span> <span class="st">&quot;RAIL&quot;</span>, allow_same_route_transfer <span class="sc">:</span><span class="er">=</span> <span class="cn">TRUE</span>]</span></code></pre></div>
+<p>For convenience, we can save these fare rules as a <code>zip</code>
+file and load again for a future application.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save fare rules to temp file</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>temp_fares <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">pattern =</span> <span class="st">&quot;fares_poa&quot;</span>, <span class="at">fileext =</span> <span class="st">&quot;.zip&quot;</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>r5r<span class="sc">::</span><span class="fu">write_fare_structure</span>(fare_structure, <span class="at">file_path =</span> temp_fares)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>fare_structure <span class="ot">&lt;-</span> r5r<span class="sc">::</span><span class="fu">read_fare_structure</span>(<span class="fu">file.path</span>(data_path, <span class="st">&quot;fares/fares_poa.zip&quot;</span>))</span></code></pre></div>
+</div>
+<div id="calculating-a-pareto_frontier." class="section level3">
+<h3>3.3 Calculating a <code>pareto_frontier()</code>.</h3>
+<p>In this example, we calculate the Pareto frontier from all origins to
+all destinations considering multiple cutoffs of monetary costs: - $1,
+which would only allow for walking trips - $4.5, which would only allow
+for rail trips - $4.8, which would allow for a single bus trip - $7.20,
+which would allow for bus + bus - $8.37, which would allow for walking
+walking + bus + rail</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>departure_datetime <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;13-05-2019 14:00:00&quot;</span>, </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">format =</span> <span class="st">&quot;%d-%m-%Y %H:%M:%S&quot;</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>prtf <span class="ot">&lt;-</span> <span class="fu">pareto_frontier</span>(r5r_core,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">origins =</span> points,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">destinations =</span> points,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">mode =</span> <span class="fu">c</span>(<span class="st">&quot;WALK&quot;</span>, <span class="st">&quot;TRANSIT&quot;</span>),</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">departure_datetime =</span> departure_datetime,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fare_structure =</span> fare_structure,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fare_cutoffs =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">4.5</span>, <span class="fl">4.8</span>, <span class="fl">7.20</span>, <span class="fl">8.37</span>),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                      <span class="at">progress =</span> <span class="cn">TRUE</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                      )</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(prtf)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;          from_id               to_id percentile travel_time monetary_cost</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1: public_market       public_market         50           0           1.0</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 2: public_market bus_central_station         50          23           1.0</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3: public_market bus_central_station         50          17           4.5</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 4: public_market bus_central_station         50          12           4.8</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 5: public_market    gasometer_museum         50          29           1.0</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 6: public_market    gasometer_museum         50          15           4.8</span></span></code></pre></div>
+<p>For the sake of illustration, let’s check the optimum route
+alternatives from the Farrapos train station to (a) the Praia de Belas
+shopping mall and (b) the Moinhos hospital. An optimum route alternative
+means that one cannot make a faster trip without increasing costs, and
+one cannot make a cheaper trip without increasing travel time.</p>
+<pre><code>#&gt; Warning in `[.data.table`(pf2, , `:=`(modes, fcase(monetary_cost == 1, &quot;Walk&quot;, :
+#&gt; Invalid .internal.selfref detected and fixed by taking a (shallow) copy of the
+#&gt; data.table so that := can add this new column by reference. At an earlier point,
+#&gt; this data.table has been copied by R (or was created manually using structure()
+#&gt; or similar). Avoid names&lt;- and attr&lt;- which in R currently (and oddly) may copy
+#&gt; the whole data.table. Use set* syntax instead to avoid copying: ?set, ?setnames
+#&gt; and ?setattr. If this message doesn&#39;t help, please report your use case to
+#&gt; the data.table issue tracker so the root cause can be fixed or this message
+#&gt; improved.
+#&gt; Warning: Removed 5 rows containing missing values (`geom_text()`).</code></pre>
+<p><img src="data:image/png;base64,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" width="100%" /></p>
+</div>
+<div id="cleaning-up-after-usage" class="section level3">
+<h3>Cleaning up after usage</h3>
+<p><code>r5r</code> objects are still allocated to any amount of memory
+previously set after they are done with their calculations. In order to
+remove an existing <code>r5r</code> object and reallocate the memory it
+had been using, we use the <code>stop_r5</code> function followed by a
+call to Java’s garbage collector, as follows:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>r5r<span class="sc">::</span><span class="fu">stop_r5</span>(r5r_core)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>rJava<span class="sc">::</span><span class="fu">.jgc</span>(<span class="at">R.gc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p>If you have any suggestions or want to report an error, please visit
+<a href="https://github.com/ipeaGIT/r5r">the package GitHub
+page</a>.</p>
+</div>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

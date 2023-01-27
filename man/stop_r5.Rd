@@ -17,36 +17,19 @@ No return value, called for side effects.
 Stops running r5r cores.
 }
 \examples{
-if (interactive()) {
-  library(r5r)
+\dontshow{if (identical(tolower(Sys.getenv("NOT_CRAN")), "true")) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+library(r5r)
 
-  path <- system.file("extdata/poa", package = "r5r")
+path <- system.file("extdata/poa", package = "r5r")
 
-  r5r_core <- setup_r5(data_path = path, temp_dir = TRUE)
+r5r_core <- setup_r5(path)
 
-  stop_r5(r5r_core)
-}
-
+stop_r5(r5r_core)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other support functions: 
-\code{\link{assert_breakdown_stat}()},
-\code{\link{assert_decay_function}()},
-\code{\link{assert_points_input}()},
 \code{\link{check_connection}()},
-\code{\link{fileurl_from_metadata}()},
-\code{\link{find_snap}()},
-\code{\link{posix_to_string}()},
-\code{\link{select_mode}()},
-\code{\link{set_max_lts}()},
-\code{\link{set_max_rides}()},
-\code{\link{set_max_street_time}()},
-\code{\link{set_n_threads}()},
-\code{\link{set_progress}()},
-\code{\link{set_speed}()},
-\code{\link{set_suboptimal_minutes}()},
-\code{\link{set_verbose}()},
-\code{\link{street_network_to_sf}()},
-\code{\link{transit_network_to_sf}()}
+\code{\link{fileurl_from_metadata}()}
 }
 \concept{support functions}

@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+<meta name="date" content="2023-01-27" />
+
+<title>Using the time_window parameter</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+<style type="text/css">
+p.abstract{
+text-align: center;
+font-weight: bold;
+}
+div.abstract{
+margin: auto;
+width: 90%;
+}
+</style>
+
+
+<style type="text/css">
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+}
+.hanging div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}
+</style>
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Using the time_window parameter</h1>
+<h4 class="date">2023-01-27</h4>
+<div class="abstract">
+<p class="abstract">Abstract</p>
+This vignette shows how to use and interpret the
+<code>time_window</code> parameter in r5r.
+</div>
+
+
+
+<div id="introduction" class="section level2">
+<h2>1. Introduction</h2>
+<div id="the-problem" class="section level3">
+<h3>The problem</h3>
+<p>To calculate the travel time from A to B, or to calculate the
+accessibility level at a given location, one has to select a departure
+time. However, travel time and accessibility estimates can differ
+significantly at different departure times because of how public
+transport service levels vary across the day <span class="citation">(Stepniak et al. 2019)</span>. Even a small difference,
+say leaving at <code>10:00am</code> or <code>10:04am</code> might
+importantly change travel time and accessibility estimates depending on
+when a person departs relative to when a public transport vehicle
+arrives, and how well transfers are coordinated given a service
+timetable. This is a very common issue related to the modifiable
+temporal unit problem (MTUP) <span class="citation">(Pereira 2019;
+Levinson and et al. 2020)</span>.</p>
+<p>This problem gets even more complicated when public transport GTFS
+feeds have a <code>frequencies.txt</code> table. In these cases, we
+cannot know the exact departure time of vehicles, what creates greater
+uncertainty for our travel time and accessibility estimates <span class="citation">(Conway, Byrd, and van Eggermond 2018; Stewart and Byrd
+2022)</span>.</p>
+</div>
+<div id="the-solution" class="section level3">
+<h3>The solution</h3>
+<p>A common strategy to overcome this problem is to calculate travel
+times and accessibilities at multiple departure times sampled over a
+time window, and then take the average or median value. Now you may ask,
+but how many departure times should I use? You might also be thinking
+that doing multiple repeated routing analysis can be cumbersome and take
+a lot of time. Right?</p>
+<p>Here is where <code>r5r</code> comes in. Both the
+<code>travel_time_matrix()</code>and <code>accessibility()</code>
+functions have a parameter called <code>time_window</code>. When this
+parameter is set, R<sup>5</sup> will automatically compute multiple
+travel times / accessibility estimates considering multiple departures
+per minute within the <code>time_window</code> selected by the user.</p>
+<p>This vignette shows a reproducible example to explain how one can use
+the <code>time_window</code> and interpret the results.</p>
+</div>
+</div>
+<div id="how-the-time_window-works-and-how-to-interpret-the-results." class="section level2">
+<h2>2. How the <code>time_window</code> works and how to interpret the
+results.</h2>
+<p>As mentioned above, when <code>time_window</code> is set,
+R<sup>5</sup> computes multiple travel times / accessibility estimates
+starting at the specified <code>departure_datetime</code> and within the
+<code>time_window</code> selected by the user. By default,
+<code>r5r</code> will generate one estimate per minute. Nonetheless,
+users can set a number to the <code>draws_per_minute</code> parameter
+that will change the number of Monte Carlo draws to perform per time
+window minute. The default value of <code>draws_per_minute</code> is 5,
+which mean 300 draws in a 60 minutes time window, for example. For a
+detailed discussion on the effect of number of draws on result
+stability, see Stewart et al <span class="citation">(2022)</span>.</p>
+<p>In this case, there isn’t a single estimate of travel time /
+accessibility, but a distribution of several estimates that reflect the
+travel time / accessibility uncertainties in the specified time window.
+To get our heads around so many estimates, we can use the
+<code>percentiles</code> parameter to specify the percentiles of the
+distribution we are interested in. For example, if we select the 25th
+travel time percentile and the results show that the travel time
+estimate between A and B is 15 minutes, this means that 25% of all trips
+taken between these points within the specified time window are shorter
+than 15 minutes.</p>
+<p>Let’s see a couple concrete examples now.</p>
+</div>
+<div id="demonstration-of-time_window." class="section level2">
+<h2>3. Demonstration of <code>time_window</code>.</h2>
+<div id="build-routable-transport-network-with-setup_r5" class="section level3">
+<h3>3.1 Build routable transport network with
+<code>setup_r5()</code></h3>
+<p>First, let’s build the network and create the routing inputs. In this
+example we’ll be using the a sample data set for the city of São Paulo
+(Brazil) included in <code>r5r</code>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># increase Java memory</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">java.parameters =</span> <span class="st">&quot;-Xmx2G&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># load libraries</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(r5r)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># build a routable transport network with r5r</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>data_path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata/spo&quot;</span>, <span class="at">package =</span> <span class="st">&quot;r5r&quot;</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>r5r_core <span class="ot">&lt;-</span> <span class="fu">setup_r5</span>(data_path)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># routing inputs</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>mode <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;walk&#39;</span>, <span class="st">&#39;transit&#39;</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>max_walk_time <span class="ot">&lt;-</span> <span class="dv">30</span> <span class="co"># minutes</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>max_trip_duration <span class="ot">&lt;-</span> <span class="dv">90</span> <span class="co"># minutes</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># load origin/destination points</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>points <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="fu">file.path</span>(data_path, <span class="st">&quot;spo_hexgrid.csv&quot;</span>))</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># departure datetime</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>departure_datetime <span class="ot">=</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;13-05-2019 14:00:00&quot;</span>, </span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>                                <span class="at">format =</span> <span class="st">&quot;%d-%m-%Y %H:%M:%S&quot;</span>)</span></code></pre></div>
+<p>ps. Please keep in mind that the <code>time_window</code> only
+affects the results when the GTFS feeds contain a
+<code>frequencies.txt</code> table.</p>
+</div>
+<div id="accessibility-with-time_window." class="section level3">
+<h3>3.2 Accessibility with <code>time_window</code>.</h3>
+<p>In this example we calculate the number of schools accessible from
+each location within a 60-minute time window departing between 2pm and
+3pm. In this example we’ll be using a cumulative accessibility metric
+<code>decay_function = &quot;step&quot;</code> with a max time threshold of 45
+minutes <code>cutoffs = 45</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># estimate accessibility</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>acc <span class="ot">&lt;-</span> r5r<span class="sc">::</span><span class="fu">accessibility</span>(<span class="at">r5r_core =</span> r5r_core,   </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">origins =</span> points,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">destinations =</span> points, </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">opportunities_colnames =</span> <span class="st">&#39;schools&#39;</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                          <span class="at">mode =</span> mode,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                          <span class="at">max_walk_time =</span> max_walk_time,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">decay_function =</span> <span class="st">&quot;step&quot;</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">cutoffs =</span> <span class="dv">45</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>                          <span class="at">departure_datetime =</span> departure_datetime,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>                          <span class="at">progress =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>                          <span class="at">time_window =</span> <span class="dv">30</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>                          <span class="at">percentiles =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">50</span>, <span class="dv">70</span>, <span class="dv">80</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>                          )</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(acc, <span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                  id opportunity percentile cutoff accessibility</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1: 89a8100c603ffff     schools         10     45            13</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2: 89a8100c603ffff     schools         20     45            13</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3: 89a8100c603ffff     schools         50     45             7</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4: 89a8100c603ffff     schools         70     45             6</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5: 89a8100c603ffff     schools         80     45             6</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6: 89a8100c617ffff     schools         10     45            14</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7: 89a8100c617ffff     schools         20     45            14</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8: 89a8100c617ffff     schools         50     45            13</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9: 89a8100c617ffff     schools         70     45             6</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10: 89a8100c617ffff     schools         80     45             6</span></span></code></pre></div>
+<p>#&gt;<code>{r detailed head of acc, echo = FALSE, out.width=&#39;100%&#39;, message = FALSE} #&gt;knitr::include_graphics(&quot;https://github.com/ipeaGIT/r5r/blob/master/r-package/inst/img/vig_time_window_acc_head.png?raw=true&quot;) #&gt;</code></p>
+<p>This output is in long format, so the first 5 rows show the result
+for the same origin. In this case, we see that in only 10% of the trips
+departing from that origin between 2pm and 3pm a person would be able to
+access up to 111 schools. Meanwhile, 50% of the times she would only
+access 79 schools. By contrast, the accessibility from the other origin
+shown in the output above is 0, meaning there are no schools accessible
+from that location given the max travel time of 45 minutes.</p>
+<p>We can use a plot like the one below to visualize this uncertainty in
+how accessibility levels might vary between 2pm and 3pm depending on the
+departure time within that 60-minute time window.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># summarize</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> acc[, .(<span class="at">min_acc =</span> <span class="fu">min</span>(accessibility),</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">median =</span> accessibility[<span class="fu">which</span>(percentile <span class="sc">==</span> <span class="dv">50</span>)],</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">max_acc =</span> <span class="fu">max</span>(accessibility)), by <span class="ot">=</span> id]</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>df) <span class="sc">+</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>(<span class="at">color=</span><span class="st">&#39;gray&#39;</span>, <span class="at">alpha=</span>.<span class="dv">5</span>, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(id, median) , </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y=</span>median, <span class="at">ymin=</span>min_acc, <span class="at">ymax=</span>max_acc)) <span class="sc">+</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color=</span><span class="st">&#39;#0570b0&#39;</span>, <span class="at">size=</span>.<span class="dv">5</span>, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(id, median), <span class="at">y=</span>median)) <span class="sc">+</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y=</span><span class="st">&#39;N. of schools accessible</span><span class="sc">\n</span><span class="st">by public transport&#39;</span>, <span class="at">x=</span><span class="st">&#39;Origins sorted by accessibility&#39;</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">&quot;Accessibility uncertainty between 2pm and 3pm&quot;</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&#39;Upper limit 10% and lower limit 80% of the times&#39;</span>) <span class="sc">+</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.ticks.x=</span><span class="fu">element_blank</span>())</span></code></pre></div>
+<p><img src="data:image/png;base64,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" width="100%" />
+#&gt;<code>{r acc_uncertainty figure, echo = FALSE, out.width=&#39;100%&#39;, message = FALSE} #&gt;knitr::include_graphics(&quot;https://github.com/ipeaGIT/r5r/blob/master/r-package/inst/img/vig_time_window_acc_uncertainty.png?raw=true&quot;) #&gt;</code></p>
+</div>
+<div id="travel-time-matrix-with-time_window." class="section level3">
+<h3>3.3 Travel time matrix with <code>time_window</code>.</h3>
+<p>Now let’s calculate all-to-all travel time estimates within a
+60-minute time window departing between 2pm and 3pm and see how the
+output looks like.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># estimate travel time matrix</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>ttm <span class="ot">&lt;-</span> <span class="fu">travel_time_matrix</span>(<span class="at">r5r_core =</span> r5r_core,   </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">origins =</span> points,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">destinations =</span> points,    </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">mode =</span> mode,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                          <span class="at">max_walk_time =</span> max_walk_time,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                          <span class="at">max_trip_duration =</span> max_trip_duration,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">departure_datetime =</span> departure_datetime,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">progress =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                          <span class="at">time_window =</span> <span class="dv">20</span>,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                          <span class="at">percentiles =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">50</span>, <span class="dv">70</span>, <span class="dv">80</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                          )</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ttm, <span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             from_id           to_id travel_time_p10 travel_time_p20</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1: 89a8100c603ffff 89a8100c603ffff               0               0</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2: 89a8100c603ffff 89a8100c617ffff              13              13</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3: 89a8100c603ffff 89a8100c60fffff               6               6</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4: 89a8100c603ffff 89a8100c607ffff              11              11</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5: 89a8100c603ffff 89a8100c6abffff              20              20</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6: 89a8100c603ffff 89a8100c6a3ffff              26              26</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7: 89a8100c603ffff 89a8100c677ffff              14              14</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8: 89a8100c603ffff 89a8100c63bffff              14              14</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9: 89a8100c603ffff 89a8100c633ffff              16              16</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10: 89a8100c603ffff 89a8100c6afffff              24              24</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     travel_time_p50 travel_time_p70 travel_time_p80</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1:               0               0               0</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2:              13              13              13</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3:               6               6               6</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4:              11              11              11</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5:              20              20              20</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6:              26              26              26</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7:              14              14              14</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8:              14              14              14</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9:              16              16              16</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10:              24              24              24</span></span></code></pre></div>
+<p>#&gt;<code>{r detailed head of ttm, echo = FALSE, out.width=&#39;100%&#39;, message = FALSE} #&gt;knitr::include_graphics(&quot;https://github.com/ipeaGIT/r5r/blob/master/r-package/inst/img/vig_time_window#&gt;_ttm_head.png?raw=true&quot;) #&gt;</code></p>
+<p>Now let’s look at the 2nd row of the output above. This output tell
+us that only 10% of the trips between 2pm and 3pm for that
+origin-destination pair took 39 minutes or less. Meanwhile, 50% of those
+trips took up tp 45 minutes and 80% of them were 48-minute long or
+shorter.</p>
+<p>The last row in the result above has a few <code>NA</code>s. This
+tell us that at least 50% of all simulated trips between 2pm and 3pm for
+that origin-destination pair could not be completed because they took
+longer than the <code>max_trip_duration</code> we have set (90
+minutes).</p>
+</div>
+<div id="expanded-travel-time-matrix-with-time_window." class="section level3">
+<h3>3.4 Expanded travel time matrix with <code>time_window</code>.</h3>
+<p>Finally, we can also use the <code>time_window</code> in the
+<code>expanded_travel_time_matrix()</code> function. In this case,
+though, when the user sets a <code>time_window</code> value, the
+<code>expanded_travel_time_matrix()</code> will return the fastest route
+alternative departing each minute within the specified time window.
+Please note this function can be very memory intensive for large data
+sets and time windows.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>ettm <span class="ot">&lt;-</span> r5r<span class="sc">::</span><span class="fu">expanded_travel_time_matrix</span>(<span class="at">r5r_core =</span> r5r_core,   </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">origins =</span> points[<span class="dv">1</span><span class="sc">:</span><span class="dv">30</span>,],</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">destinations =</span> points[<span class="dv">31</span><span class="sc">:</span><span class="dv">61</span>,],    </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">mode =</span> mode,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">max_walk_time =</span> max_walk_time,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">max_trip_duration =</span> max_trip_duration,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">departure_datetime =</span> departure_datetime,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">progress =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">time_window =</span> <span class="dv">20</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ettm, <span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             from_id           to_id departure_time draw_number  routes</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1: 89a8100c603ffff 89a8100c28bffff       14:00:00           1 4491-10</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2: 89a8100c603ffff 89a8100c28bffff       14:00:00           2 4491-10</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3: 89a8100c603ffff 89a8100c28bffff       14:00:00           3 4491-10</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4: 89a8100c603ffff 89a8100c28bffff       14:00:00           4 4491-10</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5: 89a8100c603ffff 89a8100c28bffff       14:00:00           5 4491-10</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6: 89a8100c603ffff 89a8100c28bffff       14:01:00           1 4491-10</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7: 89a8100c603ffff 89a8100c28bffff       14:01:00           2 4491-10</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8: 89a8100c603ffff 89a8100c28bffff       14:01:00           3 4491-10</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9: 89a8100c603ffff 89a8100c28bffff       14:01:00           4 4491-10</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10: 89a8100c603ffff 89a8100c28bffff       14:01:00           5 4491-10</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     total_time</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  1:       52.4</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  2:       50.0</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  3:       36.2</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  4:       43.7</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  5:       36.2</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  6:       45.7</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  7:       50.7</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  8:       49.0</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  9:       51.6</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 10:       43.2</span></span></code></pre></div>
+</div>
+<div id="cleaning-up-after-usage" class="section level3">
+<h3>Cleaning up after usage</h3>
+<p><code>r5r</code> objects are still allocated to any amount of memory
+previously set after they are done with their calculations. In order to
+remove an existing <code>r5r</code> object and reallocate the memory it
+had been using, we use the <code>stop_r5</code> function followed by a
+call to Java’s garbage collector, as follows:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>r5r<span class="sc">::</span><span class="fu">stop_r5</span>(r5r_core)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>rJava<span class="sc">::</span><span class="fu">.jgc</span>(<span class="at">R.gc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p>If you have any suggestions or want to report an error, please visit
+<a href="https://github.com/ipeaGIT/r5r">the package GitHub
+page</a>.</p>
+</div>
+</div>
+<div id="references" class="section level2 unnumbered">
+<h2 class="unnumbered">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-conway2018accounting" class="csl-entry">
+Conway, Matthew Wigginton, Andrew Byrd, and Michael van Eggermond. 2018.
+<span>“Accounting for Uncertainty and Variation in Accessibility Metrics
+for Public Transport Sketch Planning.”</span> <em>Journal of Transport
+and Land Use</em> 11 (1). <a href="https://doi.org/10.5198/jtlu.2018.1074">https://doi.org/10.5198/jtlu.2018.1074</a>.
+</div>
+<div id="ref-levinson2020manual" class="csl-entry">
+Levinson, David, and et al. 2020. <span>“Transport Access Manual: A
+Guide for Measuring Connection Between People and Places,”</span>
+January. <a href="https://ses.library.usyd.edu.au/handle/2123/23733">https://ses.library.usyd.edu.au/handle/2123/23733</a>.
+</div>
+<div id="ref-pereiramtup2019" class="csl-entry">
+Pereira, Rafael H. M. 2019. <span>“Future Accessibility Impacts of
+Transport Policy Scenarios: Equity and Sensitivity to Travel Time
+Thresholds for Bus Rapid Transit Expansion in Rio de Janeiro.”</span>
+<em>Journal of Transport Geography</em> 74 (January): 321–32. <a href="https://doi.org/10.1016/j.jtrangeo.2018.12.005">https://doi.org/10.1016/j.jtrangeo.2018.12.005</a>.
+</div>
+<div id="ref-stepniak2019impact" class="csl-entry">
+Stepniak, Marcin, John P. Pritchard, Karst T. Geurs, and Slawomir
+Goliszek. 2019. <span>“The Impact of Temporal Resolution on Public
+Transport Accessibility Measurement: Review and Case Study in
+Poland.”</span> <em>Journal of Transport Geography</em> 75 (February):
+8–24. <a href="https://doi.org/10.1016/j.jtrangeo.2019.01.007">https://doi.org/10.1016/j.jtrangeo.2019.01.007</a>.
+</div>
+<div id="ref-stewart2022half" class="csl-entry">
+Stewart, Anson F, and Andrew M Byrd. 2022. <span>“Half-(Head)way There:
+Comparing Two Methods to Account for Public Transport Waiting Time in
+Accessibility Indicators.”</span> <em>Environment and Planning B: Urban
+Analytics and City Science</em>, November, 23998083221137077. <a href="https://doi.org/10.1177/23998083221137077">https://doi.org/10.1177/23998083221137077</a>.
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

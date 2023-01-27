@@ -1,238 +1,302 @@
-context("Travel time matrix function")
+# if running manually, please run the following line first:
+# source("tests/testthat/setup.R")
 
-# skips tests on CRAN since they require a specific version of java
 testthat::skip_on_cran()
 
-# load required data and setup r5r_core
+departure_datetime <- as.POSIXct(
+  "13-05-2019 14:00:00",
+  format = "%d-%m-%Y %H:%M:%S"
+)
 
-data_path <- system.file("extdata/spo", package = "r5r")
-r5r_core <- setup_r5(data_path, verbose = FALSE, temp_dir = TRUE)
-points <- read.csv(file.path(data_path, "spo_hexgrid.csv"))
-
-# create testing function
-
-default_tester <- function(r5r_core,
-                           origins = points[1:10,],
-                           destinations = points[1:10,],
-                           mode = "BICYCLE",
-                           departure_datetime = as.POSIXct("13-05-2019 14:00:00",
-                                                           format = "%d-%m-%Y %H:%M:%S"),
-                           time_window = 1L,
-                           percentiles = 50L,
-                           breakdown = FALSE,
-                           breakdown_stat = "MEAN",
-                           max_walk_dist = Inf,
-                           max_bike_dist = Inf,
-                           max_trip_duration = 120L,
-                           walk_speed = 3.6,
-                           bike_speed = 12,
-                           max_rides = 3,
-                           n_threads = Inf,
-                           verbose = FALSE) {
-
-  results <- travel_time_matrix(
+tester <- function(r5r_core = get("r5r_core", envir = parent.frame()),
+                   origins = pois,
+                   destinations = pois,
+                   mode = "WALK",
+                   mode_egress = "WALK",
+                   departure_datetime = Sys.time(),
+                   time_window = 1L,
+                   percentiles = 50L,
+                   fare_structure = NULL,
+                   max_fare = Inf,
+                   max_walk_time = Inf,
+                   max_bike_time = Inf,
+                   max_trip_duration = 120L,
+                   walk_speed = 3.6,
+                   bike_speed = 12,
+                   max_rides = 3,
+                   max_lts = 2,
+                   draws_per_minute = 5L,
+                   n_threads = Inf,
+                   verbose = FALSE,
+                   progress = FALSE,
+                   output_dir = NULL) {
+  travel_time_matrix(
     r5r_core,
     origins = origins,
     destinations = destinations,
     mode = mode,
+    mode_egress = mode_egress,
     departure_datetime = departure_datetime,
     time_window = time_window,
     percentiles = percentiles,
-    breakdown = breakdown,
-    breakdown_stat = breakdown_stat,
-    max_walk_dist = max_walk_dist,
-    max_bike_dist = max_bike_dist,
+    fare_structure = fare_structure,
+    max_fare = max_fare,
+    max_walk_time = max_walk_time,
+    max_bike_time = max_bike_time,
     max_trip_duration = max_trip_duration,
     walk_speed = walk_speed,
     bike_speed = bike_speed,
     max_rides = max_rides,
+    max_lts = max_lts,
+    draws_per_minute = draws_per_minute,
     n_threads = n_threads,
-    verbose = verbose
+    verbose = verbose,
+    progress = progress,
+    output_dir = output_dir
   )
-
-  return(results)
-
 }
 
+# tests -------------------------------------------------------------------
 
-# errors and warnings -----------------------------------------------------
-
-
-test_that("adequately raises errors", {
-
-  # error related to using object with wrong type as r5r_core
-  expect_error(default_tester("r5r_core"))
-
-  # error related to using wrong origins/destinations object type
-  multipoint_origins      <- sf::st_cast(sf::st_as_sf(points[1:2,], coords = c("lon", "lat")), "MULTIPOINT")
+test_that("errors due to incorrect input types - origins and destinations", {
+  multipoint_origins <- sf::st_cast(
+    sf::st_as_sf(pois, coords = c("lon", "lat")),
+    "MULTIPOINT"
+  )
   multipoint_destinations <- multipoint_origins
-  list_origins      <- list(id = c("1", "2"), lat = c(-30.02756, -30.02329), long = c(-51.22781, -51.21886))
-  list_destinations <- list_origins
 
-  expect_error(default_tester(r5r_core, origins = multipoint_origins))
-  expect_error(default_tester(r5r_core, destinations = multipoint_destinations))
-  expect_error(default_tester(r5r_core, origins = list_origins))
-  expect_error(default_tester(r5r_core, destinations = list_destinations))
-  expect_error(default_tester(r5r_core, origins = "origins"))
-  expect_error(default_tester(r5r_core, destinations = "destinations"))
+  list_destinations <- list_origins <- unclass(pois)
 
-  # error/warning related to using wrong origins/destinations column types
-  origins <- destinations <- points[1:2, ]
+  expect_error(tester(origins = multipoint_origins))
+  expect_error(tester(destinations = multipoint_destinations))
+  expect_error(tester(origins = list_origins))
+  expect_error(tester(destinations = list_destinations))
+  expect_error(tester(origins = "origins"))
+  expect_error(tester(destinations = "destinations"))
 
-  origins_char_lat   <- data.frame(id = origins$id, lat = as.character(origins$lat), lon = origins$lon)
-  origins_char_lon   <- data.frame(id = origins$id, lat = origins$lat, lon = as.character(origins$lon))
-  destinations_char_lat   <- data.frame(id = destinations$id, lat = as.character(destinations$lat), lon = destinations$lon)
-  destinations_char_lon   <- data.frame(id = destinations$id, lat = destinations$lat, lon = as.character(destinations$lon))
+  # wrong columns types
 
-  expect_error(default_tester(r5r_core, origins = origins_char_lat))
-  expect_error(default_tester(r5r_core, origins = origins_char_lon))
-  expect_error(default_tester(r5r_core, destinations = destinations_char_lat))
-  expect_error(default_tester(r5r_core, destinations = destinations_char_lon))
+  pois_char_lat <- pois
+  pois_char_lat$lat <- as.character(pois$lat)
+  pois_char_lon <- pois
+  pois_char_lon$lon <- as.character(pois$lon)
 
-  # error related to nonexistent mode
-  expect_error(default_tester(r5r_core, mode = "pogoball"))
-
-  # errors related to date formatting
-  numeric_datetime <- as.numeric(as.POSIXct("13-05-2019 14:00:00", format = "%d-%m-%Y %H:%M:%S"))
-
-  expect_error(default_tester(r5r_core, departure_datetime = "13-05-2019 14:00:00"))
-  expect_error(default_tester(r5r_core, numeric_datetime))
-
-  # error with breakdown
-  expect_error(default_tester(r5r_core, breakdown ='test'))
-  expect_error(default_tester(r5r_core, breakdown =TRUE, breakdown_stat = "test"))
-
-  # errors related to max_walk_dist
-  expect_error(default_tester(r5r_core, max_walk_dist = "1000"))
-  expect_error(default_tester(r5r_core, max_walk_dist = NULL))
-
-  # errors related to max_bike_dist
-  expect_error(default_tester(r5r_core, max_bike_dist = "1000"))
-  expect_error(default_tester(r5r_core, max_bike_dist = NULL))
-
-  # error/warning related to max_street_time
-  expect_error(default_tester(r5r_core, max_trip_duration = "120"))
-
-  # error related to non-numeric walk_speed
-  expect_error(default_tester(r5r_core, walk_speed = "3.6"))
-
-  # error related to non-numeric bike_speed
-  expect_error(default_tester(r5r_core, bike_speed = "12"))
-
-  # error related to non-numeric max_rides
-  expect_error(default_tester(r5r_core, max_rides = "3"))
-
-  # error related to non-numeric n_threads
-  expect_error(default_tester(r5r_core, n_threads = "1"))
-
-  # error related to non-logical verbose
-  expect_error(default_tester(r5r_core, verbose = "TRUE"))
-  expect_error(default_tester(r5r_core, verbose = 1))
-  expect_error(default_tester(r5r_core, verbose = NULL))
-
+  expect_error(tester(origins = pois_char_lat))
+  expect_error(tester(origins = pois_char_lon))
+  expect_error(tester(destinations = pois_char_lat))
+  expect_error(tester(destinations = pois_char_lon))
 })
 
-test_that("adequately raises warnings - needs java", {
+test_that("errors due to incorrect input types - other inputs", {
+  # mode and mode_egress are tested in assign_mode() tests
 
-  # error/warning related to using wrong origins/destinations column types
-  origins <- destinations <- points[1:2, ]
+  expect_error(tester(unclass(r5r_core)))
 
-  origins_numeric_id <- data.frame(id = 1:2, lat = origins$lat, lon = origins$lon)
-  destinations_numeric_id <- data.frame(id = 1:2, lat = destinations$lat, lon = destinations$lon)
+  expect_error(tester(departure_datetime = unclass(departure_datetime)))
+  expect_error(tester(departure_datetime = rep(departure_datetime, 2)))
 
-  expect_warning(default_tester(r5r_core, origins = origins_numeric_id))
-  expect_warning(default_tester(r5r_core, destinations = destinations_numeric_id))
+  expect_error(tester(percentiles = "50"))
+  expect_error(tester(percentiles = 0))
+  expect_error(tester(percentiles = 100))
+  expect_error(tester(percentiles = c(50, 50)))
+  expect_error(tester(percentiles = 1:6))
+  expect_error(tester(percentiles = NA))
 
+  # TODO: test fare_structure
 
+  expect_error(tester(max_fare = "0"))
+  expect_error(tester(max_fare = -1))
+  expect_error(tester(max_fare = c(0, 20)))
+  expect_error(tester(max_fare = NA))
+
+  expect_error(tester(max_walk_time = "1000"))
+  expect_error(tester(max_walk_time = NULL))
+  expect_error(tester(max_walk_time = c(1000, 2000)))
+  expect_error(tester(max_walk_time = 0))
+
+  expect_error(tester(max_bike_time = "1000"))
+  expect_error(tester(max_bike_time = NULL))
+  expect_error(tester(max_bike_time = c(1000, 2000)))
+  expect_error(tester(max_bike_time = 0))
+
+  expect_error(tester(max_trip_duration = "120"))
+  expect_error(tester(max_trip_duration = c(25, 30)))
+  expect_error(tester(max_trip_duration = Inf))
+
+  expect_error(tester(walk_speed = "3.6"))
+  expect_error(tester(walk_speed = c(3.6, 5)))
+  expect_error(tester(walk_speed = 0))
+
+  expect_error(tester(bike_speed = "12"))
+  expect_error(tester(bike_speed = c(12, 15)))
+  expect_error(tester(bike_speed = 0))
+
+  expect_error(tester(draws_per_minute = "1"))
+  expect_error(tester(draws_per_minute = c(12, 15)))
+  expect_error(tester(draws_per_minute = 0))
+  expect_error(tester(draws_per_minute = Inf))
+
+  expect_error(tester(output_dir = 1))
+  expect_error(tester(output_dir = "non_existent_dir"))
 })
 
+test_that("raises errors when non-character ids are used in origs/dests", {
+  origins <- destinations <- pois[1:2, ]
 
-# adequate behaviour ------------------------------------------------------
+  origins_numeric_id <- origins
+  origins_numeric_id$id <- 1:2
+  destinations_numeric_id <- destinations
+  destinations_numeric_id$id <- 1:2
 
+  expect_warning(tester(origins = origins_numeric_id))
+  expect_warning(tester(destinations = destinations_numeric_id))
+})
 
-test_that("output is correct", {
+test_that("output is a data.table with correct columns", {
+  ttm <- tester()
+  expect_s3_class(ttm, "data.table")
+  expect_identical(names(ttm), c("from_id", "to_id", "travel_time_p50"))
+  expect_type(ttm$from_id, "character")
+  expect_type(ttm$to_id, "character")
+  expect_type(ttm$travel_time_p50, "integer")
 
-  #  * output class ---------------------------------------------------------
+  # more percentiles means more columns
 
+  ttm <- tester(percentiles = c(25, 50, 75))
+  expect_identical(
+    names(ttm),
+    c("from_id", "to_id", paste0("travel_time_p", c(25, 50, 75)))
+  )
+  expect_type(ttm$from_id, "character")
+  expect_type(ttm$to_id, "character")
+  expect_type(ttm$travel_time_p25, "integer")
+  expect_type(ttm$travel_time_p50, "integer")
+  expect_type(ttm$travel_time_p75, "integer")
+})
 
-  # expect results to be of class 'data.table', independently of the class of
-  # 'origins'/'destinations'
-
+test_that("output is identical independent of origs/dests type", {
   origins_sf <- destinations_sf <- sf::st_as_sf(
-    points[1:10, ],
+    pois,
     coords = c("lon", "lat"),
     crs = 4326
   )
 
-  result_df_input <- default_tester(r5r_core)
-  result_sf_input <- default_tester(r5r_core, origins_sf, destinations_sf)
-
-  expect_true(is(result_df_input, "data.table"))
-  expect_true(is(result_sf_input, "data.table"))
-
-  # expect each column to be of right class
-
-  expect_true(typeof(result_df_input$fromId) == "character")
-  expect_true(typeof(result_df_input$toId) == "character")
-  expect_true(typeof(result_df_input$travel_time) == "integer")
-
-  # expect more info with breakdown
-  df <- default_tester(r5r_core, breakdown=TRUE)
-  expect_equal(ncol(df), 11)
-
-
-  #  * r5r options ----------------------------------------------------------
-
-
-  # expect walking trips to be shorter when setting higher walk speeds
-
-  max_trip_duration <- 500L
-  origins <- destinations <- points[1:15,]
-
-  df <- default_tester(r5r_core, origins = origins, destinations = destinations,
-                       mode = "WALK", walk_speed = 3.6, max_trip_duration = max_trip_duration)
-  travel_time_lower_speed <- data.table::setDT(df)[, max(travel_time)]
-
-  df <- default_tester(r5r_core, origins = origins, destinations = destinations,
-                       mode = "WALK", walk_speed = 4, max_trip_duration = max_trip_duration)
-  travel_time_higher_speed <- data.table::setDT(df)[, max(travel_time)]
-
-  expect_true(travel_time_higher_speed < travel_time_lower_speed)
-
-  # expect bike segments to be shorter when setting higher walk speeds
-
-  df <- default_tester(r5r_core, origins = origins, destinations = destinations,
-                       mode = "BICYCLE", walk_speed = 12, max_trip_duration = max_trip_duration)
-  travel_time_lower_speed <- data.table::setDT(df)[, max(travel_time)]
-
-  df <- default_tester(r5r_core, origins = origins, destinations = destinations,
-                       mode = "BICYCLE", walk_speed = 13, max_trip_duration = max_trip_duration)
-  travel_time_higher_speed <- data.table::setDT(df)[, max(travel_time)]
-
-  expect_true(travel_time_higher_speed < travel_time_lower_speed)
-
-
-  #  * arguments ------------------------------------------------------------
-
-
-  # expect all travel times to be lower than max_trip_duration
-
-  max_trip_duration <- 60L
-
-  df <- default_tester(r5r_core, origins, destinations, max_trip_duration = max_trip_duration)
-  max_duration <- data.table::setDT(df)[, max(travel_time)]
-
-  expect_true(max_duration <= max_trip_duration)
-
-  # expect number of rows to be lower than or equal to nrow(origins) * nrow(destinations)
-
-  max_trip_duration <- 300L
-
-  df <- default_tester(r5r_core, origins, destinations, max_trip_duration = max_trip_duration)
-  n_rows <- nrow(df)
-
-  expect_true(n_rows <= nrow(origins) * nrow(destinations))
-
+  ttm_df <- tester()
+  ttm_sf <- tester(origins = origins_sf, destinations = destinations_sf)
+  expect_identical(ttm_df, ttm_sf)
 })
 
-stop_r5(r5r_core)
+
+test_that("we get more results (and faster trips) when using faster modes", {
+  ttm_walk_only <- tester(
+    mode = "WALK",
+    departure_datetime = departure_datetime
+  )
+  data.table::setnames(ttm_walk_only, "travel_time_p50", new = "only_walk_time")
+  ttm_with_transit <- tester(
+    mode = c("WALK", "TRANSIT"),
+    departure_datetime = departure_datetime
+  )
+
+  expect_true(nrow(ttm_with_transit) > nrow(ttm_walk_only))
+
+  ttm <- ttm_walk_only[
+    ttm_with_transit,
+    on = c("from_id", "to_id"),
+    with_transit_time := i.travel_time_p50
+  ]
+  expect_true(all(ttm$only_walk_time >= ttm$with_transit_time))
+})
+
+
+test_that("using transit outside the gtfs dates results in walk only trips", {
+  ttm_within_gtfs_date <- tester(
+    mode = c("WALK", "TRANSIT"),
+    departure_datetime = departure_datetime
+  )
+  ttm_outside_gtfs_date <- tester(
+    mode = c("WALK", "TRANSIT"),
+    departure_datetime = Sys.time()
+  )
+  ttm_walk_only <- tester()
+
+  expect_identical(ttm_outside_gtfs_date, ttm_walk_only)
+  expect_false(identical(ttm_within_gtfs_date, ttm_outside_gtfs_date))
+})
+
+test_that("higher percentiles travel times are slower", {
+  ttm <- tester(
+    mode = c("WALK", "TRANSIT"),
+    departure_datetime = departure_datetime,
+    percentiles = c(1, 50, 99),
+    time_window = 20
+  )
+  expect_true(all(ttm$travel_time_p01 <= ttm$travel_time_p50))
+  expect_true(all(ttm$travel_time_p50 <= ttm$travel_time_p99))
+})
+
+test_that("walk trips are shorter with higher walk speeds", {
+  ttm_low_speed <- tester(mode = "WALK", walk_speed = 3.6)
+  data.table::setnames(ttm_low_speed, "travel_time_p50", new = "low_speed_time")
+  ttm_high_speed <- tester(mode = "WALK", walk_speed = 6)
+  ttm <- ttm_low_speed[
+    ttm_high_speed,
+    on = c("from_id", "to_id"),
+    high_speed_time := i.travel_time_p50
+  ]
+  expect_true(all(ttm$low_speed_time >= ttm$high_speed_time))
+})
+
+
+
+test_that("bike trips are shorter with higher bike speeds", {
+  ttm_low_speed <- tester(mode = "BICYCLE", bike_speed = 12)
+  data.table::setnames(ttm_low_speed, "travel_time_p50", new = "low_speed_time")
+  ttm_high_speed <- tester(mode = "BICYCLE", bike_speed = 20)
+  ttm <- ttm_low_speed[
+    ttm_high_speed,
+    on = c("from_id", "to_id"),
+    high_speed_time := i.travel_time_p50
+  ]
+  expect_true(all(ttm$low_speed_time >= ttm$high_speed_time))
+})
+
+test_that("all travel times are lower than max_trip_duration", {
+  max_trip_duration <- 60L
+  ttm <- tester(max_trip_duration = max_trip_duration, percentiles = 99)
+  expect_true(all(ttm$travel_time_p99 <= max_trip_duration))
+})
+
+test_that("all od pairs are unique", {
+  ttm <- tester()
+  ttm <- ttm[, .N, keyby = .(from_id, to_id)]
+  expect_equal(unique(ttm$N), 1)
+})
+
+test_that("output is saved to dir and function returns path with output_dir", {
+  tmpdir <- tempfile("ttm_output")
+  dir.create(tmpdir)
+
+  ttm_output_dir <- tester(output_dir = tmpdir)
+  expect_equal(normalizePath(ttm_output_dir), normalizePath(tmpdir))
+
+  ttm_from_files <- lapply(
+    list.files(ttm_output_dir, full.names = TRUE),
+    data.table::fread
+  )
+  ttm_from_files <- data.table::rbindlist(ttm_from_files)
+  ttm_from_files <- ttm_from_files[order(from_id, to_id)]
+
+  ttm_normal <- tester()
+  ttm_normal <- ttm_normal[order(from_id, to_id)]
+
+  expect_identical(ttm_normal, ttm_from_files)
+})
+
+test_that("returns ttm even if last call saved to dir", {
+  tmpdir <- tempfile("ttm_output")
+  dir.create(tmpdir)
+  ttm_output_dir <- tester(output_dir = tmpdir)
+  ttm_normal <- tester()
+  expect_s3_class(ttm_normal, "data.table")
+})

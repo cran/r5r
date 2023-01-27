@@ -1,384 +1,279 @@
 #' Calculate access to opportunities
 #'
-#' @description Fast computation of access to opportunities given a selected
-#'              decay function. See `details` for the available decay functions.
+#' Fast computation of access to opportunities given a selected decay function.
 #'
-#' @param r5r_core a rJava object to connect with R5 routing engine
-#' @param origins,destinations a spatial sf POINT object with WGS84 CRS, or a
-#'                             data.frame containing the columns 'id', 'lon',
-#'                             'lat'.
-#' @param opportunities_colname string. The column name in the `destinations`
-#'        input that tells the number of opportunities in each location.
-#'        Defaults to "opportunities".
-#' @param mode string. Transport modes allowed for the trips. Defaults to
-#'             "WALK". See details for other options.
-#' @param mode_egress string. Transport mode used after egress from public
-#'                    transport. It can be either 'WALK', 'BICYCLE', or 'CAR'.
-#'                    Defaults to "WALK".
-#' @param departure_datetime POSIXct object. If working with public transport
-#'                           networks, please check \code{calendar.txt} within
-#'                           the GTFS file for valid dates. See details for
-#'                           further information on how datetimes are parsed.
-#' @param time_window numeric. Time window in minutes for which r5r will
-#'                    calculate travel times departing each minute. When using
-#'                    frequency-based GTFS files, 5 Monte Carlo simulations will
-#'                    be run for each minute in the time window. See details for
-#'                    further information.
-#' @param percentiles numeric vector. Defaults to '50', returning the accessibility
-#'                    value for the median travel time computed for a given
-#'                    time_window. If a numeric vector is passed, for example
-#'                    c(25, 50, 75), the function will return accessibility
-#'                    estimates for each percentile, by travel time cutoff. Only
-#'                    the first 5 cut points of the percentiles are considered.
-#'                    For more details, see R5 documentation at
-#'                    'https://docs.conveyal.com/analysis/methodology#accounting-for-variability'
-#' @param decay_function string. Choice of one of the following decay functions:
-#'                       'step', 'exponential', 'fixed_exponential', 'linear',
-#'                       and 'logistic'. Defaults to 'step', which yields
-#'                       cumulative opportunities accessibility metrics.
-#'                       More info in `details`.
-#' @param cutoffs numeric. Cutoff times in minutes for calculating cumulative
-#'                opportunities accessibility when using the 'step decay function'.
-#'                This parameter has different effects for each of the other decay
-#'                functions: it indicates the 'median' (or inflection point) of
-#'                the decay curves in the 'logistic' and 'linear' functions, and
-#'                the 'half-life' in the 'exponential' function. It has no effect
-#'                when using the 'fixed exponential' function.
-#' @param decay_value numeric. Extra parameter to be passed to the selected
-#'                `decay_function`.
-#' @param max_walk_dist numeric. Maximum walking distance (in meters) to access
-#'                      and egress the transit network, or to make transfers
-#'                      within the network. Defaults to no restrictions as long
-#'                      as `max_trip_duration` is respected. The max distance is
-#'                      considered separately for each leg (e.g. if you set
-#'                      `max_walk_dist` to 1000, you could potentially walk up
-#'                      to 1 km to reach transit, and up to _another_  1 km to
-#'                      reach the destination after leaving transit). Obs: if you
-#'                      want to set the maximum walking distance considering
-#'                      walking-only trips you have to set the `max_trip_duration`
-#'                      accordingly (e.g. to set a distance of 1 km assuming a
-#'                      walking speed of 3.6 km/h you have to set `max_trip_duration = 1 / 3.6 * 60`).
-#' @param max_bike_dist numeric. Maximum cycling distance (in meters) to access
-#'                      and egress the transit network. Defaults to no
-#'                      restrictions as long as `max_trip_duration` is respected.
-#'                      The max distance is considered separately for each leg
-#'                      (e.g. if you set `max_bike_dist` to 1000, you could
-#'                      potentially cycle up to 1 km to reach transit, and up
-#'                      to _another_ 1 km to reach the destination after leaving
-#'                      transit). Obs: if you want to set the maximum cycling
-#'                      distance considering cycling-only trips you have to set
-#'                      the `max_trip_duration` accordingly (e.g. to set a
-#'                      distance of 5 km assuming a cycling speed of 12 km/h you
-#'                      have to set `max_trip_duration = 5 / 12 * 60`).
-#' @param max_trip_duration numeric. Maximum trip duration in minutes. Defaults
-#'                          to 120 minutes (2 hours).
-#' @param walk_speed numeric. Average walk speed in km/h. Defaults to 3.6 km/h.
-#' @param bike_speed numeric. Average cycling speed in km/h. Defaults to 12 km/h.
-#' @param max_rides numeric. The max number of public transport rides allowed in
-#'                  the same trip. Defaults to 3.
-#' @param max_lts  numeric (between 1 and 4). The maximum level of traffic stress
-#'                 that cyclists will tolerate. A value of 1 means cyclists will
-#'                 only travel through the quietest streets, while a value of 4
-#'                 indicates cyclists can travel through any road. Defaults to 2.
-#'                 See details for more information.
-#' @param n_threads numeric. The number of threads to use in parallel computing.
-#'                  Defaults to use all available threads (Inf).
-#' @param verbose logical. `TRUE` to show detailed output messages (the default).
-#' @param progress logical. `TRUE` to show a progress counter. Only works when
-#'                `verbose` is set to `FALSE`, so the progress counter does not
-#'                interfere with R5's output messages. Setting `progress` to `TRUE`
-#'                may impose a small penalty for computation efficiency, because
-#'                the progress counter must be synchronized among all active
-#'                threads.
+#' @template r5r_core
+#' @template common_arguments
+#' @template time_window_related_args
+#' @template draws_per_minute
+#' @template fare_structure
+#' @template max_fare
+#' @template verbose
+#' @param opportunities_colnames A character vector. The names of the columns
+#'   in the `destinations` input that tells the number of opportunities in each
+#'   location. Several different column names can be passed, in which case the
+#'   accessibility to each kind of opportunity will be calculated.
+#' @param percentiles An integer vector (max length of 5). Specifies the
+#'   percentile to use when returning accessibility estimates within the given
+#'   time window. Please note that this parameter is applied to the travel time
+#'   estimates that generate the accessibility results, and not to the
+#'   accessibility distribution itself (i.e. if the 25th percentile is
+#'   specified, the accessibility is calculated from the 25th percentile travel
+#'   time, which may or may not be equal to the 25th percentile of the
+#'   accessibility distribution itself). Defaults to 50, returning the
+#'   accessibility calculated from the median travel time. If a vector with
+#'   length bigger than 1 is passed, the output contains an additional column
+#'   that specifies the percentile of each accessibility estimate. Due to
+#'   upstream restrictions, only 5 percentiles can be specified at a time. For
+#'   more details, please see `R5` documentation at
+#'   <https://docs.conveyal.com/analysis/methodology#accounting-for-variability>.
+#' @param decay_function A string. Which decay function to use when calculating
+#'   accessibility. One of `step`, `exponential`, `fixed_exponential`, `linear`
+#'   or `logistic`. Defaults to `step`, which is equivalent to a cumulative
+#'   opportunities measure. Please see the details to understand how each
+#'   alternative works and how they relate to the `cutoffs` and `decay_value`
+#'   parameters.
+#' @param cutoffs A numeric vector (maximum length of 12). This parameter has
+#'   different effects for each decay function: it indicates the cutoff times
+#'   in minutes when calculating cumulative opportunities accessibility with
+#'   the `step` function, the median (or inflection point) of the decay curves
+#'   in the `logistic` and `linear` functions, and the half-life in the
+#'   `exponential` function. It has no effect when using the
+#'   `fixed_exponential` function.
+#' @param decay_value A number. Extra parameter to be passed to the selected
+#'   `decay_function`. Has no effects when `decay_function` is either `step` or
+#'   `exponential`.
 #'
-#' @return A data.table with accessibility estimates for all origin points, by
-#' a given transport mode, and per travel time cutoff and percentile.
+#' @return A `data.table` with accessibility estimates for all origin points.
+#'   This `data.table` contain columns listing the origin id, the type of
+#'   opportunities to which accessibility was calculated, the travel time
+#'   percentile considered in the accessibility estimate and the specified
+#'   cutoff values (except in when `decay_function` is `fixed_exponential`, in
+#'   which case the `cutoff` parameter is not used). If `output_dir` is not
+#'   `NULL`, the function returns the path specified in that parameter, in
+#'   which the `.csv` files containing the results are saved.
 #'
-#' @details
-#'  # Decay functions:
-#'  R5 allows for multiple decay functions. More info in the original R5
-#'  documentation from Conveyal, at \url{https://docs.conveyal.com/learn-more/decay-functions}
-#'  The options include:
+#' @template decay_functions_section
+#' @template transport_modes_section
+#' @template lts_section
+#' @template datetime_parsing_section
+#' @template raptor_algorithm_section
 #'
-#'  ## Step `step` (cumulative opportunities)
-#'  A binary decay function used to calculate cumulative opportunities metrics.
+#' @family accessibility
 #'
-#'  ## Logistic CDF `logistic`
-#'  This is the logistic function, i.e. the cumulative distribution function of
-#'  the logistic distribution, expressed such that its parameters are the median
-#'  (inflection point) and standard deviation. This function applies a sigmoid
-#'  rolloff that has a convenient relationship to discrete choice theory. Its
-#'  parameters can be set to reflect a whole population's tolerance for making
-#'  trips with different travel times. The function's value represents the
-#'  probability that a randomly chosen member of the population would accept
-#'  making a trip, given its duration. Opportunities are then weighted by how
-#'  likely it is a person would consider them "reachable".
+#' @examplesIf identical(tolower(Sys.getenv("NOT_CRAN")), "true")
+#' library(r5r)
 #'
-#'  ### calibration
-#'  The median parameter is controlled by the `cutoff` parameter, leaving only
-#'  the standard deviation to configure through the `decay_value` parameter.
-#'
-#'  ## Fixed Exponential `fixed_exponential`
-#'  This function is of the form e-Lt where L is a single fixed decay constant
-#'  in the range (0, 1). It is constrained to be positive to ensure weights
-#'  decrease (rather than grow) with increasing travel time.
-#'
-#'  ### calibration
-#'  This function is controlled exclusively by the L constant, given by the
-#'  `decay_value` parameter. Values provided in `cutoffs` are ignored.
-#'
-#'  ## Half-life Exponential Decay `exponential`
-#'  This is similar to the fixed-exponential option above, but in this case the
-#'  decay parameter is inferred from the `cutoffs` parameter values, which is
-#'  treated as the half-life of the decay.
-#'
-#'  ## Linear `linear`
-#'  This is a simple, vaguely sigmoid option, which may be useful when you have
-#'  a sense of a maximum travel time that would be tolerated by any traveler,
-#'  and a minimum time below which all travel is perceived to be equally easy.
-#'
-#'  ### calibration
-#'  The transition region is transposable and symmetric around the `cutoffs`
-#'  parameter values, taking `decay_value` minutes to taper down from one to zero.
-#'
-#'  # Transport modes:
-#'  R5 allows for multiple combinations of transport modes. The options include:
-#'
-#'   ## Transit modes
-#'   TRAM, SUBWAY, RAIL, BUS, FERRY, CABLE_CAR, GONDOLA, FUNICULAR. The option
-#'   'TRANSIT' automatically considers all public transport modes available.
-#'
-#'   ## Non transit modes
-#'   WALK, BICYCLE, CAR, BICYCLE_RENT, CAR_PARK
-#'
-#' # max_lts, Maximum Level of Traffic Stress:
-#' When cycling is enabled in R5, setting `max_lts` will allow cycling only on
-#' streets with a given level of danger/stress. Setting `max_lts` to 1, for example,
-#' will allow cycling only on separated bicycle infrastructure or low-traffic
-#' streets; routing will revert to walking when traversing any links with LTS
-#' exceeding 1. Setting `max_lts` to 3 will allow cycling on links with LTS 1, 2,
-#' or 3.
-#'
-#' The default methodology for assigning LTS values to network edges is based on
-#' commonly tagged attributes of OSM ways. See more info about LTS in the original
-#' documentation of R5 from Conveyal at \url{https://docs.conveyal.com/learn-more/traffic-stress}.
-#' In summary:
-#'
-#'- **LTS 1**: Tolerable for children. This includes low-speed, low-volume streets,
-#'  as well as those with separated bicycle facilities (such as parking-protected
-#'  lanes or cycle tracks).
-#'- **LTS 2**: Tolerable for the mainstream adult population. This includes streets
-#'  where cyclists have dedicated lanes and only have to interact with traffic at
-#'  formal crossing.
-#'- **LTS 3**: Tolerable for “enthused and confident” cyclists. This includes streets
-#'  which may involve close proximity to moderate- or high-speed vehicular traffic.
-#'- **LTS 4**: Tolerable for only “strong and fearless” cyclists. This includes streets
-#'  where cyclists are required to mix with moderate- to high-speed vehicular traffic.
-#'
-#'  For advanced users, you can provide custom LTS values by adding a tag
-#'  <key = "lts> to the `osm.pbf` file
-#'
-#' # Routing algorithm:
-#' The `accessibility()` function uses an R5-specific extension to the RAPTOR
-#' routing algorithm (see Conway et al., 2017). This RAPTOR extension uses a
-#' systematic sample of one departure per minute over the time window set by the
-#' user in the 'time_window' parameter. A detailed description of base RAPTOR
-#' can be found in Delling et al (2015).
-#' - Conway, M. W., Byrd, A., & van der Linden, M. (2017). Evidence-based transit
-#'  and land use sketch planning using interactive accessibility methods on
-#'  combined schedule and headway-based networks. Transportation Research Record,
-#'  2653(1), 45-53.
-#'  - Delling, D., Pajor, T., & Werneck, R. F. (2015). Round-based public transit
-#'  routing. Transportation Science, 49(3), 591-604.
-#'
-#' # Datetime parsing
-#'
-#' `r5r` ignores the timezone attribute of datetime objects when parsing dates
-#' and times, using the study area's timezone instead. For example, let's say
-#' you are running some calculations using Rio de Janeiro, Brazil, as your study
-#' area. The datetime `as.POSIXct("13-05-2019 14:00:00",
-#' format = "%d-%m-%Y %H:%M:%S")` will be parsed as May 13th, 2019, 14:00h in
-#' Rio's local time, as expected. But `as.POSIXct("13-05-2019 14:00:00",
-#' format = "%d-%m-%Y %H:%M:%S", tz = "Europe/Paris")` will also be parsed as
-#' the exact same date and time in Rio's local time, perhaps surprisingly,
-#' ignoring the timezone attribute.
-#'
-#' @family routing
-#' @examples if (interactive()) {
-#'library(r5r)
-#'
-#' # build transport network
 #' data_path <- system.file("extdata/poa", package = "r5r")
-#' r5r_core <- setup_r5(data_path = data_path, temp_dir = TRUE)
+#' r5r_core <- setup_r5(data_path)
+#' points <- read.csv(file.path(data_path, "poa_hexgrid.csv"))[1:5, ]
 #'
-#' # load origin/destination points
-#' points <- read.csv(file.path(data_path, "poa_hexgrid.csv"))
+#' departure_datetime <- as.POSIXct(
+#'   "13-05-2019 14:00:00",
+#'   format = "%d-%m-%Y %H:%M:%S"
+#' )
 #'
-# estimate accessibility
-#'   access <- accessibility(r5r_core,
-#'                           origins = points,
-#'                           destinations = points,
-#'                           opportunities_colname = "schools",
-#'                           mode = "WALK",
-#'                           cutoffs = c(25, 30),
-#'                           max_trip_duration = 30,
-#'                           verbose = FALSE)
+#' access <- accessibility(
+#'   r5r_core,
+#'   origins = points,
+#'   destinations = points,
+#'   opportunities_colnames = "schools",
+#'   mode = "WALK",
+#'   departure_datetime = departure_datetime,
+#'   decay_function = "step",
+#'   cutoffs = 30,
+#'   max_trip_duration = 30
+#' )
+#' head(access)
+#'
+#' # using a different decay function
+#' access <- accessibility(
+#'   r5r_core,
+#'   origins = points,
+#'   destinations = points,
+#'   opportunities_colnames = "schools",
+#'   mode = "WALK",
+#'   departure_datetime = departure_datetime,
+#'   decay_function = "logistic",
+#'   cutoffs = 30,
+#'   decay_value = 1,
+#'   max_trip_duration = 30
+#' )
+#' head(access)
+#'
+#' # using several cutoff values
+#' access <- accessibility(
+#'   r5r_core,
+#'   origins = points,
+#'   destinations = points,
+#'   opportunities_colnames = "schools",
+#'   mode = "WALK",
+#'   departure_datetime = departure_datetime,
+#'   decay_function = "step",
+#'   cutoffs = c(25, 30),
+#'   max_trip_duration = 30
+#' )
+#' head(access)
+#'
+#' # calculating access to different types of opportunities
+#' access <- accessibility(
+#'   r5r_core,
+#'   origins = points,
+#'   destinations = points,
+#'   opportunities_colnames = c("schools", "healthcare"),
+#'   mode = "WALK",
+#'   departure_datetime = departure_datetime,
+#'   decay_function = "step",
+#'   cutoffs = 30,
+#'   max_trip_duration = 30
+#' )
+#' head(access)
 #'
 #' stop_r5(r5r_core)
 #'
-#' }
 #' @export
-
 accessibility <- function(r5r_core,
                           origins,
                           destinations,
-                          opportunities_colname = "opportunities",
+                          opportunities_colnames = "opportunities",
                           mode = "WALK",
                           mode_egress = "WALK",
                           departure_datetime = Sys.time(),
                           time_window = 1L,
                           percentiles = 50L,
                           decay_function = "step",
-                          cutoffs = 30L,
-                          decay_value = 1.0,
-                          max_walk_dist = Inf,
-                          max_bike_dist = Inf,
+                          cutoffs = NULL,
+                          decay_value = NULL,
+                          fare_structure = NULL,
+                          max_fare = Inf,
+                          max_walk_time = Inf,
+                          max_bike_time = Inf,
+                          max_car_time = Inf,
                           max_trip_duration = 120L,
                           walk_speed = 3.6,
                           bike_speed = 12,
                           max_rides = 3,
                           max_lts = 2,
+                          draws_per_minute = 5L,
                           n_threads = Inf,
-                          verbose = TRUE,
-                          progress = TRUE) {
+                          verbose = FALSE,
+                          progress = FALSE,
+                          output_dir = NULL) {
 
+  old_options <- options(datatable.optimize = Inf)
+  on.exit(options(old_options), add = TRUE)
 
-  # set data.table options --------------------------------------------------
-
-  old_options <- options()
   old_dt_threads <- data.table::getDTthreads()
+  dt_threads <- ifelse(is.infinite(n_threads), 0, n_threads)
+  data.table::setDTthreads(dt_threads)
+  on.exit(data.table::setDTthreads(old_dt_threads), add = TRUE)
 
-  on.exit({
-    options(old_options)
-    data.table::setDTthreads(old_dt_threads)
-  })
+  # check inputs and set r5r options --------------------------------------
 
-  options(datatable.optimize = Inf)
-
-
-  # check inputs ------------------------------------------------------------
-
-  # r5r_core
   checkmate::assert_class(r5r_core, "jobjRef")
 
-  # modes
-  mode_list <- select_mode(mode, mode_egress)
+  origins <- assign_points_input(origins, "origins")
+  destinations <- assign_points_input(destinations, "destinations")
+  opportunities <- assign_opportunities(destinations, opportunities_colnames)
+  mode_list <- assign_mode(mode, mode_egress)
+  departure <- assign_departure(departure_datetime)
+  max_walk_time <- assign_max_street_time(
+    max_walk_time,
+    walk_speed,
+    max_trip_duration,
+    "walk"
+  )
+  max_bike_time <- assign_max_street_time(
+    max_bike_time,
+    bike_speed,
+    max_trip_duration,
+    "bike"
+  )
+  max_car_time <- assign_max_street_time(
+    max_car_time,
+    8, # 8 km/h, R5's default.
+    max_trip_duration,
+    "car"
+  )
+  max_trip_duration <- assign_max_trip_duration(
+    max_trip_duration,
+    mode_list,
+    max_walk_time,
+    max_bike_time
+  )
+  decay_list <- assign_decay_function(decay_function, decay_value)
 
-  # departure time
-  departure <- posix_to_string(departure_datetime)
-
-  # max trip duration
-  checkmate::assert_numeric(max_trip_duration)
-  max_trip_duration <- as.integer(max_trip_duration)
-
-  # max_walking_distance, max_bike_distance, and max_street_time
-  max_walk_time <- set_max_street_time(max_walk_dist,
-                                       walk_speed,
-                                       max_trip_duration)
-
-  max_bike_time <- set_max_street_time(max_bike_dist,
-                                       bike_speed,
-                                       max_trip_duration)
-
-  # origins and destinations
-  origins      <- assert_points_input(origins, "origins")
-  destinations <- assert_points_input(destinations, "destinations")
-
-  # opportunities
-  checkmate::assert_character(opportunities_colname)
-  checkmate::assert_names(names(destinations), must.include = opportunities_colname,
-                          .var.name = "destinations")
-  checkmate::assert_numeric(destinations[[opportunities_colname]])
-  opportunities_data <- as.integer(destinations[[opportunities_colname]])
-
-  # time window
-  checkmate::assert_numeric(time_window)
-  time_window <- as.integer(time_window)
-
-  draws_per_minute <- getOption("r5r.montecarlo_draws", default = 5L)
-  draws <- time_window * draws_per_minute
-  draws <- as.integer(draws)
-
-  # percentiles
-  percentiles <- percentiles[1:5]
-  percentiles <- percentiles[!is.na(percentiles)]
-  checkmate::assert_numeric(percentiles)
-  percentiles <- as.integer(percentiles)
-
-  # cutoffs
-  checkmate::assert_numeric(cutoffs)
-  cutoffs <- as.integer(cutoffs)
-
-  # decay
-  decay_list <- assert_decay_function(decay_function, decay_value)
-
-  # set r5r_core options ----------------------------------------------------
-
-  # time window
-  r5r_core$setTimeWindowSize(time_window)
-  r5r_core$setPercentiles(percentiles)
-  r5r_core$setCutoffs(cutoffs)
-
-  r5r_core$setNumberOfMonteCarloDraws(draws)
-
-  # set bike and walk speed
+  set_time_window(r5r_core, time_window)
+  set_percentiles(r5r_core, percentiles)
+  set_monte_carlo_draws(r5r_core, draws_per_minute, time_window)
   set_speed(r5r_core, walk_speed, "walk")
   set_speed(r5r_core, bike_speed, "bike")
-
-  # set max transfers
   set_max_rides(r5r_core, max_rides)
-
-  # set max lts (level of traffic stress)
   set_max_lts(r5r_core, max_lts)
-
-  # set number of threads to be used by r5 and data.table
   set_n_threads(r5r_core, n_threads)
-
-  # set verbose
   set_verbose(r5r_core, verbose)
-
-  # set progress
   set_progress(r5r_core, progress)
+  set_fare_structure(r5r_core, fare_structure)
+  set_max_fare(r5r_core, max_fare)
+  set_output_dir(r5r_core, output_dir)
+  set_cutoffs(r5r_core, cutoffs, decay_function)
 
+  # accessibility cannot be computed on frequencies-based GTFS when a
+  # Fare Structure is set, because it uses McRaptor
+  if (!is.null(fare_structure) & r5r_core$hasFrequencies()) {
+    stop(
+      "Assertion on 'r5r_core' failed: None of the GTFS feeds used to create ",
+      "the transit network can contain a 'frequencies' table. Try using ",
+      "gtfstools::frequencies_to_stop_times() to create a suitable feed."
+    )
+  }
 
-  # call r5r_core method ----------------------------------------------------
+  # call r5r_core method and process results ------------------------------
 
-  accessibility <- r5r_core$accessibility(origins$id,
-                                          origins$lat,
-                                          origins$lon,
-                                          destinations$id,
-                                          destinations$lat,
-                                          destinations$lon,
-                                          opportunities_data,
-                                          decay_list$fun,
-                                          decay_list$value,
-                                          mode_list$direct_modes,
-                                          mode_list$transit_mode,
-                                          mode_list$access_mode,
-                                          mode_list$egress_mode,
-                                          departure$date,
-                                          departure$time,
-                                          max_walk_time,
-                                          max_bike_time,
-                                          max_trip_duration)
+  # wrap r5r_core inputs in arrays (this helps to simplify the Java code)
 
+  from_id_arr <- rJava::.jarray(origins$id)
+  from_lat_arr <- rJava::.jarray(origins$lat)
+  from_lon_arr <- rJava::.jarray(origins$lon)
 
-  # process results ---------------------------------------------------------
+  to_id_arr <- rJava::.jarray(destinations$id)
+  to_lat_arr <- rJava::.jarray(destinations$lat)
+  to_lon_arr <- rJava::.jarray(destinations$lon)
 
-  # convert travel_times from java object to data.table
-  if (!verbose & progress) { cat("Preparing final output...") }
+  opportunities_names <- rJava::.jarray(opportunities_colnames)
+  opportunities_values <- rJava::.jarray(opportunities, "[I")
+
+  accessibility <- r5r_core$accessibility(
+    from_id_arr,
+    from_lat_arr,
+    from_lon_arr,
+    to_id_arr,
+    to_lat_arr,
+    to_lon_arr,
+    opportunities_names,
+    opportunities_values,
+    decay_list$fun,
+    decay_list$value,
+    mode_list$direct_modes,
+    mode_list$transit_mode,
+    mode_list$access_mode,
+    mode_list$egress_mode,
+    departure$date,
+    departure$time,
+    max_walk_time,
+    max_bike_time,
+    max_car_time,
+    max_trip_duration
+  )
+
+  if (!verbose & progress) cat("Preparing final output...", file = stderr())
+
   accessibility <- java_to_dt(accessibility)
-  if (!verbose & progress) { cat(" DONE!\n") }
 
-  return(accessibility)
+  if (decay_function == "fixed_exponential") accessibility[, cutoff := NULL]
+
+  if (!verbose & progress) cat(" DONE!\n", file = stderr())
+
+  if (!is.null(output_dir)) return(output_dir)
+  return(accessibility[])
 }

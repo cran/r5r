@@ -1,29 +1,26 @@
-#' Download R5 Jar file
+#' Download `R5.jar`
 #'
-#' Download a compiled JAR file of R5 and saves it locally. The JAR file is
-#' saved within the package directory. The package uses a compilation of R5
-#' tailored for the purposes of r5r that keeps R5's essential features. Source
-#' code available at https://github.com/ipeaGIT/r5r.
+#' Downloads `R5.jar` and saves it locally, inside the package directory.
 #'
-#' @param version string with the version of R5 to be downloaded. Defaults to
-#'                latest version '6.4'.
-#' @param quiet logical, passed to download.file. Defaults to FALSE
-#' @param force_update logical, Replaces the jar file stored locally with a new
-#'                     one. Defaults to FALSE.
-#' @param temp_dir logical, whether the R5 Jar file should be saved in temporary
-#'                 directory. Defaults to FALSE
+#' @param version A string. The version of R5 to be downloaded. Defaults to the
+#'   latest version.
+#' @param quiet A logical. Whether to show informative messages when downloading
+#'   the file. Defaults to `FALSE`.
+#' @param force_update A logical. Whether to overwrite a previously downloaded
+#'   `R5.jar` in the local directory. Defaults to `FALSE`.
+#' @param temp_dir A logical. Whether the file should be saved in a temporary
+#'   directory. Defaults to `FALSE`.
 #'
-#' @return A jar file is saved locally in the r5r package directory
+#' @return The path to the downloaded file.
+#'
 #' @family setup
-#' @export
-#' @examples if (interactive()) {
 #'
+#' @examplesIf identical(tolower(Sys.getenv("NOT_CRAN")), "true")
 #' library(r5r)
 #'
-#' download_r5(version = "6.4.0", temp_dir = TRUE)
-#' }
-
-download_r5 <- function(version = "6.4.0",
+#' download_r5(version = "6.8.0", temp_dir = TRUE)
+#' @export
+download_r5 <- function(version = "6.8.0",
                         quiet = FALSE,
                         force_update = FALSE,
                         temp_dir = FALSE) {
@@ -77,7 +74,7 @@ download_r5 <- function(version = "6.4.0",
   if (!dir.exists(jar_dir)) dir.create(jar_dir)
 
   # download JAR
-  if (!quiet) message("R5 will be saved to ", destfile)
+  message("Downloading R5 jar file to ", destfile)
   utils::download.file(
     url = file_url,
     destfile = destfile,

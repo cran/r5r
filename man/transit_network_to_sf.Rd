@@ -7,56 +7,41 @@
 transit_network_to_sf(r5r_core)
 }
 \arguments{
-\item{r5r_core}{a rJava object, the output from 'r5r::setup_r5()'}
+\item{r5r_core}{An object to connect with the R5 routing engine, created with
+\code{\link[=setup_r5]{setup_r5()}}.}
 }
 \value{
-A list with two components of a transit network in sf format:
-route shapes (LINESTRING) and transit stops (POINT). The same
-\code{route_id}/\code{short_name} might appear with different geometries. This
-occurs when a route has two different shape_ids. Some transit stops
-might be returned with geometry \verb{POINT EMPTY} (i.e. missing \code{NA}
-spatial coordinates). This may occur when a transit stop is not
-snapped to the road network, possibly because the \code{gtfs.zip} input
-data covers an area larger than the \code{osm.pbf} input data.
+A list with two components of a transit network in \code{sf} format:
+route shapes (\code{LINESTRING}) and transit stops (\code{POINT}). The same
+\code{route_id}/\code{short_name} might appear with different geometries. This occurs
+when the same route is associated to more than one \code{shape_id}s in the GTFS
+feed used to create the transit network. Some transit stops might be
+returned with geometry \verb{POINT EMPTY} (i.e. missing spatial coordinates).
+This may occur when a transit stop is not snapped to the road network,
+possibly because the GTFS feed used to create the transit network covers an
+area larger than the \code{.osm.pbf} input data.
 }
 \description{
-Extract transit network in \code{sf} format from a \code{network.dat} file
-built with the \code{\link{setup_r5}} function.
+Extracts the transit network from a \code{network.dat} file (built with
+\code{\link[=setup_r5]{setup_r5()}}) in \code{sf} format.
 }
 \examples{
-if (interactive()) {
-
+\dontshow{if (identical(tolower(Sys.getenv("NOT_CRAN")), "true")) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 library(r5r)
 
 # build transport network
 path <- system.file("extdata/poa", package = "r5r")
-r5r_core <- setup_r5(data_path = path, temp_dir = TRUE)
+r5r_core <- setup_r5(path)
 
 # extract transit network from r5r_core
 transit_net <- transit_network_to_sf(r5r_core)
 
 stop_r5(r5r_core)
-}
+\dontshow{\}) # examplesIf}
 }
 \seealso{
-Other support functions: 
-\code{\link{assert_breakdown_stat}()},
-\code{\link{assert_decay_function}()},
-\code{\link{assert_points_input}()},
-\code{\link{check_connection}()},
-\code{\link{fileurl_from_metadata}()},
+Other network functions: 
 \code{\link{find_snap}()},
-\code{\link{posix_to_string}()},
-\code{\link{select_mode}()},
-\code{\link{set_max_lts}()},
-\code{\link{set_max_rides}()},
-\code{\link{set_max_street_time}()},
-\code{\link{set_n_threads}()},
-\code{\link{set_progress}()},
-\code{\link{set_speed}()},
-\code{\link{set_suboptimal_minutes}()},
-\code{\link{set_verbose}()},
-\code{\link{stop_r5}()},
 \code{\link{street_network_to_sf}()}
 }
-\concept{support functions}
+\concept{network functions}
