@@ -1,3 +1,11 @@
+# r5r 1.0.1
+
+**Bug fixes**
+
+* Updated to R5 version 6.9. This fixed a few bugs upstream, one of which often prevented users to build a network using cropped OSM data. Closes [#325](https://github.com/ipeaGIT/r5r/issues/325).
+
+
+
 # r5r 1.0.0
 
 **Breaking changes**
@@ -48,6 +56,8 @@
 
 - Fixed bug that `transit_network_to_sf()` generated some routes with invalid geometries. Closes [#256](https://github.com/ipeaGIT/r5r/issues/256).
 - Fixed bug that prevented `setup_r5(path, overwrite = TRUE)` to work.
+
+
 
 # r5r 0.7.1
 
