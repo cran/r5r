@@ -12,7 +12,7 @@
 
 <meta name="author" content="Rafael H. M. Pereira, Marcus Saraiva, Daniel Herszenhut, Carlos Kaue Braga" />
 
-<meta name="date" content="2023-03-06" />
+<meta name="date" content="2023-08-07" />
 
 <title>Intro to r5r: Rapid Realistic Routing with R5 in R</title>
 
@@ -352,7 +352,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 R5 in R</h1>
 <h4 class="author">Rafael H. M. Pereira, Marcus Saraiva, Daniel
 Herszenhut, Carlos Kaue Braga</h4>
-<h4 class="date">2023-03-06</h4>
+<h4 class="date">2023-08-07</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 <code>r5r</code> is an R package for rapid realistic routing on
@@ -418,7 +418,7 @@ previous attempts.</p>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code></pre></div>
-<p>The <code>r5r</code> package has six <strong>fundamental
+<p>The <code>r5r</code> package has seven <strong>fundamental
 functions</strong>:</p>
 <ol style="list-style-type: decimal">
 <li><p><code>setup_r5()</code> to initialize an instance of
@@ -438,6 +438,9 @@ pairs.</p></li>
 <li><p><code>pareto_frontier()</code> for analyzing the trade-off
 between the travel time and monetary costs of multiple route
 alternatives between origin/destination pairs.</p></li>
+<li><p><code>isochrone()</code> to estimate the polygons of the areas
+that can be reached from an origin point at different travel time
+limits.</p></li>
 </ol>
 <p>Most of these functions also allow users to account for monetary
 travel costs when generating travel time matrices and accessibility
@@ -547,7 +550,7 @@ osm.pbf and gtfs.zip data sets to build a routable network object.</p>
 <code>accessibility()</code> function. In this example, we calculate the
 number of schools and health care facilities accessible in less than 60
 minutes by public transport and walking. More details in this vignette
-on <a href="https://ipeagit.github.io/r5r/articles/calculating_accessibility.html">Calculating
+on <a href="https://ipeagit.github.io/r5r/articles/accessibility.html">Calculating
 and visualizing Accessibility</a>.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set departure datetime input</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>departure_datetime <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;13-05-2019 14:00:00&quot;</span>,</span>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+<meta name="date" content="2023-08-07" />
+
+<title>FAQ - Frequently Asked Questions</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+
+<style type="text/css">
+p.abstract{
+text-align: center;
+font-weight: bold;
+}
+div.abstract{
+margin: auto;
+width: 90%;
+}
+</style>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">FAQ - Frequently Asked Questions</h1>
+<h4 class="date">2023-08-07</h4>
+<div class="abstract">
+<p class="abstract">Abstract</p>
+A short list of responses and clarifications about Frequently Asked
+Questions from r5r users.
+</div>
+
+
+
+<div id="why-do-some-trips-fromto-the-same-id-have-travel-times-larger-than-zero" class="section level1">
+<h1>1. Why do some trips from/to the same ID have travel times larger
+than zero?</h1>
+<details>
+<summary>
+click to expand
+</summary>
+<blockquote>
+<p>This can happen when the input point is distant to any routable road
+segment. In this case, R5 will snap the point to the closest road
+segment that can be traversed with the selected transport mode, and it
+will consider that the person would walk in Euclidean distance from the
+input point to the snapped location. So R5 is accounting for this
+walking time “as the crow flies” in the routing.</p>
+</blockquote>
+</details>
+</div>
+<div id="is-it-possible-to-run-r5r-with-custom-modifications-to-street-nework-data" class="section level1">
+<h1>2. Is it possible to run <code>r5r</code> with custom modifications
+to street nework data?</h1>
+<details>
+<summary>
+click to expand
+</summary>
+<blockquote>
+<p>It is possible to edit the OpenStreetMap <code>.pbf</code> file
+before using it in <code>r5r</code> for example to remove or add roads,
+change speeds etc etc. To to this, you can edit the <code>.pbf</code>
+file with <a href="https://wiki.openstreetmap.org/wiki/JOSM">JOSM
+(https://wiki.openstreetmap.org/wiki/JOSM)</a>. Mind you that the the
+OpenStreetMap tags can be changed but they cannot be removed from the
+data.</p>
+</blockquote>
+</details>
+</div>
+<div id="why-are-the-output-results-of-time_travel_matrix-and-detailed_itineraries-different" class="section level1">
+<h1>3. Why are the output results of <code>time_travel_matrix()</code>
+and <code>detailed_itineraries()</code> different?</h1>
+<details>
+<summary>
+click to expand
+</summary>
+<blockquote>
+<p>The functions <code>time_travel_matrix()</code> (and
+<code>expanded_time_travel_matrix</code>) and
+<code>detailed_itineraries()</code> use different routing algorithms, as
+explained in the documentation of these functions. As such, we advise
+not to use or combine the output of these functions.</p>
+</blockquote>
+</details>
+</div>
+<div id="what-does-the-error-geographic-extent-of-street-layer-exceeds-limit-mean-and-what-to-do-about-it" class="section level1">
+<h1>4. What does the ERROR “Geographic extent of street layer exceeds
+limit” mean? and what to do about it?</h1>
+<details>
+<summary>
+click to expand
+</summary>
+<blockquote>
+<p>If you an error message says something like: <em>“Geographic extent
+of street layer (5315196 km2) exceeds limit of 975000 km2”</em>. This
+means the your study area is too large. Unfortunately, this is a limit
+hardcoded upstream in R5 so we cannot change it in r5r. The advised
+<strong>solution</strong> here would be to reduce the extent of the
+<code>OpenStreetMap.pbf</code> to a smaller area of interest. One can do
+this using the <a href="https://wiki.openstreetmap.org/wiki/Osmosis">Osmosis</a> software.
+The code below illustrates how to do this by calling Osmosis from within
+R. You need to donwload the Osmosis program to your computer. The latest
+releases can be downloaded from <a href="https://github.com/openstreetmap/osmosis/releases">here</a>. Next,
+you can use this step-by-step illustrated in the example below:</p>
+</blockquote>
+<pre><code># get the bounding box of your study area
+study_area_polygon &lt;- geobr::read_state(code_state = &quot;ES&quot;)
+area_bbox &lt;- sf::st_bbox(study_area_polygon)
+
+# input: the path to osmosis and the large pbf file in your local computer
+osmosis_path &lt;- &quot;./osmosis_dir/bin/osmosis.bat&quot;
+large_pbf_path &lt;- &quot;./project_dir/large.pbf&quot;
+
+# path where you want to save the smaller .pbf file
+smaller_pbf &lt;-&quot;./project_dir/smaller.pbf&quot;
+
+# prepare call to osmosis
+osmosis_cmd &lt;- sprintf(&quot;%s --read-pbf %s --bounding-box left=%s bottom=%s right=%s top=%s --write-pbf %s&quot;,
+                       osmosis_path, large_pbf_path, 
+                       area_bbox@xmin, area_bbox@ymin, area_bbox@xmax, area_bbox@ymax,
+                       smaller_pbf)
+
+# call to osmosis
+shell(osmosis_cmd, translate = TRUE)</code></pre>
+</details>
+</div>
+<div id="is-it-possible-to-use-custom-car-speed-data-with-r5r" class="section level1">
+<h1>5. Is it possible to use custom car speed data with r5r?</h1>
+<details>
+<summary>
+click to expand
+</summary>
+<blockquote>
+<p>By default, R5 considers the max speed limit of each road as set in
+OpenStreetMap data. Unfortunately, there is currently no easy way to
+change the car speeds of road segments from within R. Although you could
+probably do that by editing the osm.pbf file using other programs. See
+issue <a href="https://github.com/ipeaGIT/r5r/issues/289">#289</a>.</p>
+</blockquote>
+</details>
+</div>
+<div id="why-do-i-get-identical-results-by-public-transport-and-walking" class="section level1">
+<h1>6. Why do I get identical results by public transport and
+walking?</h1>
+<details>
+<summary>
+click to expand
+</summary>
+<blockquote>
+<p>If your travel time / accessibility results are identical for public
+transport and walking, it is probably because R5 did not detect that the
+public transport network is available for your requested trips. This is
+likely to occur in case you set a <code>departure_datetime</code>
+outside the calendar of public transport operations in your GTFS data.
+Check the <code>calendar.txt</code> file in your gtfs.zip feed.
+Alternatively, this could occur because there is no public transport
+trip option that would be faster than walking for the given
+origin-destination pair you queried.</p>
+</blockquote>
+</details>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

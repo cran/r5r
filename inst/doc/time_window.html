@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
-<meta name="date" content="2023-03-06" />
+<meta name="date" content="2023-08-07" />
 
 <title>Using the time_window parameter</title>
 
@@ -370,7 +370,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <h1 class="title toc-ignore">Using the time_window parameter</h1>
-<h4 class="date">2023-03-06</h4>
+<h4 class="date">2023-08-07</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 This vignette shows how to use and interpret the
@@ -505,7 +505,6 @@ minutes <code>cutoffs = 45</code>.</p>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>                          )</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(acc, <span class="at">n =</span> <span class="dv">10</span>)</span></code></pre></div>
-<p>#&gt;<code>{r detailed head of acc, echo = FALSE, out.width=&#39;100%&#39;, message = FALSE} #&gt;knitr::include_graphics(&quot;https://github.com/ipeaGIT/r5r/blob/master/r-package/inst/img/vig_time_window_acc_head.png?raw=true&quot;) #&gt;</code></p>
 <p>This output is in long format, so the first 5 rows show the result
 for the same origin. In this case, we see that in only 10% of the trips
 departing from that origin between 2pm and 3pm a person would be able to
@@ -532,7 +531,6 @@ departure time within that 60-minute time window.</p>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x=</span><span class="fu">element_blank</span>(),</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.ticks.x=</span><span class="fu">element_blank</span>())</span></code></pre></div>
-<p>#&gt;<code>{r acc_uncertainty figure, echo = FALSE, out.width=&#39;100%&#39;, message = FALSE} #&gt;knitr::include_graphics(&quot;https://github.com/ipeaGIT/r5r/blob/master/r-package/inst/img/vig_time_window_acc_uncertainty.png?raw=true&quot;) #&gt;</code></p>
 </div>
 <div id="travel-time-matrix-with-time_window." class="section level3">
 <h3>3.3 Travel time matrix with <code>time_window</code>.</h3>
@@ -553,7 +551,6 @@ output looks like.</p>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                          )</span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ttm, <span class="at">n =</span> <span class="dv">10</span>)</span></code></pre></div>
-<p>#&gt;<code>{r detailed head of ttm, echo = FALSE, out.width=&#39;100%&#39;, message = FALSE} #&gt;knitr::include_graphics(&quot;https://github.com/ipeaGIT/r5r/blob/master/r-package/inst/img/vig_time_window#&gt;_ttm_head.png?raw=true&quot;) #&gt;</code></p>
 <p>Now let’s look at the 2nd row of the output above. This output tell
 us that only 10% of the trips between 2pm and 3pm for that
 origin-destination pair took 39 minutes or less. Meanwhile, 50% of those

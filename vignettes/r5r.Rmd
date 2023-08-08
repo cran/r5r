@@ -85,7 +85,7 @@ library(data.table)
 library(ggplot2)
 ```
 
-The `r5r` package has six **fundamental functions**:
+The `r5r` package has seven **fundamental functions**:
 
 1. `setup_r5()` to initialize an instance of `r5r`, that also builds a routable
 transport network;
@@ -101,6 +101,7 @@ a selected decay function;
 
 6. `pareto_frontier()` for analyzing the trade-off between the travel time and monetary costs of multiple route alternatives between origin/destination pairs.
 
+7. `isochrone()` to estimate the polygons of the areas that can be reached from an origin point at different travel time limits.
 
 Most of these functions also allow users to account for monetary travel costs 
 when generating travel time matrices and accessibility estimates. More info about
@@ -199,7 +200,7 @@ r5r_core <- setup_r5(data_path = data_path)
 The faster way to calculate accessibility estimates is using the `accessibility()`
 function. In this example, we calculate the number of schools and health care 
 facilities accessible in less than 60 minutes by public transport and walking.
-More details in this vignette on [Calculating and visualizing Accessibility](https://ipeagit.github.io/r5r/articles/calculating_accessibility.html).
+More details in this vignette on [Calculating and visualizing Accessibility](https://ipeagit.github.io/r5r/articles/accessibility.html).
 
 ```{r, message = FALSE}
 # set departure datetime input
