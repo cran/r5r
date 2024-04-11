@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
-<meta name="date" content="2023-08-07" />
+<meta name="date" content="2024-04-11" />
 
 <title>Using the time_window parameter</title>
 
@@ -370,7 +370,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <h1 class="title toc-ignore">Using the time_window parameter</h1>
-<h4 class="date">2023-08-07</h4>
+<h4 class="date">2024-04-11</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 This vignette shows how to use and interpret the
@@ -453,34 +453,34 @@ than 15 minutes.</p>
 <p>First, let’s build the network and create the routing inputs. In this
 example we’ll be using the a sample data set for the city of São Paulo
 (Brazil) included in <code>r5r</code>.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># increase Java memory</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">java.parameters =</span> <span class="st">&quot;-Xmx2G&quot;</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># load libraries</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(r5r)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># build a routable transport network with r5r</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>data_path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata/spo&quot;</span>, <span class="at">package =</span> <span class="st">&quot;r5r&quot;</span>)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>r5r_core <span class="ot">&lt;-</span> <span class="fu">setup_r5</span>(data_path)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="co"># routing inputs</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>mode <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;walk&#39;</span>, <span class="st">&#39;transit&#39;</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>max_walk_time <span class="ot">&lt;-</span> <span class="dv">30</span> <span class="co"># minutes</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>max_trip_duration <span class="ot">&lt;-</span> <span class="dv">90</span> <span class="co"># minutes</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="co"># load origin/destination points</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>points <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="fu">file.path</span>(data_path, <span class="st">&quot;spo_hexgrid.csv&quot;</span>))</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co"># departure datetime</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>departure_datetime <span class="ot">=</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;13-05-2019 14:00:00&quot;</span>, </span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>                                <span class="at">format =</span> <span class="st">&quot;%d-%m-%Y %H:%M:%S&quot;</span>)</span></code></pre></div>
-<p>ps. Please keep in mind that the <code>time_window</code> only
-affects the results when the GTFS feeds contain a
-<code>frequencies.txt</code> table.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># increase Java memory</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">options</span>(<span class="at">java.parameters =</span> <span class="st">&quot;-Xmx2G&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># load libraries</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">library</span>(r5r)</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co"># build a routable transport network with r5r</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>data_path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata/spo&quot;</span>, <span class="at">package =</span> <span class="st">&quot;r5r&quot;</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>r5r_core <span class="ot">&lt;-</span> <span class="fu">setup_r5</span>(data_path)</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="co"># routing inputs</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>mode <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;walk&#39;</span>, <span class="st">&#39;transit&#39;</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>max_walk_time <span class="ot">&lt;-</span> <span class="dv">30</span> <span class="co"># minutes</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>max_trip_duration <span class="ot">&lt;-</span> <span class="dv">90</span> <span class="co"># minutes</span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a><span class="co"># load origin/destination points</span></span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>points <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="fu">file.path</span>(data_path, <span class="st">&quot;spo_hexgrid.csv&quot;</span>))</span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="co"># departure datetime</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>departure_datetime <span class="ot">=</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;13-05-2019 14:00:00&quot;</span>, </span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>                                <span class="at">format =</span> <span class="st">&quot;%d-%m-%Y %H:%M:%S&quot;</span>)</span></code></pre></div>
+<p>ps. Please keep in mind that the Monte Carlo draws in
+<code>time_window</code> only affects the results when the GTFS feeds
+contain a <code>frequencies.txt</code> table.</p>
 </div>
 <div id="accessibility-with-time_window." class="section level3">
 <h3>3.2 Accessibility with <code>time_window</code>.</h3>
@@ -489,22 +489,34 @@ each location within a 60-minute time window departing between 2pm and
 3pm. In this example we’ll be using a cumulative accessibility metric
 <code>decay_function = &quot;step&quot;</code> with a max time threshold of 45
 minutes <code>cutoffs = 45</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># estimate accessibility</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>acc <span class="ot">&lt;-</span> r5r<span class="sc">::</span><span class="fu">accessibility</span>(<span class="at">r5r_core =</span> r5r_core,   </span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">origins =</span> points,</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">destinations =</span> points, </span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">opportunities_colnames =</span> <span class="st">&#39;schools&#39;</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                          <span class="at">mode =</span> mode,</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                          <span class="at">max_walk_time =</span> max_walk_time,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">decay_function =</span> <span class="st">&quot;step&quot;</span>,</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">cutoffs =</span> <span class="dv">45</span>,</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>                          <span class="at">departure_datetime =</span> departure_datetime,</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>                          <span class="at">progress =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>                          <span class="at">time_window =</span> <span class="dv">30</span>,</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>                          <span class="at">percentiles =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">50</span>, <span class="dv">70</span>, <span class="dv">80</span>)</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>                          )</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(acc, <span class="at">n =</span> <span class="dv">10</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># estimate accessibility</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>acc <span class="ot">&lt;-</span> r5r<span class="sc">::</span><span class="fu">accessibility</span>(<span class="at">r5r_core =</span> r5r_core,   </span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>                          <span class="at">origins =</span> points,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>                          <span class="at">destinations =</span> points, </span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>                          <span class="at">opportunities_colnames =</span> <span class="st">&#39;schools&#39;</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>                          <span class="at">mode =</span> mode,</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>                          <span class="at">max_walk_time =</span> max_walk_time,</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>                          <span class="at">decay_function =</span> <span class="st">&quot;step&quot;</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>                          <span class="at">cutoffs =</span> <span class="dv">45</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>                          <span class="at">departure_datetime =</span> departure_datetime,</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>                          <span class="at">progress =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>                          <span class="at">time_window =</span> <span class="dv">60</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>                          <span class="at">percentiles =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">50</span>, <span class="dv">70</span>, <span class="dv">80</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>                          )</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="fu">head</span>(acc, <span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt;                  id opportunity percentile cutoff accessibility</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt;              &lt;char&gt;      &lt;char&gt;      &lt;int&gt;  &lt;int&gt;         &lt;num&gt;</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt;  1: 89a8100c603ffff     schools         10     45            13</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt;  2: 89a8100c603ffff     schools         20     45            13</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt;  3: 89a8100c603ffff     schools         50     45             7</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt;  4: 89a8100c603ffff     schools         70     45             6</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt;  5: 89a8100c603ffff     schools         80     45             6</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt;  6: 89a8100c617ffff     schools         10     45            14</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt;  7: 89a8100c617ffff     schools         20     45            14</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt;  8: 89a8100c617ffff     schools         50     45             9</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt;  9: 89a8100c617ffff     schools         70     45             6</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; 10: 89a8100c617ffff     schools         80     45             6</span></span></code></pre></div>
 <p>This output is in long format, so the first 5 rows show the result
 for the same origin. In this case, we see that in only 10% of the trips
 departing from that origin between 2pm and 3pm a person would be able to
@@ -515,42 +527,67 @@ from that location given the max travel time of 45 minutes.</p>
 <p>We can use a plot like the one below to visualize this uncertainty in
 how accessibility levels might vary between 2pm and 3pm depending on the
 departure time within that 60-minute time window.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># summarize</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> acc[, .(<span class="at">min_acc =</span> <span class="fu">min</span>(accessibility),</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>              <span class="at">median =</span> accessibility[<span class="fu">which</span>(percentile <span class="sc">==</span> <span class="dv">50</span>)],</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">max_acc =</span> <span class="fu">max</span>(accessibility)), by <span class="ot">=</span> id]</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>df) <span class="sc">+</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>(<span class="at">color=</span><span class="st">&#39;gray&#39;</span>, <span class="at">alpha=</span>.<span class="dv">5</span>, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(id, median) , </span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y=</span>median, <span class="at">ymin=</span>min_acc, <span class="at">ymax=</span>max_acc)) <span class="sc">+</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color=</span><span class="st">&#39;#0570b0&#39;</span>, <span class="at">size=</span>.<span class="dv">5</span>, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(id, median), <span class="at">y=</span>median)) <span class="sc">+</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y=</span><span class="st">&#39;N. of schools accessible</span><span class="sc">\n</span><span class="st">by public transport&#39;</span>, <span class="at">x=</span><span class="st">&#39;Origins sorted by accessibility&#39;</span>,</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">title=</span><span class="st">&quot;Accessibility uncertainty between 2pm and 3pm&quot;</span>,</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&#39;Upper limit 10% and lower limit 80% of the times&#39;</span>) <span class="sc">+</span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x=</span><span class="fu">element_blank</span>(),</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.ticks.x=</span><span class="fu">element_blank</span>())</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># summarize</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>df <span class="ot">&lt;-</span> acc[, .(<span class="at">min_acc =</span> <span class="fu">min</span>(accessibility),</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>              <span class="at">median =</span> accessibility[<span class="fu">which</span>(percentile <span class="sc">==</span> <span class="dv">50</span>)],</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>              <span class="at">max_acc =</span> <span class="fu">max</span>(accessibility)), by <span class="ot">=</span> id]</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data=</span>df) <span class="sc">+</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="fu">geom_linerange</span>(<span class="at">color=</span><span class="st">&#39;gray&#39;</span>, <span class="at">alpha=</span>.<span class="dv">5</span>, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(id, median) , </span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>                      <span class="at">y=</span>median, <span class="at">ymin=</span>min_acc, <span class="at">ymax=</span>max_acc)) <span class="sc">+</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color=</span><span class="st">&#39;#0570b0&#39;</span>, <span class="at">size=</span>.<span class="dv">5</span>, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(id, median), <span class="at">y=</span>median)) <span class="sc">+</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">y=</span><span class="st">&#39;N. of schools accessible</span><span class="sc">\n</span><span class="st">by public transport&#39;</span>, <span class="at">x=</span><span class="st">&#39;Origins sorted by accessibility&#39;</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>       <span class="at">title=</span><span class="st">&quot;Accessibility uncertainty between 2pm and 3pm&quot;</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">&#39;Upper limit 10% and lower limit 80% of the times&#39;</span>) <span class="sc">+</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x=</span><span class="fu">element_blank</span>(),</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>        <span class="at">axis.ticks.x=</span><span class="fu">element_blank</span>())</span></code></pre></div>
+<p><img src="data:image/png;base64,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" width="100%" /></p>
 </div>
 <div id="travel-time-matrix-with-time_window." class="section level3">
 <h3>3.3 Travel time matrix with <code>time_window</code>.</h3>
 <p>Now let’s calculate all-to-all travel time estimates within a
 60-minute time window departing between 2pm and 3pm and see how the
 output looks like.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># estimate travel time matrix</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>ttm <span class="ot">&lt;-</span> <span class="fu">travel_time_matrix</span>(<span class="at">r5r_core =</span> r5r_core,   </span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">origins =</span> points,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">destinations =</span> points,    </span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">mode =</span> mode,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>                          <span class="at">max_walk_time =</span> max_walk_time,</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                          <span class="at">max_trip_duration =</span> max_trip_duration,</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>                          <span class="at">departure_datetime =</span> departure_datetime,</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">progress =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                          <span class="at">time_window =</span> <span class="dv">20</span>,</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                          <span class="at">percentiles =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">50</span>, <span class="dv">70</span>, <span class="dv">80</span>)</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                          )</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ttm, <span class="at">n =</span> <span class="dv">10</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># estimate travel time matrix</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>ttm <span class="ot">&lt;-</span> <span class="fu">travel_time_matrix</span>(<span class="at">r5r_core =</span> r5r_core,   </span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>                          <span class="at">origins =</span> points,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>                          <span class="at">destinations =</span> points,    </span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>                          <span class="at">mode =</span> mode,</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>                          <span class="at">max_walk_time =</span> max_walk_time,</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>                          <span class="at">max_trip_duration =</span> max_trip_duration,</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>                          <span class="at">departure_datetime =</span> departure_datetime,</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>                          <span class="at">progress =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>                          <span class="at">time_window =</span> <span class="dv">60</span>,</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>                          <span class="at">percentiles =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">50</span>, <span class="dv">70</span>, <span class="dv">80</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>                          )</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="fu">head</span>(ttm, <span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt;             from_id           to_id travel_time_p10 travel_time_p20</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt;              &lt;char&gt;          &lt;char&gt;           &lt;int&gt;           &lt;int&gt;</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt;  1: 89a8100c603ffff 89a8100c603ffff               0               0</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt;  2: 89a8100c603ffff 89a8100c617ffff              13              13</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt;  3: 89a8100c603ffff 89a8100c60fffff               6               6</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt;  4: 89a8100c603ffff 89a8100c607ffff              11              11</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt;  5: 89a8100c603ffff 89a8100c6abffff              20              20</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co">#&gt;  6: 89a8100c603ffff 89a8100c6a3ffff              26              26</span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt;  7: 89a8100c603ffff 89a8100c677ffff              14              14</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#&gt;  8: 89a8100c603ffff 89a8100c63bffff              14              14</span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a><span class="co">#&gt;  9: 89a8100c603ffff 89a8100c633ffff              16              16</span></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a><span class="co">#&gt; 10: 89a8100c603ffff 89a8100c6afffff              24              24</span></span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a><span class="co">#&gt;     travel_time_p50 travel_time_p70 travel_time_p80</span></span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a><span class="co">#&gt;               &lt;int&gt;           &lt;int&gt;           &lt;int&gt;</span></span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a><span class="co">#&gt;  1:               0               0               0</span></span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a><span class="co">#&gt;  2:              13              13              13</span></span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a><span class="co">#&gt;  3:               6               6               6</span></span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a><span class="co">#&gt;  4:              11              11              11</span></span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a><span class="co">#&gt;  5:              20              20              20</span></span>
+<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a><span class="co">#&gt;  6:              26              26              26</span></span>
+<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a><span class="co">#&gt;  7:              14              14              14</span></span>
+<span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a><span class="co">#&gt;  8:              14              14              14</span></span>
+<span id="cb4-37"><a href="#cb4-37" tabindex="-1"></a><span class="co">#&gt;  9:              16              16              16</span></span>
+<span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a><span class="co">#&gt; 10:              24              24              24</span></span></code></pre></div>
 <p>Now let’s look at the 2nd row of the output above. This output tell
 us that only 10% of the trips between 2pm and 3pm for that
 origin-destination pair took 39 minutes or less. Meanwhile, 50% of those
@@ -571,17 +608,69 @@ though, when the user sets a <code>time_window</code> value, the
 alternative departing each minute within the specified time window.
 Please note this function can be very memory intensive for large data
 sets and time windows.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>ettm <span class="ot">&lt;-</span> r5r<span class="sc">::</span><span class="fu">expanded_travel_time_matrix</span>(<span class="at">r5r_core =</span> r5r_core,   </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">origins =</span> points[<span class="dv">1</span><span class="sc">:</span><span class="dv">30</span>,],</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">destinations =</span> points[<span class="dv">31</span><span class="sc">:</span><span class="dv">61</span>,],    </span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">mode =</span> mode,</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">max_walk_time =</span> max_walk_time,</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">max_trip_duration =</span> max_trip_duration,</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">departure_datetime =</span> departure_datetime,</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">progress =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                                    <span class="at">time_window =</span> <span class="dv">20</span>)</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(ettm, <span class="at">n =</span> <span class="dv">10</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>ettm <span class="ot">&lt;-</span> r5r<span class="sc">::</span><span class="fu">expanded_travel_time_matrix</span>(<span class="at">r5r_core =</span> r5r_core,   </span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>                                    <span class="at">origins =</span> points[<span class="dv">1</span><span class="sc">:</span><span class="dv">30</span>,],</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>                                    <span class="at">destinations =</span> points[<span class="dv">31</span><span class="sc">:</span><span class="dv">61</span>,],    </span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>                                    <span class="at">mode =</span> mode,</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>                                    <span class="at">max_walk_time =</span> max_walk_time,</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>                                    <span class="at">max_trip_duration =</span> max_trip_duration,</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>                                    <span class="at">departure_datetime =</span> departure_datetime,</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>                                    <span class="at">progress =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>                                    <span class="at">time_window =</span> <span class="dv">20</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="fu">head</span>(ettm, <span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt;             from_id           to_id departure_time draw_number  routes</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt;              &lt;char&gt;          &lt;char&gt;         &lt;char&gt;       &lt;int&gt;  &lt;char&gt;</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt;  1: 89a8100c603ffff 89a8100c28bffff       14:00:00           1 4491-10</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt;  2: 89a8100c603ffff 89a8100c28bffff       14:00:00           2 4491-10</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt;  3: 89a8100c603ffff 89a8100c28bffff       14:00:00           3 4491-10</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt;  4: 89a8100c603ffff 89a8100c28bffff       14:00:00           4 4491-10</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt;  5: 89a8100c603ffff 89a8100c28bffff       14:00:00           5 4491-10</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt;  6: 89a8100c603ffff 89a8100c28bffff       14:01:00           1 4491-10</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt;  7: 89a8100c603ffff 89a8100c28bffff       14:01:00           2 4491-10</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt;  8: 89a8100c603ffff 89a8100c28bffff       14:01:00           3 4491-10</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt;  9: 89a8100c603ffff 89a8100c28bffff       14:01:00           4 4491-10</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; 10: 89a8100c603ffff 89a8100c28bffff       14:01:00           5 4491-10</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt;     total_time</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt;          &lt;num&gt;</span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt;  1:       46.0</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt;  2:       51.4</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt;  3:       40.9</span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt;  4:       44.7</span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt;  5:       38.8</span></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt;  6:       50.1</span></span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt;  7:       50.5</span></span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt;  8:       48.4</span></span>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="co">#&gt;  9:       50.6</span></span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="co">#&gt; 10:       40.3</span></span></code></pre></div>
+</div>
+<div id="detailed-itineraries-with-time_window." class="section level3">
+<h3>3.5 Detailed itineraries with <code>time_window</code>.</h3>
+<p>In the <code>detailed_itineraries()</code> function, the number of
+Monte Carlo draws per minute is hardcoded to 1. This means that the
+function simulates only one departure per minute within the
+<code>time_window</code>. So if you set a <code>time_window</code> of 10
+minutes, it would simulate 10 departures, one in each minute. This is
+largely because the <code>time_window</code> behaves slightly
+differently here.</p>
+<p>See, functions like <code>travel_time_matrix()</code> or
+<code>accessibility()</code>, for example, return estimates of travel
+times or accessibility. In these cases, when we use the
+<code>time_window</code> parameter, these functions output selected
+percentiles of those values generated based on the distribution of all
+estimates that result from the multiple trip simulations.</p>
+<p>The <code>detailed_itineraries()</code>, on the other hand, does not
+return travel times or accessibility estimates. It returns alternatives
+of trip journeys. In this case, when we use the <code>time_window</code>
+parameter, the function will return the optimal trip itinerary found
+within the time window. It can also return the optimal route along with
+multiple sub-optimal journey alternatives found within the time window
+if the the user sets <code>shortest_path = FALSE</code>.</p>
+<p><em>obs.</em> Mind you that <code>detailed_itineraries()</code>
+cannot be computed for public transport trips if the the network uses a
+frequencies-based GTFS feed. In these cases, we suggest using
+<code>gtfstools::frequencies_to_stop_times()</code> to create a suitable
+feed.</p>
 </div>
 <div id="cleaning-up-after-usage" class="section level3">
 <h3>Cleaning up after usage</h3>
@@ -590,8 +679,8 @@ previously set after they are done with their calculations. In order to
 remove an existing <code>r5r</code> object and reallocate the memory it
 had been using, we use the <code>stop_r5</code> function followed by a
 call to Java’s garbage collector, as follows:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>r5r<span class="sc">::</span><span class="fu">stop_r5</span>(r5r_core)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>rJava<span class="sc">::</span><span class="fu">.jgc</span>(<span class="at">R.gc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>r5r<span class="sc">::</span><span class="fu">stop_r5</span>(r5r_core)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>rJava<span class="sc">::</span><span class="fu">.jgc</span>(<span class="at">R.gc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>If you have any suggestions or want to report an error, please visit
 <a href="https://github.com/ipeaGIT/r5r">the package GitHub
 page</a>.</p>
@@ -625,7 +714,7 @@ Poland.”</span> <em>Journal of Transport Geography</em> 75 (February):
 8–24. <a href="https://doi.org/10.1016/j.jtrangeo.2019.01.007">https://doi.org/10.1016/j.jtrangeo.2019.01.007</a>.
 </div>
 <div id="ref-stewart2022half" class="csl-entry">
-Stewart, Anson F, and Andrew M Byrd. 2022. <span>“Half-(Head)way There:
+Stewart, Anson F, and Andrew M Byrd. 2022. <span>“Half-(head)way There:
 Comparing Two Methods to Account for Public Transport Waiting Time in
 Accessibility Indicators.”</span> <em>Environment and Planning B: Urban
 Analytics and City Science</em>, November, 23998083221137077. <a href="https://doi.org/10.1177/23998083221137077">https://doi.org/10.1177/23998083221137077</a>.

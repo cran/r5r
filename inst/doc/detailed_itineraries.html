@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
-<meta name="date" content="2023-08-07" />
+<meta name="date" content="2024-04-11" />
 
 <title>Trip planning with detailed_itineraries()</title>
 
@@ -349,7 +349,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Trip planning with
 detailed_itineraries()</h1>
-<h4 class="date">2023-08-07</h4>
+<h4 class="date">2024-04-11</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 This vignette shows how to do route planning using the
@@ -395,54 +395,84 @@ here.</p>
 <p>First, let’s load some libraries and build our multimodal transport
 network. In this example we’ll be using the a sample data set for the
 city of Porto Alegre (Brazil) included in <code>r5r</code>.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># increase Java memory</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">java.parameters =</span> <span class="st">&quot;-Xmx2G&quot;</span>)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># load libraries</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(r5r)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># build a routable transport network with r5r</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>data_path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata/poa&quot;</span>, <span class="at">package =</span> <span class="st">&quot;r5r&quot;</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>r5r_core <span class="ot">&lt;-</span> <span class="fu">setup_r5</span>(data_path)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># routing inputs</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>mode <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;walk&#39;</span>, <span class="st">&#39;transit&#39;</span>)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>max_trip_duration <span class="ot">&lt;-</span> <span class="dv">60</span> <span class="co"># minutes</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># departure time</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>departure_datetime <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;13-05-2019 14:00:00&quot;</span>, </span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">format =</span> <span class="st">&quot;%d-%m-%Y %H:%M:%S&quot;</span>)</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="co"># load origin/destination points</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>poi <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="fu">file.path</span>(data_path, <span class="st">&quot;poa_points_of_interest.csv&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># increase Java memory</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">options</span>(<span class="at">java.parameters =</span> <span class="st">&quot;-Xmx2G&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># load libraries</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">library</span>(r5r)</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co"># build a routable transport network with r5r</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>data_path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata/poa&quot;</span>, <span class="at">package =</span> <span class="st">&quot;r5r&quot;</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>r5r_core <span class="ot">&lt;-</span> <span class="fu">setup_r5</span>(data_path)</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="co"># routing inputs</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>mode <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;walk&#39;</span>, <span class="st">&#39;transit&#39;</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>max_trip_duration <span class="ot">&lt;-</span> <span class="dv">60</span> <span class="co"># minutes</span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="co"># departure time</span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>departure_datetime <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;13-05-2019 14:00:00&quot;</span>, </span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>                                 <span class="at">format =</span> <span class="st">&quot;%d-%m-%Y %H:%M:%S&quot;</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a><span class="co"># load origin/destination points</span></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>poi <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="fu">file.path</span>(data_path, <span class="st">&quot;poa_points_of_interest.csv&quot;</span>))</span></code></pre></div>
 </div>
 <div id="detailed-info-by-trip-segment-for-multiple-trip-alternatives" class="section level1">
 <h1>3. Detailed info by trip segment for multiple trip alternatives</h1>
 <p>In this example below, we want to know some alternative routes
 between a single origin/destination pair. To get multiple route
 alternatives, we need to set <code>shortest_path = FALSE</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set inputs</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>origins <span class="ot">&lt;-</span> poi[<span class="dv">10</span>,]</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>destinations <span class="ot">&lt;-</span> poi[<span class="dv">12</span>,]</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>mode <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;WALK&quot;</span>, <span class="st">&quot;TRANSIT&quot;</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>max_walk_time <span class="ot">&lt;-</span> <span class="dv">60</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>departure_datetime <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;13-05-2019 14:00:00&quot;</span>,</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                                 <span class="at">format =</span> <span class="st">&quot;%d-%m-%Y %H:%M:%S&quot;</span>)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate detailed itineraries</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>det <span class="ot">&lt;-</span> <span class="fu">detailed_itineraries</span>(<span class="at">r5r_core =</span> r5r_core,</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>                            <span class="at">origins =</span> origins,</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>                            <span class="at">destinations =</span> destinations,</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>                            <span class="at">mode =</span> mode,</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>                            <span class="at">departure_datetime =</span> departure_datetime,</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>                            <span class="at">max_walk_time =</span> max_walk_time,</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>                            <span class="at">suboptimal_minutes =</span> <span class="dv">8</span>,</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>                            <span class="at">shortest_path =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(det)</span></code></pre></div>
+<p>Note that in the example below we set
+<code>suboptimal_minutes = 8</code>. In this case, <code>r5r</code> will
+consider sub-optimal routes that arrive up to 10 minutes after the
+arrival of the optimal route.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># set inputs</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>origins <span class="ot">&lt;-</span> poi[<span class="dv">10</span>,]</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>destinations <span class="ot">&lt;-</span> poi[<span class="dv">12</span>,]</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>mode <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;WALK&quot;</span>, <span class="st">&quot;TRANSIT&quot;</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>max_walk_time <span class="ot">&lt;-</span> <span class="dv">60</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>departure_datetime <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;13-05-2019 14:00:00&quot;</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>                                 <span class="at">format =</span> <span class="st">&quot;%d-%m-%Y %H:%M:%S&quot;</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co"># calculate detailed itineraries</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>det <span class="ot">&lt;-</span> <span class="fu">detailed_itineraries</span>(<span class="at">r5r_core =</span> r5r_core,</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>                            <span class="at">origins =</span> origins,</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>                            <span class="at">destinations =</span> destinations,</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>                            <span class="at">mode =</span> mode,</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>                            <span class="at">departure_datetime =</span> departure_datetime,</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>                            <span class="at">max_walk_time =</span> max_walk_time,</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>                            <span class="at">suboptimal_minutes =</span> <span class="dv">8</span>,</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>                            <span class="at">shortest_path =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="fu">head</span>(det)</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 6 features and 16 fields</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; Geometry type: LINESTRING</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; Bounding box:  xmin: -51.24094 ymin: -30.05 xmax: -51.19762 ymax: -29.99729</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; Geodetic CRS:  WGS 84</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt;            from_id  from_lat  from_lon                          to_id    to_lat</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; 1 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; 2 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; 3 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; 4 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; 5 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt; 6 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt;      to_lon option departure_time total_duration total_distance segment mode</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt; 1 -51.22875      1       14:09:10           36.2           9460       1 WALK</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; 2 -51.22875      1       14:09:10           36.2           9460       2 RAIL</span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; 3 -51.22875      1       14:09:10           36.2           9460       3 WALK</span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt; 4 -51.22875      1       14:09:10           36.2           9460       4  BUS</span></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt; 5 -51.22875      1       14:09:10           36.2           9460       5 WALK</span></span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt; 6 -51.22875      2       14:09:10           43.9           8773       1 WALK</span></span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt;   segment_duration wait distance  route                       geometry</span></span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt; 1              4.6  0.0      174        LINESTRING (-51.1981 -29.99...</span></span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt; 2              6.6  1.3     4796 LINHA1 LINESTRING (-51.19763 -29.9...</span></span>
+<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a><span class="co">#&gt; 3              5.7  0.0      256        LINESTRING (-51.22827 -30.0...</span></span>
+<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="co">#&gt; 4             10.4  4.4     4083    188 LINESTRING (-51.22926 -30.0...</span></span>
+<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a><span class="co">#&gt; 5              3.2  0.0      151        LINESTRING (-51.22949 -30.0...</span></span>
+<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a><span class="co">#&gt; 6              4.6  0.0      174        LINESTRING (-51.1981 -29.99...</span></span></code></pre></div>
 <p>The output is a <code>data.frame sf</code> object, so we can easily
 visualize the results.</p>
 <div id="visualize-results" class="section level2">
@@ -452,23 +482,24 @@ package: To provide a geographic context for the visualization of the
 results in <code>ggplot2</code>, you can also use the
 <code>street_network_to_sf((</code> function to extract the OSM street
 network used in the routing.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># extract OSM network</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>street_net <span class="ot">&lt;-</span> <span class="fu">street_network_to_sf</span>(r5r_core)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># extract public transport network</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>transit_net <span class="ot">&lt;-</span> r5r<span class="sc">::</span><span class="fu">transit_network_to_sf</span>(r5r_core)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># plot</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>fig <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_sf</span>(<span class="at">data =</span> street_net<span class="sc">$</span>edges, <span class="at">color=</span><span class="st">&#39;gray85&#39;</span>) <span class="sc">+</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">geom_sf</span>(<span class="at">data =</span> <span class="fu">subset</span>(det, option <span class="sc">&lt;</span><span class="dv">4</span>), <span class="fu">aes</span>(<span class="at">color=</span>mode)) <span class="sc">+</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">facet_wrap</span>(.<span class="sc">~</span>option) <span class="sc">+</span> </span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">theme_void</span>()</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>fig</span></code></pre></div>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># SAVE image</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="at">plot =</span> fig, <span class="at">filename =</span> <span class="st">&#39;inst/img/vig_detailed_ggplot.png&#39;</span>, </span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">height =</span> <span class="dv">5</span>, <span class="at">width =</span> <span class="dv">15</span>, <span class="at">units=</span><span class="st">&#39;cm&#39;</span>, <span class="at">dpi=</span><span class="dv">200</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># extract OSM network</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>street_net <span class="ot">&lt;-</span> <span class="fu">street_network_to_sf</span>(r5r_core)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co"># extract public transport network</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>transit_net <span class="ot">&lt;-</span> r5r<span class="sc">::</span><span class="fu">transit_network_to_sf</span>(r5r_core)</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>fig <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>        <span class="fu">geom_sf</span>(<span class="at">data =</span> street_net<span class="sc">$</span>edges, <span class="at">color=</span><span class="st">&#39;gray85&#39;</span>) <span class="sc">+</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>        <span class="fu">geom_sf</span>(<span class="at">data =</span> <span class="fu">subset</span>(det, option <span class="sc">&lt;</span><span class="dv">4</span>), <span class="fu">aes</span>(<span class="at">color=</span>mode)) <span class="sc">+</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>        <span class="fu">facet_wrap</span>(.<span class="sc">~</span>option) <span class="sc">+</span> </span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>        <span class="fu">theme_void</span>()</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>fig</span></code></pre></div>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAAAhFBMVEUAAAAAADoAAGYAOpAAZrYAujg6AAA6ADo6AGY6OgA6OmY6OpA6ZrY6kLY6kNthnP9mAABmADpmAGZmOjpmOpBmZmZmtv+QOgCQOjqQOmaQkGaQtpCQ27aQ2/+2ZgC2Zjq2/9u2///Z2dnbkDrb/9vb///4dm3/tmb/25D//7b//9v///8zUlOwAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAJq0lEQVR4nO2cDVfbNhiF0xGgWztgWwd0HWwog3zo//+/WbZlS7ak+0pWUk5zn3MIJIGbV49lWbEcVpokWX3vAt47FASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEAAK2n18qfNKu6vV6r5O1Ha1+qlSVRAkaFurlP1vT3p3/VQjymyzzbpGkgAg6PnDt0o9aGta9FypC1Xp2FvRpj/dLqa7XlSJCj3o/Qk6PNxUStpdfViu+t0J2t/V8qMzOuPu+ltzdLjpDxGHh9Vq3day+vBXI8jcT3s65VGs2gBkkA5nu6uLV71ZmZufXg4Pa22+zLba33X39aZ5Ls7JBFX0s21aJO9B5nW7m+undq9qbtrvm/77/i5V2ckEbVaGOpKaLPEY1E4t7I1Ra763naZpWVfUKrXr//Az6bSg5N7VcmaCTMezu5j5jjvieQkaB+l1P0g3XShtyQhS1aqpl1QtyhMUPMyne9EPL2gpEUGl5c3/rrihFaOWIBakVHfbE4mTRemyqFg4SloEEHTZcNvcU20ZnSbzQ6yeeJTyonT7g+qidEnUIKeP6uOqW1rZV4mUojy0dROtJRp1eTkLQVGxR8airBMUtYDuMD9LnZWivL4zljL3IYzygiJRkehZVXoSVdPRKlyLDpQyJ2d8x1Fw0Il061lU1T5kBfnlCUuJ7GShqMuyqFDJJUnlDDPpUC5sVTgz9HBhq0I99DsJClUHSxHXUrFVRX2xnJQgUMp0Z0qBVUujBFut/hgUiSwp5ehR3lbTwqgFRA7zZudvJmMF2ypYnsDPcaPKsYJCQ3Rhq8qiArWFBc0nmcf0Mx7m5+UVbqvAg3hclUcJko45DxqzRX5SPWh8rtxPtahy7FFsGiuqJFxKvajZo6f340wUvcJkjRLM7qRJAtfLiopgFhTNYku3eGNu93feWmJgJq3ebmOVTN9hRprlNDAaJWtWxaiIICNmd/00CGpXyZzVjrmgt7e3W2ElsVap4Qd1K806elRC0OFxFNT+4CxLOoJUryf+wsJa7IDfksjLjhImTaLe5kwE7T69DoLahQ6H8a1Gd4JOXERXSWIfs78jTAxHuX7EroM1RejGoItRUHv9mrPQMXkvJt7esJLhl2SRsqjqfvpd7OHeEaS1eyncIkGpWvL8yKKWVxUWpJ/vu1Gn2dfaK+Gca0cmglS7i9YTJAsD5wUqRoUFGTvP6+4Kr/YoFhqknVrkhlIv3TerQpQVVKOqmaAre9HJc3+Zh5kHxcegeq2qL+gYfjDTE2YVa2mTKkZJk459RjFRi57NhFCzoq3KS6oZlclMkMo48GRu9uT5t7yo4qRsAuekpYXgUuRJFaPKPERZJgjvGLXaNX/pEynKE6Sn9/JalYoCdUqiuoshKl8ls6gHZW/3VBsrJeGi8jiqIE+AcnpN6DXyomJ3TyAox8/CzT69VOQ0UXmEDvO1BAmasszPCdYNwzNpcTUFjVKh+WZ51LH9RAXJupKoUTWjJEmn6UHCoz1olj3wLmyW8zsnNyQVpIN3UnOO4fdqC4of0QoMdac72mWe9iSQPW0fEyRqiluboFUwpV6UhlEzQa2Ndpln++eNRFC4mumjTk/LbVX8ieyk/KiIIHN7ePz7yysSFK4/vQXjrcqJSp0qnVzmm4gaOqT755dzpoJMD9p9en2+x4J01pE+comKIOp4SamoOXbZp5F0Yz66nhSUUcQJ3zpVjAoJamy0n4cyn/tpBmuBoMWzlrFRFaOO5KfbxTbNUazZw8xqT2YPcj4A4Y2JGp1UCEWpWlHun07mZNmO+oXDtd6YlY3tetEuNrwl12g3h0n+fGtRlB9aJKgZiX792k2FvjWC2mHJ/meH7DFoXHlPWYKtqRtl/16w7XKBgvSkGjs7Tm+vhGC/Vf0+lh3lTyP6eyiqBCAoOtxqq0ncKO1PdpdEqXmUHl7geO/mg3UMzfLff6l0JcEk+1E6d8P39xIFVowqwrk+aLaNxuP+pDNrW5G4UaEphNMJxFFDLTo/qozxMuBQk3S/rZyt5V8dJbIztMhGTR8pifI0OVElhzIsKFKJPyK77bDqxI0ao9yG9lEqGBVLGh2Eo44wSIc3k33DOf0FtxuIGtU9of2+VxY1TA6H3/AOI0fYzdKC/IOpe1eHh8S4IH9/KovSnpfAETYStVRQrFXKa5VzFFVaq4zNPkSpSVTXZEejKMrftVx5kaTjCBpedfjM/HCrbYvn1SRP+Gg7mo6DtXbGbuFO5uyy7kQ8HbVMUGo2Nny+t2u9/dn2plij5onDnysnauhcOX6UsvPlWdS4+1UWNBkcpvfsLwylOB1qRrxVQ9TQAmcCk5E07urjEc2dOdazExI0NzXoGTqQcioTNEvPooa+ODoTRvlJ04NjfT/elfbjLuXsEdre18FpT4hxIB97/vDH4xAiiVR2dw5EKe+bX7AYc0H01lzlaq6Ptgs/5gl7oijxqWcV+Gkx7y1qc9N8mfUe84Nd+DFPtAsdD/c//r/oAuw+vR4ev5mbp3Hhp33CfK7l/gz+h5nWt3PGJ/e/v+y//Pf1pfk+LvyYJ3Yf/zV+zkFQEvNRsc/mZP1nZ+HHPLG7/rk97XrugvTmfnOvtzeNnHHhxzy+u7pp//ns2Qvarv950rvP5mZY+DGPm2/mU1FnL2j/R+Pl8PjLi7PwYx7vFswuXs9eUPsPgc2HoQ524adb9ennQRdnLwhBQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQQAKAlAQgIIAFASgIAAFASgIQEEACgJQEICCABQEoCAABQEoCEBBAAoCUBCAggAUBKAgAAUBKAhAQYD/ATfkEjf67dl9AAAAAElFTkSuQmCC" width="100%" /></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># SAVE image</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="at">plot =</span> fig, <span class="at">filename =</span> <span class="st">&#39;inst/img/vig_detailed_ggplot.png&#39;</span>, </span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>       <span class="at">height =</span> <span class="dv">5</span>, <span class="at">width =</span> <span class="dv">15</span>, <span class="at">units=</span><span class="st">&#39;cm&#39;</span>, <span class="at">dpi=</span><span class="dv">200</span>)</span></code></pre></div>
 </div>
 </div>
 <div id="a-few-options" class="section level1">
@@ -499,20 +530,20 @@ does not run on frequency-based GTFS feeds. A simple hack to overcome
 this problem is to convert your GTFS data from frequencies to time
 tables. This can be easily done using the <a href="https://ipeagit.github.io/gtfstools/"><code>gtfstools</code>
 package</a>. Here is how:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtfstools)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># location of your frequency-based GTFS</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>freq_gtfs_file <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata/spo/spo.zip&quot;</span>, <span class="at">package =</span> <span class="st">&quot;r5r&quot;</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># read GTFS data</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>freq_gtfs <span class="ot">&lt;-</span> gtfstools<span class="sc">::</span><span class="fu">read_gtfs</span>(freq_gtfs_file)</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># convert from frequencies to time tables</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>stop_times_gtfs <span class="ot">&lt;-</span> gtfstools<span class="sc">::</span><span class="fu">frequencies_to_stop_times</span>(freq_gtfs)</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># save it as a new GTFS.zip file</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>gtfstools<span class="sc">::</span><span class="fu">write_gtfs</span>(<span class="at">gtfs =</span> stop_times_gtfs,</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>                      <span class="at">path =</span> <span class="fu">tempfile</span>(<span class="at">pattern =</span> <span class="st">&#39;stop_times_gtfs&#39;</span>, <span class="at">fileext =</span> <span class="st">&#39;.zip&#39;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">library</span>(gtfstools)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co"># location of your frequency-based GTFS</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>freq_gtfs_file <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata/spo/spo.zip&quot;</span>, <span class="at">package =</span> <span class="st">&quot;r5r&quot;</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co"># read GTFS data</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>freq_gtfs <span class="ot">&lt;-</span> gtfstools<span class="sc">::</span><span class="fu">read_gtfs</span>(freq_gtfs_file)</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co"># convert from frequencies to time tables</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>stop_times_gtfs <span class="ot">&lt;-</span> gtfstools<span class="sc">::</span><span class="fu">frequencies_to_stop_times</span>(freq_gtfs)</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co"># save it as a new GTFS.zip file</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>gtfstools<span class="sc">::</span><span class="fu">write_gtfs</span>(<span class="at">gtfs =</span> stop_times_gtfs,</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>                      <span class="at">path =</span> <span class="fu">tempfile</span>(<span class="at">pattern =</span> <span class="st">&#39;stop_times_gtfs&#39;</span>, <span class="at">fileext =</span> <span class="st">&#39;.zip&#39;</span>))</span></code></pre></div>
 <p>… and now you can use <code>r5r</code> on this
 <code>stop_times_gtfs.zip</code>.</p>
 <div id="cleaning-up-after-usage" class="section level3">
@@ -522,8 +553,8 @@ previously set after they are done with their calculations. In order to
 remove an existing <code>r5r</code> object and reallocate the memory it
 had been using, we use the <code>stop_r5</code> function followed by a
 call to Java’s garbage collector, as follows:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>r5r<span class="sc">::</span><span class="fu">stop_r5</span>(r5r_core)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>rJava<span class="sc">::</span><span class="fu">.jgc</span>(<span class="at">R.gc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>r5r<span class="sc">::</span><span class="fu">stop_r5</span>(r5r_core)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>rJava<span class="sc">::</span><span class="fu">.jgc</span>(<span class="at">R.gc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
 <p>If you have any suggestions or want to report an error, please visit
 <a href="https://github.com/ipeaGIT/r5r">the package GitHub
 page</a>.</p>

@@ -51,11 +51,14 @@ install.packages('r5r')
 devtools::install_github("ipeaGIT/r5r", subdir = "r-package")
 ```
 
-Please bear in mind that you need to have *Java SE Development Kit 11* installed on your computer to use `r5r`. No worries, you don't have to pay for it. The jdk 11 is freely available from the options below:
 
-- [OpenJDK](https://jdk.java.net/java-se-ri/11)
+Please bear in mind that you need to have *Java Development Kit (JDK) 21* installed 
+on your computer to use `r5r`. No worries, you don't have to pay for it. There are
+numerous open-source JDK implementations, and you only need to install one JDK. Here are a few options:
 
-- [Oracle](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html)
+- [Adoptium/Eclipse Temurin](https://adoptium.net/) (our preferred option)
+- [Amazon Corretto](https://aws.amazon.com/corretto/)
+- [Oracle OpenJDK](https://jdk.java.net/21/). 
 
 
 If you don't know what version of Java you have installed on your computer, you can check it by running this on R console.
@@ -95,7 +98,7 @@ a selected decay function;
 
 3. `travel_time_matrix()` for fast computation of travel time estimates between origin/destination pairs;
 
-4. `expanded_travel_time_matrix()` for calculating travel matrices between origin destination pairs with additional information such routes used and total time disaggregated by access, waiting, in-vehicle and transfer times.
+4. `expanded_travel_time_matrix()` for calculating travel matrices between origin destination pairs with additional information such as routes used and total time disaggregated by access, waiting, in-vehicle and transfer times.
 
 5. `detailed_itineraries()` to get detailed information on one or multiple alternative routes between origin/destination pairs.
 
@@ -132,11 +135,13 @@ Here are a few places from where you can download these data sets:
   - [geofabrik](https://download.geofabrik.de/) website
   - [hot export tool](https://export.hotosm.org/) website
   - [BBBike.org](https://extract.bbbike.org/) website
+  - [Protomaps](https://protomaps.com/downloads/osm) website
 
 - GTFS
-  - [tidytransit](http://tidytransit.r-transit.org/) R package
+  - [tidytransit](https://r-transit.github.io/tidytransit/) R package
   - [transitland](https://www.transit.land/) website
-  
+  - [Mobility Database](https://database.mobilitydata.org/) website
+
 - Elevation
   - [elevatr](https://github.com/jhollist/elevatr) R package
   - Nasa's SRTMGL1 website
@@ -197,7 +202,7 @@ r5r_core <- setup_r5(data_path = data_path)
 
 ## 4.2 Accessibility analysis
 
-The faster way to calculate accessibility estimates is using the `accessibility()`
+The fastest way to calculate accessibility estimates is using the `accessibility()`
 function. In this example, we calculate the number of schools and health care 
 facilities accessible in less than 60 minutes by public transport and walking.
 More details in this vignette on [Calculating and visualizing Accessibility](https://ipeagit.github.io/r5r/articles/accessibility.html).
@@ -363,4 +368,12 @@ r5r::stop_r5(r5r_core)
 rJava::.jgc(R.gc = TRUE)
 ```
 
+```{r, eval = TRUE, include = FALSE, message = FALSE}
+# clean cache (CRAN policy)
+r5r::r5r_cache(delete_file = 'all')
+
+```
+
 If you have any suggestions or want to report an error, please visit [the package GitHub page](https://github.com/ipeaGIT/r5r).
+
+

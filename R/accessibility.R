@@ -177,6 +177,14 @@ accessibility <- function(r5r_core,
   opportunities <- assign_opportunities(destinations, opportunities_colnames)
   mode_list <- assign_mode(mode, mode_egress)
   departure <- assign_departure(departure_datetime)
+
+  # cap trip duration with cutoffs
+  if(!is.null(cutoffs)){
+    max_trip_duration <- ifelse(max_trip_duration > max(cutoffs), max(cutoffs), max_trip_duration)
+
+    if(max_trip_duration < max(cutoffs)){stop("'max_trip_duration' cannot be shorter than 'max(cutoffs)'")}
+  }
+
   max_walk_time <- assign_max_street_time(
     max_walk_time,
     walk_speed,
@@ -201,6 +209,10 @@ accessibility <- function(r5r_core,
     max_walk_time,
     max_bike_time
   )
+
+
+
+
   decay_list <- assign_decay_function(decay_function, decay_value)
 
   set_time_window(r5r_core, time_window)
@@ -217,16 +229,6 @@ accessibility <- function(r5r_core,
   set_max_fare(r5r_core, max_fare)
   set_output_dir(r5r_core, output_dir)
   set_cutoffs(r5r_core, cutoffs, decay_function)
-
-  # accessibility cannot be computed on frequencies-based GTFS when a
-  # Fare Structure is set, because it uses McRaptor
-  if (!is.null(fare_structure) & r5r_core$hasFrequencies()) {
-    stop(
-      "Assertion on 'r5r_core' failed: None of the GTFS feeds used to create ",
-      "the transit network can contain a 'frequencies' table. Try using ",
-      "gtfstools::frequencies_to_stop_times() to create a suitable feed."
-    )
-  }
 
   # call r5r_core method and process results ------------------------------
 
