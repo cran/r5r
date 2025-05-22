@@ -50,7 +50,10 @@ Authors:
 Other contributors:
 \itemize{
   \item Luyu Liu \email{luyuliu@ufl.edu} (\href{https://orcid.org/0000-0002-6684-5570}{ORCID}) [contributor]
+  \item Alex Magnus \email{alex.magnus@mail.utoronto.ca} [contributor]
+  \item Daniel Snow \email{dan@sno.ws} [contributor]
   \item Ipea - Institute for Applied Economic Research [copyright holder, funder]
+  \item Department of Geography & Planning, University of Toronto [funder]
 }
 
 }
