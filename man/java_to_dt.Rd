@@ -13,7 +13,13 @@ java_to_dt(obj)
 An R data.table
 }
 \description{
-Converts a Java object returned by r5r_core to an R data.table
+Converts a Java object returned by r5r_network to an R \code{data.table}
+}
+\seealso{
+Other java support functions: 
+\code{\link{dt_to_lts_map}()},
+\code{\link{dt_to_speed_map}()},
+\code{\link{get_java_version}()}
 }
 \concept{java support functions}
 \keyword{internal}

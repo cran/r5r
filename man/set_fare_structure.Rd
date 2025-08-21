@@ -4,11 +4,10 @@
 \alias{set_fare_structure}
 \title{Set the fare structure used when calculating transit fares}
 \usage{
-set_fare_structure(r5r_core, fare_structure)
+set_fare_structure(r5r_network, fare_structure)
 }
 \arguments{
-\item{r5r_core}{An object to connect with the R5 routing engine, created with
-\code{\link[=setup_r5]{setup_r5()}}.}
+\item{r5r_network}{A routable transport network created with \code{\link[=build_network]{build_network()}}.}
 
 \item{fare_structure}{A fare structure object, following the convention
 set in \code{\link[=setup_fare_structure]{setup_fare_structure()}}. This object describes how transit fares
@@ -26,8 +25,10 @@ accessibility functions when fares are not to be calculated.
 }
 \seealso{
 Other setting functions: 
+\code{\link{reverse_if_direct_mode}()},
 \code{\link{set_breakdown}()},
 \code{\link{set_cutoffs}()},
+\code{\link{set_elevation}()},
 \code{\link{set_expanded_travel_times}()},
 \code{\link{set_fare_cutoffs}()},
 \code{\link{set_max_fare}()},
@@ -35,6 +36,8 @@ Other setting functions:
 \code{\link{set_max_rides}()},
 \code{\link{set_monte_carlo_draws}()},
 \code{\link{set_n_threads}()},
+\code{\link{set_new_congestion}()},
+\code{\link{set_new_lts}()},
 \code{\link{set_output_dir}()},
 \code{\link{set_percentiles}()},
 \code{\link{set_progress}()},

@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
-<meta name="date" content="2025-05-22" />
+<meta name="date" content="2025-08-21" />
 
 <title>FAQ - Frequently Asked Questions</title>
 
@@ -247,7 +247,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <h1 class="title toc-ignore">FAQ - Frequently Asked Questions</h1>
-<h4 class="date">2025-05-22</h4>
+<h4 class="date">2025-08-21</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 A short list of responses and clarifications about Frequently Asked
@@ -281,10 +281,16 @@ to street nework data?</h1>
 click to expand
 </summary>
 <blockquote>
-<p>It is possible to edit the OpenStreetMap <code>.pbf</code> file
-before using it in <code>r5r</code> for example to remove or add roads,
-change speeds etc etc. To to this, you can edit the <code>.pbf</code>
-file with <a href="https://wiki.openstreetmap.org/wiki/JOSM">JOSM
+<p>Yes, all routing and accessibility functions in <code>r5r</code> have
+new parameters <code>new_carspeeds</code>, <code>carspeed_scale</code>
+and <code>new_lts</code> which allow one to use custom car speeds and
+LTS levels for cycling. These parameters provide convient and efficient
+ways to build different scenarios of traffic congestion, road closure
+and interventions in cycling infrastructure. <a href="https://ipeagit.github.io/r5r/articles/scenarios.html">See this
+vignette</a>. For other changes to the OSM network (e.g. including a new
+road link), you would need to edit the OpenStreetMap <code>.pbf</code>
+file direclty before using it in <code>r5r</code>. To to this, you can
+edit the <code>.pbf</code> file with <a href="https://wiki.openstreetmap.org/wiki/JOSM">JOSM
 (https://wiki.openstreetmap.org/wiki/JOSM)</a>. Mind you that the the
 OpenStreetMap tags can be changed but they cannot be removed from the
 data.</p>

@@ -89,7 +89,7 @@ frontier for multiple origins.
 
 ## 3. Demonstration of `pareto_frontier()`.
 
-### 3.1 Build routable transport network with `setup_r5()`
+### 3.1 Build routable transport network with `build_network()`
 
 First, let's build the network and create the routing inputs. In this example 
 we'll be using the a sample data set for the city of Porto Alegre (Brazil) 
@@ -107,7 +107,7 @@ library(dplyr)
 
 # build a routable transport network with r5r
 data_path <- system.file("extdata/poa", package = "r5r")
-r5r_core <- setup_r5(data_path)
+r5r_network <- build_network(data_path)
 
 # routing inputs
 mode <- c('walk', 'transit')
@@ -134,7 +134,7 @@ We can create `list` object with these fare rules with the support of the `setup
 
 ```{r}
 # create basic fare structure
-fare_structure <- setup_fare_structure(r5r_core, 
+fare_structure <- setup_fare_structure(r5r_network, 
                                        base_fare = 4.8,
                                        by = "MODE")
 
@@ -172,17 +172,18 @@ fare_structure <- r5r::read_fare_structure(file.path(data_path, "fares/fares_poa
 
 In this example, we calculate the Pareto frontier from all origins to all 
 destinations considering multiple cutoffs of monetary costs:
-- $1, which would only allow for walking trips
-- $4.5, which would only allow for rail trips
-- $4.8, which would allow for a single bus trip
-- $7.20, which would allow for bus + bus
-- $8.37, which would allow for walking walking + bus + rail
+
+* $1, which would only allow for walking trips
+* $4.5, which would only allow for rail trips
+* $4.8, which would allow for a single bus trip
+* $7.20, which would allow for bus + bus
+* $8.37, which would allow for walking walking + bus + rail
 
 ```{r}
 departure_datetime <- as.POSIXct("13-05-2019 14:00:00", 
                                  format = "%d-%m-%Y %H:%M:%S")
 
-prtf <- pareto_frontier(r5r_core,
+prtf <- pareto_frontier(r5r_network,
                       origins = points,
                       destinations = points,
                       mode = c("WALK", "TRANSIT"),
@@ -202,7 +203,7 @@ Moinhos hospital. An optimum route alternative means that one cannot make a fast
 increasing costs, and one cannot make a cheaper trip without increasing travel time.
 
 
-```{r, echo = FALSE, fig.width=7, fig.height=4}
+```{r, echo = FALSE, fig.width=7, fig.height=4, warning=FALSE}
 # select origin and destinations
 pf2 <- dplyr::filter(prtf, to_id == 'farrapos_station'  &
                        from_id %in% c('moinhos_de_vento_hospital', 
@@ -234,7 +235,7 @@ ggplot(data=pf2, aes(x=monetary_cost, y=travel_time, color=from_id, label = mode
 `r5r` objects are still allocated to any amount of memory previously set after they are done with their calculations. In order to remove an existing `r5r` object and reallocate the memory it had been using, we use the `stop_r5` function followed by a call to Java's garbage collector, as follows:
 
 ```{r, message = FALSE}
-r5r::stop_r5(r5r_core)
+r5r::stop_r5(r5r_network)
 rJava::.jgc(R.gc = TRUE)
 ```
 

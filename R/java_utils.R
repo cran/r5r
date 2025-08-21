@@ -1,6 +1,6 @@
 #' Java object to data.table
 #'
-#' @description Converts a Java object returned by r5r_core to an R data.table
+#' @description Converts a Java object returned by r5r_network to an R `data.table`
 #'
 #' @param obj A Java Object reference
 #'
@@ -33,4 +33,70 @@ java_to_dt <- function(obj) {
   # convert list of vectors to a data.table, and rename columns accordingly
   data.table::setDT(dt)
   data.table::setnames(dt, new = columns)
+}
+
+#' data.table to speedMap
+#'
+#' @description Converts a `data.frame` with road OSM id's and respective speeds
+#'              to a Java Map<Long, Float> for use by r5r_network.
+#'
+#' @param dt data.frame/data.table. Table specifying the
+#'        speed modifications. The table must contain columns \code{osm_id} and
+#'        \code{max_speed}.
+#' @return A speedMap (Java HashMap<Long, Float>)
+#' @family java support functions
+#' @keywords internal
+dt_to_speed_map <- function(dt) {
+  if (is.null(dt)){
+    return (rJava::.jnew("java/util/HashMap"))
+  }
+
+  checkmate::assert_names(names(dt), must.include = c("osm_id", "max_speed", "speed_type"))
+  checkmate::assert_numeric(dt$osm_id, any.missing = FALSE, all.missing = FALSE)
+  checkmate::assert_numeric(dt$max_speed, any.missing = FALSE, all.missing = FALSE)
+  checkmate::assert_true(length(unique(dt$speed_type)) == 1 && dt$speed_type[1] %in% c("km/h", "scale"))
+
+  # Create new HashMap<long, float>
+  map_builder <- rJava::.jnew("org.ipea.r5r.Utils.RMapBuilder")
+  speed_map <- map_builder$buildSpeedMap(paste(as.character(dt$osm_id), collapse = ","),
+                                        paste(as.character(dt$max_speed), collapse = ","))
+
+  return(speed_map)
+}
+
+
+#' Determine the Java version installed locally
+#'
+#' @return The number of the Java version
+#' @family java support functions
+#' @keywords internal
+get_java_version <- function(){
+  ver <- rJava::.jcall("java.lang.System", "S", "getProperty", "java.version")
+  ver <- as.numeric(gsub("\\..*", "", ver))
+  return(ver)
+}
+
+
+#' data.table to ltsMap
+#'
+#' @description Converts a `data.frame` with road OSM id's and respective LTS
+#'              levels a Java Map<Long, Integer> for use by r5r_network.
+#'
+#' @param dt data.frame/data.table. Table specifying the
+#'        LTS levels. The table must contain columns \code{osm_id} and
+#'        \code{lts}.
+#' @return A speedMap (Java HashMap<Long, Integer>)
+#' @family java support functions
+#' @keywords internal
+dt_to_lts_map <- function(dt) {
+  checkmate::assert_names(names(dt), must.include = c("osm_id", "lts"))
+  checkmate::assert_numeric(dt$osm_id, any.missing = FALSE, all.missing = FALSE)
+  checkmate::assert_integer(dt$lts, any.missing = FALSE, all.missing = FALSE)
+
+  # Create new HashMap<Long, Integer>
+  map_builder <- rJava::.jnew("org.ipea.r5r.Utils.RMapBuilder")
+  lts_map <- map_builder$buildLtsMap(paste(as.character(dt$osm_id), collapse = ","),
+                                         paste(as.character(dt$lts), collapse = ","))
+
+  return(lts_map)
 }

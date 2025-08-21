@@ -2,7 +2,7 @@
 % Please edit documentation in R/setup_r5.R
 \name{setup_r5}
 \alias{setup_r5}
-\title{Create a transport network used for routing in R5}
+\title{Create a transport network used for routing in R5 (deprecated)}
 \usage{
 setup_r5(
   data_path,
@@ -22,34 +22,33 @@ running the function. Defaults to \code{FALSE} (please note that in such case
 detailed output, which can be useful for debugging issues not caught by
 \code{r5r}.}
 
-\item{temp_dir}{A logical. Whether the \code{R5} Jar file should be saved to a
-temporary directory. Defaults to \code{FALSE}.}
+\item{temp_dir}{A logical. Whether the \code{network.dat} file should be saved to
+a temporary directory. Defaults to \code{FALSE}.}
 
 \item{elevation}{A string. The name of the impedance function to be used to
 calculate impedance for walking and cycling based on street slopes.
-Available options include \code{TOBLER} (Default) and \code{MINETTI}, or \code{NONE} to
-ignore elevation. R5 loads elevation data from \code{.tif} files saved inside the
-\code{data_path} directory. See more info in the Details below.}
+Available options include \code{TOBLER} (Default) and \code{MINETTI}, or \code{NONE}
+to ignore elevation. R5 loads elevation data from \code{.tif} files saved
+inside the \code{data_path} directory. See more info in the Details section
+below.}
 
 \item{overwrite}{A logical. Whether to overwrite an existing \code{network.dat}
-or to use a cached file. Defaults to \code{FALSE} (i.e. use a cached network).}
+or to use a cached file. Defaults to \code{FALSE} (i.e. use a cached
+network).}
 }
 \value{
-An \code{rJava} object to connect with \code{R5} routing engine.
+A \code{r5r_network} object representing the built network to connect with
+\code{R5} routing engine.
 }
 \description{
-Builds a multimodal transport network used for routing in \code{R5}, combining
-multiple data inputs present in the directory where the network should be
-saved to. The directory must contain only one street network file (in
-\code{.osm.pbf} format). It may optionally contain one or more public transport
-GTFS feeds (in \code{GTFS.zip} format, where \code{GTFS} is the name of your feed),
-when used for public transport routing, and a \code{.tif} file describing the
-elevation profile of the study area. If there is more than one GTFS feed in
-the directory, all feeds are merged. If there is already a 'network.dat'
-file in the directory, the function will simply read it and load it to
-memory (unless specified not to do so).
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+\code{setup_r5()} was renamed to \code{\link[=build_network]{build_network()}} to create a more consistent
+API. \strong{\code{setup_r5()} is being deprecated} after \emph{r5r} v2.3.0 and will be
+\strong{removed in a future release}. Please switch to \code{\link[=build_network]{build_network()}}.
 }
-\section{Details}{
+\section{Elevation}{
+
 
 More information about the \code{TOBLER} and \code{MINETTI} options to calculate the
 effects of elevation on travel times can be found in the references below:
@@ -73,11 +72,13 @@ library(r5r)
 # directory with street network and gtfs files
 data_path <- system.file("extdata/poa", package = "r5r")
 
-r5r_core <- setup_r5(data_path)
+# `setup_r5()` has been deprecated, please switch to `build_network()`
+r5r_network <- build_network(data_path)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other setup: 
+Other Build network: 
+\code{\link{build_network}()},
 \code{\link{download_r5}()}
 }
-\concept{setup}
+\concept{Build network}

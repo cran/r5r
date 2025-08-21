@@ -8,7 +8,7 @@ departure_datetime <- as.POSIXct(
   format = "%d-%m-%Y %H:%M:%S"
 )
 
-tester <- function(r5r_core = get("r5r_core", envir = parent.frame()),
+tester <- function(r5r_network = get("r5r_network", envir = parent.frame()),
                    origins = pois,
                    destinations = pois,
                    mode = "WALK",
@@ -25,13 +25,15 @@ tester <- function(r5r_core = get("r5r_core", envir = parent.frame()),
                    bike_speed = 12,
                    max_rides = 3,
                    max_lts = 2,
+                   new_carspeeds = NULL,
+                   carspeed_scale = 1,
                    draws_per_minute = 5L,
                    n_threads = Inf,
                    verbose = FALSE,
                    progress = FALSE,
                    output_dir = NULL) {
   travel_time_matrix(
-    r5r_core,
+    r5r_network,
     origins = origins,
     destinations = destinations,
     mode = mode,
@@ -48,6 +50,8 @@ tester <- function(r5r_core = get("r5r_core", envir = parent.frame()),
     bike_speed = bike_speed,
     max_rides = max_rides,
     max_lts = max_lts,
+    new_carspeeds = new_carspeeds,
+    carspeed_scale = carspeed_scale,
     draws_per_minute = draws_per_minute,
     n_threads = n_threads,
     verbose = verbose,
@@ -90,7 +94,7 @@ test_that("errors due to incorrect input types - origins and destinations", {
 test_that("errors due to incorrect input types - other inputs", {
   # mode and mode_egress are tested in assign_mode() tests
 
-  expect_error(tester(unclass(r5r_core)))
+  expect_error(tester(unclass(r5r_network)))
 
   expect_error(tester(departure_datetime = unclass(departure_datetime)))
   expect_error(tester(departure_datetime = rep(departure_datetime, 2)))
@@ -289,10 +293,12 @@ test_that("returns ttm even if last call saved to dir", {
 
 test_that("using transit outside the gtfs dates throws an error", {
   expect_error(
-    tester(r5r_core,
+    tester(r5r_network,
            mode='transit',
            departure_datetime = as.POSIXct("13-05-2025 14:00:00",
                                            format = "%d-%m-%Y %H:%M:%S")
     )
   )
 })
+
+

@@ -4,11 +4,10 @@
 \alias{set_monte_carlo_draws}
 \title{Set number of Monte Carlo draws}
 \usage{
-set_monte_carlo_draws(r5r_core, draws_per_minute, time_window)
+set_monte_carlo_draws(r5r_network, draws_per_minute, time_window)
 }
 \arguments{
-\item{r5r_core}{An object to connect with the R5 routing engine, created with
-\code{\link[=setup_r5]{setup_r5()}}.}
+\item{r5r_network}{A routable transport network created with \code{\link[=build_network]{build_network()}}.}
 
 \item{draws_per_minute}{A number.}
 
@@ -22,8 +21,10 @@ Sets the number of Monte Carlo draws to be used by R5.
 }
 \seealso{
 Other setting functions: 
+\code{\link{reverse_if_direct_mode}()},
 \code{\link{set_breakdown}()},
 \code{\link{set_cutoffs}()},
+\code{\link{set_elevation}()},
 \code{\link{set_expanded_travel_times}()},
 \code{\link{set_fare_cutoffs}()},
 \code{\link{set_fare_structure}()},
@@ -31,6 +32,8 @@ Other setting functions:
 \code{\link{set_max_lts}()},
 \code{\link{set_max_rides}()},
 \code{\link{set_n_threads}()},
+\code{\link{set_new_congestion}()},
+\code{\link{set_new_lts}()},
 \code{\link{set_output_dir}()},
 \code{\link{set_percentiles}()},
 \code{\link{set_progress}()},

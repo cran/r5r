@@ -5,7 +5,8 @@
 \title{Detailed itineraries between origin-destination pairs}
 \usage{
 detailed_itineraries(
-  r5r_core,
+  r5r_network,
+  r5r_core = deprecated(),
   origins,
   destinations,
   mode = "WALK",
@@ -13,8 +14,6 @@ detailed_itineraries(
   departure_datetime = Sys.time(),
   time_window = 10L,
   suboptimal_minutes = 0L,
-  fare_structure = NULL,
-  max_fare = Inf,
   max_walk_time = Inf,
   max_bike_time = Inf,
   max_car_time = Inf,
@@ -25,6 +24,11 @@ detailed_itineraries(
   max_lts = 2,
   shortest_path = TRUE,
   all_to_all = FALSE,
+  fare_structure = NULL,
+  max_fare = Inf,
+  new_carspeeds = NULL,
+  carspeed_scale = 1,
+  new_lts = NULL,
   n_threads = Inf,
   verbose = FALSE,
   progress = FALSE,
@@ -34,8 +38,10 @@ detailed_itineraries(
 )
 }
 \arguments{
-\item{r5r_core}{An object to connect with the R5 routing engine, created with
-\code{\link[=setup_r5]{setup_r5()}}.}
+\item{r5r_network}{A routable transport network created with \code{\link[=build_network]{build_network()}}.}
+
+\item{r5r_core}{The \code{r5r_core} argument is deprecated as of r5r v2.3.0.
+Please use the \code{r5r_network} argument instead.}
 
 \item{origins, destinations}{Either a \verb{POINT sf} object with WGS84 CRS, or a
 \code{data.frame} containing the columns \code{id}, \code{lon} and \code{lat}.}
@@ -75,15 +81,6 @@ take a path that is technically not optimal in terms of travel time, for
 example, for some practical reasons (e.g. mode preference, safety, etc).
 In practice, the higher this value, the more itineraries will be returned
 in the final result.}
-
-\item{fare_structure}{A fare structure object, following the convention
-set in \code{\link[=setup_fare_structure]{setup_fare_structure()}}. This object describes how transit fares
-should be calculated. Please see the fare structure vignette to
-understand how this object is structured:
-\code{vignette("fare_structure", package = "r5r")}.}
-
-\item{max_fare}{A number. The maximum value that trips can cost when
-calculating the fastest journey between each origin and destination pair.}
 
 \item{max_walk_time}{An integer. The maximum walking time (in minutes) to
 access and egress the transit network, to make transfers within the network
@@ -141,6 +138,39 @@ or multiple alternatives.}
 to the 1st destination, then the 2nd origin to the 2nd destination, and so
 on (\code{FALSE}, the default) or to query routes between all origins to all
 destinations (\code{TRUE}).}
+
+\item{fare_structure}{A fare structure object, following the convention
+set in \code{\link[=setup_fare_structure]{setup_fare_structure()}}. This object describes how transit fares
+should be calculated. Please see the fare structure vignette to
+understand how this object is structured:
+\code{vignette("fare_structure", package = "r5r")}.}
+
+\item{max_fare}{A number. The maximum value that trips can cost when
+calculating the fastest journey between each origin and destination pair.}
+
+\item{new_carspeeds}{A \code{data.frame} specifying the new car speed for each OSM
+edge id. This table must contain columns \code{osm_id}, \code{max_speed}
+and \code{speed_type}. The \code{"speed_type"} column is of class character
+and it indicates whether the values in \code{"max_speed"} should be
+interpreted as percentages of original speeds (\code{"scale"}) or as absolute
+speeds (\code{"km/h"}). Alternatively, the \code{new_carspeeds} parameter can
+receive an \verb{sf data.frame} with POLYGON geometry that indicates the new
+car speed for all the roads that fall within each polygon. In this case,
+the table must contain the columns \code{poly_id} with a unique id for
+each polygon, \code{scale} with the new speed scaling factors and
+\code{priority}, which is a number ranking which polygon should be
+considered in case of overlapping polygons. See more into in the
+\verb{link to congestion vignette}.}
+
+\item{carspeed_scale}{Numeric. The default car speed to use for road segments
+not specified in \code{new_carspeeds}. By default, it is \code{NULL} and the speeds
+of the unlisted roads are kept unchanged.}
+
+\item{new_lts}{A \code{data.frame} specifying the new LTS levels for each OSM edge
+id. The table must contain columns \code{osm_id} and \code{lts}.
+Alternatively, the \code{new_lts} parameter can receive an \verb{sf data.frame}
+with LINESTRING geometry. R5 will then find the nearest road for each
+LINESTRING and update its LTS value accordingly.}
 
 \item{n_threads}{An integer. The number of threads to use when running the
 router in parallel. Defaults to use all available threads (Inf).}
@@ -287,7 +317,7 @@ library(r5r)
 
 # build transport network
 data_path <- system.file("extdata/poa", package = "r5r")
-r5r_core <- setup_r5(data_path)
+r5r_network <- build_network(data_path)
 
 # load origin/destination points
 points <- read.csv(file.path(data_path, "poa_points_of_interest.csv"))
@@ -299,7 +329,7 @@ departure_datetime <- as.POSIXct(
 )
 
 det <- detailed_itineraries(
-  r5r_core,
+  r5r_network,
   origins = points[10,],
   destinations = points[12,],
   mode = c("WALK", "TRANSIT"),
@@ -308,11 +338,12 @@ det <- detailed_itineraries(
 )
 head(det)
 
-stop_r5(r5r_core)
+stop_r5(r5r_network)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
 Other routing: 
+\code{\link{arrival_travel_time_matrix}()},
 \code{\link{expanded_travel_time_matrix}()},
 \code{\link{pareto_frontier}()},
 \code{\link{travel_time_matrix}()}

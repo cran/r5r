@@ -9,8 +9,10 @@
 #' PlannerResource API). Thus, it consumes much more time and memory than the
 #' other (more analytical) routing functions included in the package.
 #'
+#' @template r5r_network
 #' @template r5r_core
 #' @template common_arguments
+#' @template scenarios
 #' @template verbose
 #' @template fare_structure
 #' @template max_fare
@@ -71,7 +73,7 @@
 #'
 #' # build transport network
 #' data_path <- system.file("extdata/poa", package = "r5r")
-#' r5r_core <- setup_r5(data_path)
+#' r5r_network <- build_network(data_path)
 #'
 #' # load origin/destination points
 #' points <- read.csv(file.path(data_path, "poa_points_of_interest.csv"))
@@ -83,7 +85,7 @@
 #' )
 #'
 #' det <- detailed_itineraries(
-#'   r5r_core,
+#'   r5r_network,
 #'   origins = points[10,],
 #'   destinations = points[12,],
 #'   mode = c("WALK", "TRANSIT"),
@@ -92,9 +94,10 @@
 #' )
 #' head(det)
 #'
-#' stop_r5(r5r_core)
+#' stop_r5(r5r_network)
 #' @export
-detailed_itineraries <- function(r5r_core,
+detailed_itineraries <- function(r5r_network,
+                                 r5r_core = deprecated(),
                                  origins,
                                  destinations,
                                  mode = "WALK",
@@ -102,8 +105,6 @@ detailed_itineraries <- function(r5r_core,
                                  departure_datetime = Sys.time(),
                                  time_window = 10L,
                                  suboptimal_minutes = 0L,
-                                 fare_structure = NULL,
-                                 max_fare = Inf,
                                  max_walk_time = Inf,
                                  max_bike_time = Inf,
                                  max_car_time = Inf,
@@ -114,12 +115,28 @@ detailed_itineraries <- function(r5r_core,
                                  max_lts = 2,
                                  shortest_path = TRUE,
                                  all_to_all = FALSE,
+                                 fare_structure = NULL,
+                                 max_fare = Inf,
+                                 new_carspeeds = NULL,
+                                 carspeed_scale = 1,
+                                 new_lts = NULL,
                                  n_threads = Inf,
                                  verbose = FALSE,
                                  progress = FALSE,
                                  drop_geometry = FALSE,
                                  osm_link_ids = FALSE,
                                  output_dir = NULL) {
+
+  # deprecating r5r_core --------------------------------------
+  if (lifecycle::is_present(r5r_core)) {
+
+    cli::cli_warn(c(
+      "!" = "The `r5r_core` argument is deprecated as of r5r v2.3.0.",
+      "i" = "Please use the `r5r_network` argument instead."
+    ))
+
+    r5r_network <- r5r_core
+  }
 
   old_options <- options(datatable.optimize = Inf)
   on.exit(options(old_options), add = TRUE)
@@ -131,7 +148,8 @@ detailed_itineraries <- function(r5r_core,
 
   # check inputs and set r5r options --------------------------------------
 
-  checkmate::assert_class(r5r_core, "jobjRef")
+  checkmate::assert_class(r5r_network, "r5r_network")
+  r5r_network <- r5r_network@jcore
 
   origins <- assign_points_input(origins, "origins")
   destinations <- assign_points_input(destinations, "destinations")
@@ -142,9 +160,9 @@ detailed_itineraries <- function(r5r_core,
   mode_list <- assign_mode(mode, mode_egress)
 
   # detailed itineraries via public transport cannot be computed on frequencies-based GTFS
-  if (mode_list$transit_mode != "" & r5r_core$hasFrequencies()) {
+  if (mode_list$transit_mode != "" & r5r_network$hasFrequencies()) {
     stop(
-      "Assertion on 'r5r_core' failed: None of the GTFS feeds used to create ",
+      "Assertion on 'r5r_network' failed: None of the GTFS feeds used to create ",
       "the transit network can contain a 'frequencies' table. Try using ",
       "gtfstools::frequencies_to_stop_times() to create a suitable feed."
     )
@@ -154,7 +172,7 @@ detailed_itineraries <- function(r5r_core,
 
   # check availability of transit services on the selected date
   if (mode_list$transit_mode %like% 'TRANSIT|TRAM|SUBWAY|RAIL|BUS|CABLE_CAR|GONDOLA|FUNICULAR') {
-    check_transit_availability_on_date(r5r_core, departure_date = departure$date)
+    check_transit_availability_on_date(r5r_network, departure_date = departure$date)
   }
 
   max_walk_time <- assign_max_street_time(
@@ -185,28 +203,32 @@ detailed_itineraries <- function(r5r_core,
   drop_geometry <- assign_drop_geometry(drop_geometry)
   osm_link_ids <- assign_osm_link_ids(osm_link_ids, drop_geometry)
 
-  set_time_window(r5r_core, time_window)
-  set_monte_carlo_draws(r5r_core, 1, time_window)
-  set_speed(r5r_core, walk_speed, "walk")
-  set_speed(r5r_core, bike_speed, "bike")
-  set_max_rides(r5r_core, max_rides)
-  set_max_lts(r5r_core, max_lts)
-  set_n_threads(r5r_core, n_threads)
-  set_verbose(r5r_core, verbose)
-  set_progress(r5r_core, progress)
-  set_fare_structure(r5r_core, fare_structure)
-  set_max_fare(r5r_core, max_fare)
-  set_output_dir(r5r_core, output_dir)
+  set_time_window(r5r_network, time_window)
+  set_monte_carlo_draws(r5r_network, 1, time_window)
+  set_speed(r5r_network, walk_speed, "walk")
+  set_speed(r5r_network, bike_speed, "bike")
+  set_max_rides(r5r_network, max_rides)
+  set_max_lts(r5r_network, max_lts)
+  set_n_threads(r5r_network, n_threads)
+  set_verbose(r5r_network, verbose)
+  set_progress(r5r_network, progress)
+  set_fare_structure(r5r_network, fare_structure)
+  set_max_fare(r5r_network, max_fare)
+  set_output_dir(r5r_network, output_dir)
   set_suboptimal_minutes(
-    r5r_core,
+    r5r_network,
     suboptimal_minutes,
     fare_structure,
     shortest_path
   )
 
-  # call r5r_core method and process result -------------------------------
+  # SCENARIOS -------------------------------------------
+  set_new_congestion(r5r_network, new_carspeeds, carspeed_scale)
+  set_new_lts(r5r_network, new_lts)
 
-  path_options <- r5r_core$detailedItineraries(
+  # call r5r_network method and process result -------------------------------
+
+  path_options <- r5r_network$detailedItineraries(
     origins$id,
     origins$lat,
     origins$lon,

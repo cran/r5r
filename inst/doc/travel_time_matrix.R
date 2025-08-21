@@ -6,7 +6,7 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 
-## removes files previously created by 'setup_r5()'
+## removes files previously created by 'build_network()'
 #data_path <- system.file("extdata/poa", package = "r5r")
 #existing_files <- list.files(data_path)
 #files_to_keep <- c(
@@ -21,78 +21,96 @@ knitr::opts_chunk$set(
 #invisible(file.remove(file.path(data_path, files_to_remove)))
 
 ## ----message = FALSE----------------------------------------------------------
-# # increase Java memory
-# options(java.parameters = "-Xmx2G")
-# 
-# # load libraries
-# library(r5r)
-# library(data.table)
-# library(ggplot2)
-# 
-# # build a routable transport network with r5r
-# data_path <- system.file("extdata/poa", package = "r5r")
-# r5r_core <- setup_r5(data_path)
-# 
-# # routing inputs
-# mode <- c('walk', 'transit')
-# max_trip_duration <- 60 # minutes
-# 
-# # departure time
-# departure_datetime <- as.POSIXct("13-05-2019 14:00:00",
-#                                  format = "%d-%m-%Y %H:%M:%S")
-# 
-# # load origin/destination points
-# points <- fread(file.path(data_path, "poa_points_of_interest.csv"))
-# 
+# increase Java memory
+options(java.parameters = "-Xmx2G")
+
+# load libraries
+library(r5r)
+library(data.table)
+library(ggplot2)
+
+# build a routable transport network with r5r
+data_path <- system.file("extdata/poa", package = "r5r")
+r5r_network <- build_network(data_path)
+
+# routing inputs
+mode <- c('walk', 'transit')
+max_trip_duration <- 60 # minutes
+
+# departure time
+departure_datetime <- as.POSIXct("13-05-2019 14:00:00", 
+                                 format = "%d-%m-%Y %H:%M:%S")
+
+# load origin/destination points
+points <- fread(file.path(data_path, "poa_points_of_interest.csv"))
+
 
 ## ----message = FALSE----------------------------------------------------------
-# # estimate travel time matrix
-# ttm <- travel_time_matrix(r5r_core,
-#                           origins = points,
-#                           destinations = points,
-#                           mode = mode,
-#                           max_trip_duration = max_trip_duration,
-#                           departure_datetime = departure_datetime )
-# 
-# head(ttm, n = 10)
-# 
+# estimate travel time matrix
+ttm <- travel_time_matrix(r5r_network,   
+                          origins = points,
+                          destinations = points,    
+                          mode = mode,
+                          max_trip_duration = max_trip_duration,
+                          departure_datetime = departure_datetime )
+
+head(ttm, n = 10)
+
 
 ## ----message = FALSE----------------------------------------------------------
-# ettm <- expanded_travel_time_matrix(r5r_core,
-#                                     origins = points,
-#                                     destinations = points,
-#                                     mode = mode,
-#                                     max_trip_duration = max_trip_duration,
-#                                     departure_datetime = departure_datetime )
-# 
-# head(ettm, n = 10)
+ettm <- expanded_travel_time_matrix(r5r_network,   
+                                    origins = points,
+                                    destinations = points,    
+                                    mode = mode,
+                                    max_trip_duration = max_trip_duration,
+                                    departure_datetime = departure_datetime )
+
+head(ettm, n = 10)
 
 ## ----message = FALSE----------------------------------------------------------
-# ettm2 <- expanded_travel_time_matrix(r5r_core,
-#                                     origins = points,
-#                                     destinations = points,
-#                                     mode = mode,
-#                                     max_trip_duration = max_trip_duration,
-#                                     departure_datetime = departure_datetime,
-#                                     breakdown = TRUE)
-# 
-# head(ettm2, n = 10)
+ettm2 <- expanded_travel_time_matrix(r5r_network,   
+                                    origins = points,
+                                    destinations = points,    
+                                    mode = mode,
+                                    max_trip_duration = max_trip_duration,
+                                    departure_datetime = departure_datetime,
+                                    breakdown = TRUE)
+
+head(ettm2, n = 10)
 
 ## ----message = FALSE----------------------------------------------------------
-# ettm_window <- expanded_travel_time_matrix(r5r_core,
-#                                            origins = points,
-#                                            destinations = points,
-#                                            mode = mode,
-#                                            max_trip_duration = max_trip_duration,
-#                                            departure_datetime = departure_datetime,
-#                                            breakdown = TRUE,
-#                                            time_window = 10)
-# 
-# ettm_window[15:25,]
+ettm_window <- expanded_travel_time_matrix(r5r_network,   
+                                           origins = points,
+                                           destinations = points,    
+                                           mode = mode,
+                                           max_trip_duration = max_trip_duration,
+                                           departure_datetime = departure_datetime,
+                                           breakdown = TRUE,
+                                           time_window = 10)
+
+ettm_window[15:25,]
 
 ## ----message = FALSE----------------------------------------------------------
-# r5r::stop_r5(r5r_core)
-# rJava::.jgc(R.gc = TRUE)
+
+arrival_datetime <- as.POSIXct(
+ "13-05-2019 14:00:00",
+ format = "%d-%m-%Y %H:%M:%S"
+)
+
+arrival_ttm <- arrival_travel_time_matrix(
+  r5r_network,
+  origins = points,
+  destinations = points,
+  mode = c("WALK", "TRANSIT"),
+  arrival_datetime = arrival_datetime,
+  max_trip_duration = 60
+)
+
+head(arrival_ttm, n = 10)
+
+## ----message = FALSE----------------------------------------------------------
+r5r::stop_r5(r5r_network)
+rJava::.jgc(R.gc = TRUE)
 
 ## ----eval = TRUE, include = FALSE, message = FALSE----------------------------
 # clean cache (CRAN policy)

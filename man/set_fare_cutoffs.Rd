@@ -4,11 +4,10 @@
 \alias{set_fare_cutoffs}
 \title{Set monetary cutoffs}
 \usage{
-set_fare_cutoffs(r5r_core, fare_cutoffs)
+set_fare_cutoffs(r5r_network, fare_cutoffs)
 }
 \arguments{
-\item{r5r_core}{An object to connect with the R5 routing engine, created with
-\code{\link[=setup_r5]{setup_r5()}}.}
+\item{r5r_network}{A routable transport network created with \code{\link[=build_network]{build_network()}}.}
 
 \item{fare_cutoffs}{A path.}
 }
@@ -21,8 +20,10 @@ Pareto frontier.
 }
 \seealso{
 Other setting functions: 
+\code{\link{reverse_if_direct_mode}()},
 \code{\link{set_breakdown}()},
 \code{\link{set_cutoffs}()},
+\code{\link{set_elevation}()},
 \code{\link{set_expanded_travel_times}()},
 \code{\link{set_fare_structure}()},
 \code{\link{set_max_fare}()},
@@ -30,6 +31,8 @@ Other setting functions:
 \code{\link{set_max_rides}()},
 \code{\link{set_monte_carlo_draws}()},
 \code{\link{set_n_threads}()},
+\code{\link{set_new_congestion}()},
+\code{\link{set_new_lts}()},
 \code{\link{set_output_dir}()},
 \code{\link{set_percentiles}()},
 \code{\link{set_progress}()},

@@ -1,3 +1,32 @@
+# r5r 2.3.0
+
+**Major changes**
+
+- New function `build_network()` to replace `setup_r5()`, which is being deprecated. Idiomatically `r5r_core` is now `r5r_network`.
+- New function `arrival_travel_time_matrix()` to calculate travel time matrix between origin destination pairs considering the time of arrival, instead of a depature time. Closes [#291](https://github.com/ipeaGIT/r5r/issues/291)
+- We have now implemented a reverse search optimization for direct transport modes (walking and cycling) in the functions `travel_time_matrix()`, `expanded_travel_time_matrix()` and `arrival_travel_time_matrix()`. In practice, this means that these functions are now much faster when there are multiple origins to few destinations but only when there is no elevation `.tif` file in the data path. Closes [#450](https://github.com/ipeaGIT/r5r/issues/450)
+- All routing and accessibility functions in `r5r` have new parameters `new_carspeeds`, `carspeed_scale` and `new_lts` which allow one to use custom car speeds and LTS levels for cycling. These parameters provide convient and efficient ways to build different scenarios of traffic congestion, road closure and interventions in cycling infrastructure. Closes [#289](https://github.com/ipeaGIT/r5r/issues/289)
+
+**Minor changes**
+
+- The routable transport network built with `build_network()` and `setup_r5()` now have their own class `"r5r_network"`, making the package more consistent and safer from errors [#472](https://github.com/ipeaGIT/r5r/pull/472).
+- Routing properties within r5r jar (aka little jar) are reset to default after a routing execution [#453](https://github.com/ipeaGIT/r5r/pull/453)
+- Less cluttering messages in r5r dialogue. Removed logback startup messages. `Verbose=F` now completly silences java output. `Verbose=T` only reports messages up to INFO level as opposed to up to DEBUG [#456](https://github.com/ipeaGIT/r5r/pull/456).
+- Removed date from r5r-log. You no longer have to delete the previous day's log! [#456](https://github.com/ipeaGIT/r5r/pull/456)
+- Improved warning and error messages.
+- r5r developers can now set `options(r5r.r5jar=...)` to use a local JAR instead of the R5 jar downloaded by r5r.
+
+**Bug fixes**
+
+- Fixed a bug where `network_settings.json` wasn't showing the right version numbers [#459](https://github.com/ipeaGIT/r5r/pull/459). Version number now dynamically updated [#456](https://github.com/ipeaGIT/r5r/pull/456).
+
+**New co-authors**
+
+- Alex Magnus
+
+
+
+
 # r5r 2.2.0
 
 **Major changes**
@@ -12,7 +41,6 @@
 
 **Bug fixes**
 
-- Fixed error caused by phantom 0-minute isochrone. Closed issues #433 and #434
 - Fixed a bug that prevented the package to check the availability of transit services in specific days when there is no service at all.
 - Fixed a bug in the isochrone function that was throwing false error message regarding cutoff being too short. Closed [#434](https://github.com/ipeaGIT/r5r/issues/434) and [#433](https://github.com/ipeaGIT/r5r/issues/433)
 
