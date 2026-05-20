@@ -159,7 +159,7 @@ Here are a few places from where you can download these data sets:
 - GTFS
   - [tidytransit](https://r-transit.github.io/tidytransit/) R package
   - [transitland](https://www.transit.land/) website
-  - [Mobility Database](https://database.mobilitydata.org/) website
+  - [Mobility Database](https://mobilitydatabase.org/) website
 
 - Elevation
   - [elevatr](https://github.com/USEPA/elevatr) R package

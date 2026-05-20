@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
-<meta name="date" content="2025-08-21" />
+<meta name="date" content="2026-05-19" />
 
 <title>Trip planning with detailed_itineraries()</title>
 
@@ -350,7 +350,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Trip planning with
 detailed_itineraries()</h1>
-<h4 class="date">2025-08-21</h4>
+<h4 class="date">2026-05-19</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 This vignette shows how to do route planning using the
@@ -437,42 +437,18 @@ arrival of the optimal route.</p>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>                                 <span class="at">format =</span> <span class="st">&quot;%d-%m-%Y %H:%M:%S&quot;</span>)</span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a></span>
 <span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co"># calculate detailed itineraries</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>det <span class="ot">&lt;-</span> <span class="fu">detailed_itineraries</span>(r5r_network,</span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>                            <span class="at">origins =</span> origins,</span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>                            <span class="at">destinations =</span> destinations,</span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>                            <span class="at">mode =</span> mode,</span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>                            <span class="at">departure_datetime =</span> departure_datetime,</span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>                            <span class="at">max_walk_time =</span> max_walk_time,</span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>                            <span class="at">suboptimal_minutes =</span> <span class="dv">8</span>,</span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>                            <span class="at">shortest_path =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="fu">head</span>(det)</span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt; Simple feature collection with 6 features and 16 fields</span></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; Geometry type: LINESTRING</span></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; Dimension:     XY</span></span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; Bounding box:  xmin: -51.24094 ymin: -30.05 xmax: -51.19762 ymax: -29.99729</span></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; Geodetic CRS:  WGS 84</span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt;            from_id  from_lat  from_lon                          to_id    to_lat</span></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; 1 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
-<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; 2 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
-<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt; 3 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
-<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; 4 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
-<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt; 5 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
-<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt; 6 farrapos_station -29.99772 -51.19762 praia_de_belas_shopping_center -30.04995</span></span>
-<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt;      to_lon option departure_time total_duration total_distance segment mode</span></span>
-<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt; 1 -51.22875      1       14:09:10           33.9           9460       1 WALK</span></span>
-<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt; 2 -51.22875      1       14:09:10           33.9           9460       2 RAIL</span></span>
-<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; 3 -51.22875      1       14:09:10           33.9           9460       3 WALK</span></span>
-<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt; 4 -51.22875      1       14:09:10           33.9           9460       4  BUS</span></span>
-<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt; 5 -51.22875      1       14:09:10           33.9           9460       5 WALK</span></span>
-<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt; 6 -51.22875      2       14:09:10           41.1           8755       1 WALK</span></span>
-<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt;   segment_duration wait distance  route                       geometry</span></span>
-<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt; 1              4.5  0.0      174        LINESTRING (-51.1981 -29.99...</span></span>
-<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt; 2              6.6  1.4     4796 LINHA1 LINESTRING (-51.19763 -29.9...</span></span>
-<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a><span class="co">#&gt; 3              4.1  0.0      256        LINESTRING (-51.22827 -30.0...</span></span>
-<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="co">#&gt; 4             10.4  4.4     4083    188 LINESTRING (-51.22926 -30.0...</span></span>
-<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a><span class="co">#&gt; 5              2.6  0.0      151        LINESTRING (-51.22949 -30.0...</span></span>
-<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a><span class="co">#&gt; 6              4.5  0.0      174        LINESTRING (-51.1981 -29.99...</span></span></code></pre></div>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>det <span class="ot">&lt;-</span> <span class="fu">detailed_itineraries</span>(</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  r5r_network,</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  <span class="at">origins =</span> origins,</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="at">destinations =</span> destinations,</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="at">mode =</span> mode,</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  <span class="at">departure_datetime =</span> departure_datetime,</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>  <span class="at">max_walk_time =</span> max_walk_time,</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>  <span class="at">suboptimal_minutes =</span> <span class="dv">8</span>,</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>  <span class="at">shortest_path =</span> <span class="cn">FALSE</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  )</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="fu">head</span>(det)</span></code></pre></div>
 <p>The output is a <code>data.frame sf</code> object, so we can easily
 visualize the results.</p>
 <div id="visualize-results" class="section level2">
@@ -496,7 +472,6 @@ network used in the routing.</p>
 <span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>        <span class="fu">theme_void</span>()</span>
 <span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a></span>
 <span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>fig</span></code></pre></div>
-<p><img role="img" src="data:image/png;base64,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" width="100%" /></p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># SAVE image</span></span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="at">plot =</span> fig, <span class="at">filename =</span> <span class="st">&#39;inst/img/vig_detailed_ggplot.png&#39;</span>, </span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>       <span class="at">height =</span> <span class="dv">5</span>, <span class="at">width =</span> <span class="dv">15</span>, <span class="at">units=</span><span class="st">&#39;cm&#39;</span>, <span class="at">dpi=</span><span class="dv">200</span>)</span></code></pre></div>
@@ -528,7 +503,7 @@ can simply set <code>drop_geometry = TRUE</code>.</li>
 <p>Please note that the <code>detailed_itineraries()</code> functions
 does not run on frequency-based GTFS feeds. A simple hack to overcome
 this problem is to convert your GTFS data from frequencies to time
-tables. This can be easily done using the <a href="https://ipeagit.github.io/gtfstools/"><code>gtfstools</code>
+tables. This can be easily done using the <a href="https://ipea.github.io/gtfstools/"><code>gtfstools</code>
 package</a>. Here is how:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">library</span>(gtfstools)</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>

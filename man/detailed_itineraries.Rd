@@ -193,12 +193,17 @@ geometry of each trip leg or not. The default value of \code{FALSE} keeps the
 geometry column in the result.}
 
 \item{osm_link_ids}{A logical. Whether the output should include additional
-columns with the OSM ids of the road segments used along the trip geometry.
-Defaults to \code{FALSE}. Keep in mind that the \code{osm_id} for a road will be
-returned even if the route uses a small stretch of the road (e.g. 5m of a
-600m street segment). If you want more precision you should use the column
-\code{edge_id} which returns segments of the exact length used in the trip, and
-you can later tie that back to the \code{osm_id}.}
+columns: \code{osm_id_list} for the OSM ids of the road
+segments used along the trip geometry, and \code{board_stop_id} and
+\code{alight_stop_id} for the OSM ids of transit boarding and alighting stops.
+Defaults to \code{FALSE}.
+
+Keep in mind that \code{osm_id_list} will contain an id even if the route only
+uses a small stretch of the road (e.g. 5m of a 600m street segment). For
+more precision, use \code{edge_id_list}, which returns the exact internal edge
+segments used in the trip. You can inspect these edge ids and their
+associated properties, including OSM ids, with
+\code{\link[=street_network_to_sf]{street_network_to_sf()}}.}
 
 \item{output_dir}{Either \code{NULL} or a path to an existing directory. When not
 \code{NULL} (the default), the function will write one \code{.csv} file with the
@@ -312,7 +317,7 @@ Information Science, 33(9), 1759-1787. \doi{10.1080/13658816.2019.1605075}
 }
 
 \examples{
-\dontshow{if (identical(tolower(Sys.getenv("NOT_CRAN")), "true")) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (identical(tolower(Sys.getenv("NOT_CRAN")), "true")) withAutoprint(\{ # examplesIf}
 library(r5r)
 
 # build transport network
