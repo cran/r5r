@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
-<meta name="date" content="2026-05-19" />
+<meta name="date" content="2026-11-04" />
 
 <title>Trade-offs between travel time and monetary cost</title>
 
@@ -160,7 +160,6 @@ width: 90%;
 div.csl-bib-body { }
 div.csl-entry {
 clear: both;
-margin-bottom: 0em;
 }
 .hanging div.csl-entry {
 margin-left:2em;
@@ -373,7 +372,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Trade-offs between travel time and monetary
 cost</h1>
-<h4 class="date">2026-05-19</h4>
+<h4 class="date">2026-11-04</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 This vignette shows how to use the <code>pareto_frontier()</code>
@@ -385,64 +384,53 @@ in travel time matrices in r5r.
 
 <div id="introduction" class="section level1">
 <h1>1. Introduction</h1>
-<p>In most cases, transport routing models find either the fastest or
-the lowest-cost routes that connect places in a given transport network.
-Sometimes, though, we might want a more sophisticated analysis that
-considers both the time and monetary costs that public transport
-passengers have to face. The problem here is that simultaneously
-accounting for both time and monetary costs is a major challenge for
-routing models because of the trade-offs between the objectives of
-minimizing trip duration and cost <span class="citation">(Conway and
-Stewart 2019)</span>.</p>
-<p>To address this problem, <code>r5r</code> has a function called
-<code>pareto_frontier()</code>, which calculates the most efficient
-route possibilities between origin destination pairs considering
-multiple combinations of travel time and monetary costs. This vignette
-uses a reproducible example to demonstrate how to use
-<code>pareto_frontier()</code> and interpret its results.</p>
+<p>Routing models usually find either the fastest or the cheapest route.
+Accounting for both time and monetary cost at once is hard, because
+minimizing trip duration and minimizing cost are competing objectives
+<span class="citation">(Conway and Stewart 2019)</span>. To address this
+problem, <code>r5r</code>’s <code>pareto_frontier()</code> returns the
+most efficient combinations of travel time and monetary cost between
+origin/destination pairs. This vignette shows, with a reproducible
+example, how to use it and interpret its results.</p>
 <div id="what-the-pareto_frontier-means." class="section level2">
 <h2>2. What the <code>pareto_frontier</code> means.</h2>
-<p>Imagine a hypothetical journey from A to B. There are multiple route
-alternatives between this origin and destination with varying
-combinations of travel time and cost (figure below).</p>
+<p>Imagine a trip from A to B with several route alternatives (figure
+below):</p>
 <ul>
-<li>Walking from A to B would be the <strong>cheapest</strong> option
-but it would take 50 minutes.</li>
-<li>The <strong>fastest</strong> option would be to take a bus to a
-subway station and transfer to the subway. This option would only take
-15 minutes, but it would cost $8.</li>
-<li>There are some intermediary alternatives, such as taking:
+<li>Walking is the <strong>cheapest</strong> option but takes 50
+minutes.</li>
+<li>Bus + subway is the <strong>fastest</strong>: 15 minutes for R$
+8.</li>
+<li>In between:
 <ul>
-<li>a single bus, $3 for 35 min.</li>
-<li>two buses with one transfer, $5 for 29 min.</li>
-<li>taking the subway after walking to the station , $6 for 20 min.</li>
+<li>a single bus: R$ 3, 35 min;</li>
+<li>two buses with one transfer: R$ 5, 29 min;</li>
+<li>walking to the subway: R$ 6, 20 min.</li>
 </ul></li>
 </ul>
-<p>This figure illustrates the Pareto frontier of alternative routes
-from A to B. In other words, it shows the most optimal set of route
-alternatives between A and B. There are certainly other route options,
-but there is no other option that is both faster and cheaper at the same
-time.</p>
+<p>These options form the <strong>Pareto frontier</strong> of routes
+from A to B: no route is both faster and cheaper than any route on the
+frontier. On the frontier, a trip cannot be made faster without costing
+more, nor cheaper without taking longer.</p>
+<p><img role="img" aria-label src="data:image/png;base64,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" alt width="100%" /></p>
 <p><br></p>
-<p>This kind of abstraction allows us to have a better grasp of the
-trade-offs between travel time and monetary cost passengers face when
-using public transport. It also allows us to calculate
-cumulative-opportunity accessibility metrics with cutoffs for both time
-and cost (e.g. the number of jobs reachable from a given origin with
-limits of 40 minutes and $5) (ref paper by Matt and Anson).</p>
-<p>Let’s see a couple concrete examples showing how <code>r5r</code> can
-calculate the Pareto frontier for multiple origins.</p>
+<p>The frontier shows the time-cost trade-offs that public transport
+passengers face. It also supports cumulative-opportunity accessibility
+metrics with both time and cost cutoffs (e.g. the number of jobs
+reachable within 40 minutes and R$ 5) <span class="citation">(Conway and
+Stewart 2019)</span>. Let’s see a couple concrete examples showing how
+<code>r5r</code> can calculate the Pareto frontier for multiple
+origins.</p>
 </div>
 <div id="demonstration-of-pareto_frontier." class="section level2">
 <h2>3. Demonstration of <code>pareto_frontier()</code>.</h2>
 <div id="build-routable-transport-network-with-build_network" class="section level3">
 <h3>3.1 Build routable transport network with
 <code>build_network()</code></h3>
-<p>First, let’s build the network and create the routing inputs. In this
-example we’ll be using the a sample data set for the city of Porto
-Alegre (Brazil) included in <code>r5r</code>.</p>
+<p>We use the Porto Alegre (Brazil) sample data included in
+<code>r5r</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># increase Java memory</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">options</span>(<span class="at">java.parameters =</span> <span class="st">&quot;-Xmx2G&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>old_options <span class="ot">&lt;-</span> <span class="fu">options</span>(<span class="at">java.parameters =</span> <span class="st">&quot;-Xmx2G&quot;</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># load libraries</span></span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">library</span>(r5r)</span>
@@ -463,99 +451,75 @@ Alegre (Brazil) included in <code>r5r</code>.</p>
 </div>
 <div id="set-up-the-fare-structure" class="section level3">
 <h3>3.2 Set up the fare structure</h3>
-<p>Now we need to set what are the fare rules of our public transport
-system. These rules will be used by <code>R5</code> to calculate the
-monetary cost of alternative routes. In the case of Porto Alegre, the
-fare rules are as follows: * Each bus ticket costs R$ 4.80. * Riding a
-second bus adds <code>$</code> 2.40 to the total cost. Subsequent bus
-rides cost the full ticket price of $ 4.80. * Each train ticket costs $
-4.50. Once a passenger enters a train station, she can take an unlimited
-amount of train trips as long as she doesn’t leave a station. * The
-integrated fare between bus and train has a 10% discount, which totals $
-8.37.</p>
-<p>We can create <code>list</code> object with these fare rules with the
-support of the <code>setup_fare_structure()</code> function as shown in
-the code below. A detailed explanation of how to use the fare structure
-of <code>5r5</code> can be found in <a href="https://ipeagit.github.io/r5r/articles/fare_structure.html">(this
-other vignette)</a>.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># create basic fare structure</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>fare_structure <span class="ot">&lt;-</span> <span class="fu">setup_fare_structure</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  r5r_network, </span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">base_fare =</span> <span class="fl">4.8</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">by =</span> <span class="st">&quot;MODE&quot;</span></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  )</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co"># update the cost of bus and train fares</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>fare_structure<span class="sc">$</span>fares_per_type[, fare <span class="sc">:=</span> <span class="fu">fcase</span>(type <span class="sc">==</span> <span class="st">&quot;BUS&quot;</span>, <span class="fl">4.80</span>,</span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>                                             type <span class="sc">==</span> <span class="st">&quot;RAIL&quot;</span>, <span class="fl">4.50</span>)]</span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co"># update the cost of tranfers</span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>fare_structure<span class="sc">$</span>fares_per_transfer[, fare <span class="sc">:=</span> <span class="fu">fcase</span>(first_leg <span class="sc">==</span> <span class="st">&quot;BUS&quot;</span> <span class="sc">&amp;</span> second_leg <span class="sc">==</span> <span class="st">&quot;BUS&quot;</span>, <span class="fl">7.2</span>,</span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>                                                 first_leg <span class="sc">!=</span> second_leg, <span class="fl">8.37</span>)]</span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co"># update transfer_time_allowance to 60 minutes</span></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>fare_structure<span class="sc">$</span>transfer_time_allowance <span class="ot">&lt;-</span> <span class="dv">60</span></span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a></span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>fare_structure<span class="sc">$</span>fares_per_type[type <span class="sc">==</span> <span class="st">&quot;RAIL&quot;</span>, unlimited_transfers <span class="sc">:=</span> <span class="cn">TRUE</span>]</span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>fare_structure<span class="sc">$</span>fares_per_type[type <span class="sc">==</span> <span class="st">&quot;RAIL&quot;</span>, allow_same_route_transfer <span class="sc">:=</span> <span class="cn">TRUE</span>]</span></code></pre></div>
-<p>For convenience, we can save these fare rules as a <code>zip</code>
-file and load again for a future application.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># save fare rules to temp file</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>temp_fares <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">pattern =</span> <span class="st">&quot;fares_poa&quot;</span>, <span class="at">fileext =</span> <span class="st">&quot;.zip&quot;</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>r5r<span class="sc">::</span><span class="fu">write_fare_structure</span>(fare_structure, <span class="at">file_path =</span> temp_fares)</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>fare_structure <span class="ot">&lt;-</span> r5r<span class="sc">::</span><span class="fu">read_fare_structure</span>(<span class="fu">file.path</span>(data_path, <span class="st">&quot;fares/fares_poa.zip&quot;</span>))</span></code></pre></div>
+<p><code>R5</code> computes the monetary cost of each route from the
+fare rules of the public transport system. In Porto Alegre:</p>
+<ul>
+<li>A bus ticket costs R$ 4.80.</li>
+<li>A second bus ride adds R$ 2.40; subsequent bus rides cost the full
+R$ 4.80.</li>
+<li>A train ticket costs R$ 4.50, with unlimited train rides as long as
+the passenger does not leave the stations.</li>
+<li>The integrated bus + train fare has a 10% discount, totalling R$
+8.37.</li>
+</ul>
+<p>A fare structure with these rules ships with <code>r5r</code>, so we
+simply read it. The <a href="https://ipea.github.io/r5r/articles/fare_structure.html">fare
+structure vignette</a> shows how to build one step by step.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>fare_structure <span class="ot">&lt;-</span> r5r<span class="sc">::</span><span class="fu">read_fare_structure</span>(<span class="fu">file.path</span>(data_path, <span class="st">&quot;fares/fares_poa.zip&quot;</span>))</span></code></pre></div>
 </div>
 <div id="calculating-a-pareto_frontier." class="section level3">
 <h3>3.3 Calculating a <code>pareto_frontier()</code>.</h3>
-<p>In this example, we calculate the Pareto frontier from all origins to
-all destinations considering multiple cutoffs of monetary costs:</p>
+<p>We compute the Pareto frontier from all origins to all destinations
+with these monetary cost cutoffs:</p>
 <ul>
-<li>$1, which would only allow for walking trips</li>
-<li>$4.5, which would only allow for rail trips</li>
-<li>$4.8, which would allow for a single bus trip</li>
-<li>$7.20, which would allow for bus + bus</li>
-<li>$8.37, which would allow for walking walking + bus + rail</li>
+<li>R$ 1.00: walking only</li>
+<li>R$ 4.50: a train trip</li>
+<li>R$ 4.80: a single bus trip</li>
+<li>R$ 7.20: bus + bus</li>
+<li>R$ 8.37: bus + train</li>
 </ul>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>departure_datetime <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;13-05-2019 14:00:00&quot;</span>, </span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>                                 <span class="at">format =</span> <span class="st">&quot;%d-%m-%Y %H:%M:%S&quot;</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>prtf <span class="ot">&lt;-</span> <span class="fu">pareto_frontier</span>(</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  r5r_network,</span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="at">origins =</span> points,</span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="at">destinations =</span> points,</span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="at">mode =</span> <span class="fu">c</span>(<span class="st">&quot;WALK&quot;</span>, <span class="st">&quot;TRANSIT&quot;</span>),</span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  <span class="at">departure_datetime =</span> departure_datetime,</span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>  <span class="at">fare_structure =</span> fare_structure,</span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  <span class="at">fare_cutoffs =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">4.5</span>, <span class="fl">4.8</span>, <span class="fl">7.20</span>, <span class="fl">8.37</span>),</span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>  <span class="at">progress =</span> <span class="cn">TRUE</span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>  )</span>
-<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a></span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="fu">head</span>(prtf)</span></code></pre></div>
-<p>For the sake of illustration, let’s check the optimum route
-alternatives from the Farrapos train station to (a) the Praia de Belas
-shopping mall and (b) the Moinhos hospital. An optimum route alternative
-means that one cannot make a faster trip without increasing costs, and
-one cannot make a cheaper trip without increasing travel time.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>departure_datetime <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;13-05-2019 14:00:00&quot;</span>,</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>                                 <span class="at">format =</span> <span class="st">&quot;%d-%m-%Y %H:%M:%S&quot;</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>prtf <span class="ot">&lt;-</span> <span class="fu">pareto_frontier</span>(</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  r5r_network,</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="at">origins =</span> points,</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="at">destinations =</span> points,</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="at">mode =</span> <span class="fu">c</span>(<span class="st">&quot;WALK&quot;</span>, <span class="st">&quot;TRANSIT&quot;</span>),</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  <span class="at">departure_datetime =</span> departure_datetime,</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  <span class="at">fare_structure =</span> fare_structure,</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  <span class="at">fare_cutoffs =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="fl">4.5</span>, <span class="fl">4.8</span>, <span class="fl">7.20</span>, <span class="fl">8.37</span>),</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>  <span class="at">progress =</span> <span class="cn">TRUE</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  )</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="fu">head</span>(prtf)</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt;          from_id               to_id percentile travel_time monetary_cost</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt;           &lt;char&gt;              &lt;char&gt;      &lt;int&gt;       &lt;int&gt;         &lt;num&gt;</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; 1: public_market       public_market         50           0           1.0</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; 2: public_market bus_central_station         50          23           1.0</span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; 3: public_market bus_central_station         50          18           4.5</span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; 4: public_market bus_central_station         50          14           4.8</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; 5: public_market    gasometer_museum         50          29           1.0</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; 6: public_market    gasometer_museum         50          13           4.8</span></span></code></pre></div>
+<p>For illustration, the Pareto frontiers between the Farrapos train
+station and (a) the Praia de Belas shopping mall and (b) the Moinhos
+hospital:</p>
+<p><img role="img" aria-label src="data:image/png;base64,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" alt width="100%" /></p>
 </div>
 <div id="cleaning-up-after-usage" class="section level3">
 <h3>Cleaning up after usage</h3>
-<p><code>r5r</code> objects are still allocated to any amount of memory
-previously set after they are done with their calculations. In order to
-remove an existing <code>r5r</code> object and reallocate the memory it
-had been using, we use the <code>stop_r5</code> function followed by a
-call to Java’s garbage collector, as follows:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>r5r<span class="sc">::</span><span class="fu">stop_r5</span>(r5r_network)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>rJava<span class="sc">::</span><span class="fu">.jgc</span>(<span class="at">R.gc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p>Stop the network and run Java’s garbage collector to free the memory
+it used:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>r5r<span class="sc">::</span><span class="fu">stop_r5</span>(r5r_network)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>rJava<span class="sc">::</span><span class="fu">.jgc</span>(<span class="at">R.gc =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">options</span>(old_options)</span></code></pre></div>
 <p>If you have any suggestions or want to report an error, please visit
-<a href="https://github.com/ipeaGIT/r5r">the package GitHub
-page</a>.</p>
+<a href="https://github.com/ipea/r5r">the package GitHub page</a>.</p>
 </div>
 </div>
 <div id="references" class="section level2 unnumbered">
 <h2 class="unnumbered">References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-conway2019getting" class="csl-entry">
 Conway, Matthew Wigginton, and Anson F. Stewart. 2019. <span>“Getting
 Charlie Off the MTA: A Multiobjective Optimization Method to Account for

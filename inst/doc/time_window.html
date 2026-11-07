@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
-<meta name="date" content="2026-05-19" />
+<meta name="date" content="2026-11-04" />
 
 <title>Using the time_window parameter</title>
 
@@ -160,7 +160,6 @@ width: 90%;
 div.csl-bib-body { }
 div.csl-entry {
 clear: both;
-margin-bottom: 0em;
 }
 .hanging div.csl-entry {
 margin-left:2em;
@@ -372,7 +371,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <h1 class="title toc-ignore">Using the time_window parameter</h1>
-<h4 class="date">2026-05-19</h4>
+<h4 class="date">2026-11-04</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 This vignette shows how to use and interpret the
@@ -385,78 +384,72 @@ This vignette shows how to use and interpret the
 <h2>1. Introduction</h2>
 <div id="the-problem" class="section level3">
 <h3>The problem</h3>
-<p>To calculate the travel time from A to B, or to calculate the
-accessibility level at a given location, one has to select a departure
-time. However, travel time and accessibility estimates can differ
-significantly at different departure times because of how public
-transport service levels vary across the day <span class="citation">(Stepniak et al. 2019)</span>. Even a small difference,
-say leaving at <code>10:00am</code> or <code>10:04am</code> might
-importantly change travel time and accessibility estimates depending on
-when a person departs relative to when a public transport vehicle
-arrives, and how well transfers are coordinated given a service
-timetable. This is a very common issue related to the modifiable
-temporal unit problem (MTUP) <span class="citation">(Pereira 2019;
-Levinson and et al. 2020)</span>.</p>
-<p>This problem gets even more complicated when public transport GTFS
-feeds have a <code>frequencies.txt</code> table. In these cases, we
-cannot know the exact departure time of vehicles, what creates greater
-uncertainty for our travel time and accessibility estimates <span class="citation">(Conway, Byrd, and van Eggermond 2018; Stewart and Byrd
-2022)</span>.</p>
+<p>Travel time and accessibility estimates require a departure time, and
+they can differ significantly across departure times because public
+transport service levels vary across the day <span class="citation">(Stepniak et al. 2019)</span>. Even leaving at
+<code>10:00am</code> instead of <code>10:04am</code> can change results
+considerably, depending on when vehicles arrive and how well transfers
+are coordinated. This relates to the modifiable temporal unit problem
+(MTUP) <span class="citation">(Pereira 2019; <span class="nocase">Levinson and et al.</span> 2020)</span>.</p>
+<p>The uncertainty is greater when GTFS feeds have a
+<code>frequencies.txt</code> table, because exact vehicle departure
+times are unknown <span class="citation">(Conway et al. 2018; Stewart
+and Byrd 2022)</span>.</p>
 </div>
 <div id="the-solution" class="section level3">
 <h3>The solution</h3>
-<p>A common strategy to overcome this problem is to calculate travel
-times and accessibilities at multiple departure times sampled over a
-time window, and then take the average or median value. Now you may ask,
-but how many departure times should I use? You might also be thinking
-that doing multiple repeated routing analysis can be cumbersome and take
-a lot of time. Right?</p>
-<p>Here is where <code>r5r</code> comes in. Both the
-<code>travel_time_matrix()</code>and <code>accessibility()</code>
-functions have a parameter called <code>time_window</code>. When this
-parameter is set, R<sup>5</sup> will automatically compute multiple
-travel times / accessibility estimates considering multiple departures
-per minute within the <code>time_window</code> selected by the user.</p>
-<p>This vignette shows a reproducible example to explain how one can use
-the <code>time_window</code> and interpret the results.</p>
+<p>A common strategy is to compute estimates for multiple departure
+times over a time window and take the average or median. Repeating the
+routing for each departure is slow, though.</p>
+<p>In <code>r5r</code>, functions such as
+<code>travel_time_matrix()</code> and <code>accessibility()</code> have
+a <code>time_window</code> parameter that does this in a single call.
+This vignette shows how to use it and interpret the results.</p>
 </div>
 </div>
 <div id="how-the-time_window-works-and-how-to-interpret-the-results." class="section level2">
 <h2>2. How the <code>time_window</code> works and how to interpret the
 results.</h2>
-<p>As mentioned above, when <code>time_window</code> is set,
-R<sup>5</sup> computes multiple travel times / accessibility estimates
-starting at the specified <code>departure_datetime</code> and within the
-<code>time_window</code> selected by the user. By default,
-<code>r5r</code> will generate one estimate per minute. Nonetheless,
-users can set a number to the <code>draws_per_minute</code> parameter
-that will change the number of Monte Carlo draws to perform per time
-window minute. The default value of <code>draws_per_minute</code> is 5,
-which mean 300 draws in a 60 minutes time window, for example. For a
-detailed discussion on the effect of number of draws on result
-stability, see Stewart et al <span class="citation">(2022)</span>.</p>
-<p>In this case, there isn’t a single estimate of travel time /
-accessibility, but a distribution of several estimates that reflect the
-travel time / accessibility uncertainties in the specified time window.
-To get our heads around so many estimates, we can use the
-<code>percentiles</code> parameter to specify the percentiles of the
-distribution we are interested in. For example, if we select the 25th
-travel time percentile and the results show that the travel time
-estimate between A and B is 15 minutes, this means that 25% of all trips
-taken between these points within the specified time window are shorter
-than 15 minutes.</p>
-<p>Let’s see a couple concrete examples now.</p>
+<p>With <code>time_window</code>, R<sup>5</sup> computes an estimate for
+a departure every minute from <code>departure_datetime</code> until the
+end of the window. If the GTFS feeds have a <code>frequencies.txt</code>
+table, <code>draws_per_minute</code> sets the number of Monte Carlo
+draws per minute (default 5, i.e. 300 draws in a 60-minute window);
+without frequencies, departures are deterministic and
+<code>draws_per_minute</code> does not affect results. For the effect of
+the number of draws on result stability, see Stewart et al <span class="citation">(2022)</span>.</p>
+<p>This holds for the default routing algorithm (FastRaptor). When a
+<code>fare_structure</code> is passed to
+<code>travel_time_matrix()</code>, <code>accessibility()</code> or
+<code>travel_time_surface()</code>, always in
+<code>pareto_frontier()</code>, and in
+<code>detailed_itineraries()</code> with
+<code>shortest_path = FALSE</code>, R<sup>5</sup> uses the McRaptor
+algorithm instead. McRaptor does not route a departure every minute: it
+routes <code>time_window * draws_per_minute</code> departure times
+sampled at random within the window (consecutive departures are, on
+average, <code>1 / draws_per_minute</code> minutes apart, each origin
+gets its own departure times, and the same ones in every call with the
+same origin and <code>seed</code>). So with McRaptor,
+<code>draws_per_minute</code> affects results even if the GTFS feeds
+have no <code>frequencies.txt</code> table.
+<code>pareto_frontier()</code> and <code>detailed_itineraries()</code>
+fix it at 1.</p>
+<p>The result is not a single estimate but a distribution reflecting the
+uncertainty within the window. The <code>percentiles</code> parameter
+selects which percentiles to return. For example, a 25th-percentile
+travel time of 15 minutes from A to B means that 25% of trips departing
+within the window are shorter than 15 minutes.</p>
 </div>
 <div id="demonstration-of-time_window." class="section level2">
 <h2>3. Demonstration of <code>time_window</code>.</h2>
 <div id="build-routable-transport-network-with-build_network" class="section level3">
 <h3>3.1 Build routable transport network with
 <code>build_network()</code></h3>
-<p>First, let’s build the network and create the routing inputs. In this
-example we’ll be using the a sample data set for the city of São Paulo
-(Brazil) included in <code>r5r</code>.</p>
+<p>We use the São Paulo (Brazil) sample data included in
+<code>r5r</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># increase Java memory</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">options</span>(<span class="at">java.parameters =</span> <span class="st">&quot;-Xmx2G&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>old_options <span class="ot">&lt;-</span> <span class="fu">options</span>(<span class="at">java.parameters =</span> <span class="st">&quot;-Xmx2G&quot;</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># load libraries</span></span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">library</span>(r5r)</span>
@@ -480,19 +473,12 @@ example we’ll be using the a sample data set for the city of São Paulo
 <span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a><span class="co"># departure datetime</span></span>
 <span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>departure_datetime <span class="ot">=</span> <span class="fu">as.POSIXct</span>(<span class="st">&quot;13-05-2019 14:00:00&quot;</span>, </span>
 <span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>                                <span class="at">format =</span> <span class="st">&quot;%d-%m-%Y %H:%M:%S&quot;</span>)</span></code></pre></div>
-<p>ps. Please keep in mind that the Monte Carlo draws in
-<code>time_window</code> only affects the results when the GTFS feeds
-contain a <code>frequencies.txt</code> table. If the GTFS feed does not
-have a frequency table, r5r still allow for multiple runs over the set
-<code>time_window</code> in a deterministic way.</p>
 </div>
 <div id="accessibility-with-time_window." class="section level3">
 <h3>3.2 Accessibility with <code>time_window</code>.</h3>
-<p>In this example we calculate the number of schools accessible from
-each location within a 60-minute time window departing between 2pm and
-3pm. In this example we’ll be using a cumulative accessibility metric
-<code>decay_function = &quot;step&quot;</code> with a max time threshold of 45
-minutes <code>cutoffs = 45</code>.</p>
+<p>Number of schools reachable from each location within 45 minutes
+(<code>decay_function = &quot;step&quot;</code>, <code>cutoffs = 45</code>), for
+departures between 2pm and 3pm (<code>time_window = 60</code>):</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># estimate accessibility</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>acc <span class="ot">&lt;-</span> r5r<span class="sc">::</span><span class="fu">accessibility</span>(</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  r5r_network,   </span>
@@ -509,17 +495,28 @@ minutes <code>cutoffs = 45</code>.</p>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="at">percentiles =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">50</span>, <span class="dv">70</span>, <span class="dv">80</span>)</span>
 <span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  )</span>
 <span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="fu">head</span>(acc, <span class="at">n =</span> <span class="dv">10</span>)</span></code></pre></div>
-<p>This output is in long format, so the first 5 rows show the result
-for the same origin. In this case, we see that in only 10% of the trips
-departing from that origin between 2pm and 3pm a person would be able to
-access up to 111 schools. Meanwhile, 50% of the times she would only
-access 79 schools. By contrast, the accessibility from the other origin
-shown in the output above is 0, meaning there are no schools accessible
-from that location given the max travel time of 45 minutes.</p>
-<p>We can use a plot like the one below to visualize this uncertainty in
-how accessibility levels might vary between 2pm and 3pm depending on the
-departure time within that 60-minute time window.</p>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="fu">head</span>(acc, <span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt;                  id opportunity percentile cutoff accessibility</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt;              &lt;char&gt;      &lt;char&gt;      &lt;int&gt;  &lt;int&gt;         &lt;num&gt;</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt;  1: 89a8100c603ffff     schools         10     45            13</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt;  2: 89a8100c603ffff     schools         20     45            13</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt;  3: 89a8100c603ffff     schools         50     45             6</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt;  4: 89a8100c603ffff     schools         70     45             6</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt;  5: 89a8100c603ffff     schools         80     45             6</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt;  6: 89a8100c617ffff     schools         10     45            14</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt;  7: 89a8100c617ffff     schools         20     45            14</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt;  8: 89a8100c617ffff     schools         50     45            13</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt;  9: 89a8100c617ffff     schools         70     45             7</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; 10: 89a8100c617ffff     schools         80     45             6</span></span></code></pre></div>
+<p>The output is in long format, one row per origin and percentile, so
+the first 5 rows refer to the same origin. The 10th percentile counts
+the schools reachable in at least 10% of departures, the 50th those
+reachable in at least half of them; so accessibility never increases as
+the percentile rises. An accessibility of 0 means no school is reachable
+within 45 minutes.</p>
+<p>The plot shows, for each origin (sorted by median), the range of
+accessibility between the 10th and 80th percentiles, with the median as
+a dot:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># summarize</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>df <span class="ot">&lt;-</span> acc[, .(<span class="at">min_acc =</span> <span class="fu">min</span>(accessibility),</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>              <span class="at">median =</span> accessibility[<span class="fu">which</span>(percentile <span class="sc">==</span> <span class="dv">50</span>)],</span>
@@ -536,12 +533,11 @@ departure time within that 60-minute time window.</p>
 <span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
 <span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x=</span><span class="fu">element_blank</span>(),</span>
 <span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>        <span class="at">axis.ticks.x=</span><span class="fu">element_blank</span>())</span></code></pre></div>
+<p><img role="img" aria-label src="data:image/png;base64,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" alt width="100%" /></p>
 </div>
 <div id="travel-time-matrix-with-time_window." class="section level3">
 <h3>3.3 Travel time matrix with <code>time_window</code>.</h3>
-<p>Now let’s calculate all-to-all travel time estimates within a
-60-minute time window departing between 2pm and 3pm and see how the
-output looks like.</p>
+<p>All-to-all travel times for departures between 2pm and 3pm:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># estimate travel time matrix</span></span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>ttm <span class="ot">&lt;-</span> <span class="fu">travel_time_matrix</span>(</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  r5r_network,   </span>
@@ -556,27 +552,46 @@ output looks like.</p>
 <span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>  <span class="at">percentiles =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">50</span>, <span class="dv">70</span>, <span class="dv">80</span>)</span>
 <span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>  )</span>
 <span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a></span>
-<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="fu">head</span>(ttm, <span class="at">n =</span> <span class="dv">10</span>)</span></code></pre></div>
-<p>Now let’s look at the 2nd row of the output above. This output tell
-us that only 10% of the trips between 2pm and 3pm for that
-origin-destination pair took 39 minutes or less. Meanwhile, 50% of those
-trips took up tp 45 minutes and 80% of them were 48-minute long or
-shorter.</p>
-<p>The last row in the result above has a few <code>NA</code>s. This
-tell us that at least 50% of all simulated trips between 2pm and 3pm for
-that origin-destination pair could not be completed because they took
-longer than the <code>max_trip_duration</code> we have set (90
-minutes).</p>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="fu">head</span>(ttm, <span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt;             from_id           to_id travel_time_p10 travel_time_p20</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt;              &lt;char&gt;          &lt;char&gt;           &lt;int&gt;           &lt;int&gt;</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt;  1: 89a8100c603ffff 89a8100c603ffff               0               0</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt;  2: 89a8100c603ffff 89a8100c617ffff              13              13</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt;  3: 89a8100c603ffff 89a8100c60fffff               6               6</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt;  4: 89a8100c603ffff 89a8100c607ffff              11              11</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co">#&gt;  5: 89a8100c603ffff 89a8100c6abffff              20              20</span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt;  6: 89a8100c603ffff 89a8100c6a3ffff              26              26</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#&gt;  7: 89a8100c603ffff 89a8100c677ffff              14              14</span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a><span class="co">#&gt;  8: 89a8100c603ffff 89a8100c63bffff              14              14</span></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a><span class="co">#&gt;  9: 89a8100c603ffff 89a8100c633ffff              16              16</span></span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a><span class="co">#&gt; 10: 89a8100c603ffff 89a8100c6afffff              24              24</span></span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a><span class="co">#&gt;     travel_time_p50 travel_time_p70 travel_time_p80</span></span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a><span class="co">#&gt;               &lt;int&gt;           &lt;int&gt;           &lt;int&gt;</span></span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a><span class="co">#&gt;  1:               0               0               0</span></span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a><span class="co">#&gt;  2:              13              13              13</span></span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a><span class="co">#&gt;  3:               6               6               6</span></span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a><span class="co">#&gt;  4:              11              11              11</span></span>
+<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a><span class="co">#&gt;  5:              20              20              20</span></span>
+<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a><span class="co">#&gt;  6:              26              26              26</span></span>
+<span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a><span class="co">#&gt;  7:              14              14              14</span></span>
+<span id="cb4-37"><a href="#cb4-37" tabindex="-1"></a><span class="co">#&gt;  8:              14              14              14</span></span>
+<span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a><span class="co">#&gt;  9:              16              16              16</span></span>
+<span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a><span class="co">#&gt; 10:              24              24              24</span></span></code></pre></div>
+<p>Each <code>travel_time_pXX</code> column gives the travel time within
+which XX% of the trips departing between 2pm and 3pm are completed:
+<code>travel_time_p10</code> for the fastest 10%,
+<code>travel_time_p50</code> the median, and so on. An <code>NA</code>
+means fewer than XX% of the trips arrive within
+<code>max_trip_duration</code> (90 minutes). A wider
+<code>time_window</code> can include departures with worse service, so
+it can produce more <code>NA</code>s in the higher percentiles.</p>
 </div>
 <div id="expanded-travel-time-matrix-with-time_window." class="section level3">
 <h3>3.4 Expanded travel time matrix with <code>time_window</code>.</h3>
-<p>Finally, we can also use the <code>time_window</code> in the
-<code>expanded_travel_time_matrix()</code> function. In this case,
-though, when the user sets a <code>time_window</code> value, the
-<code>expanded_travel_time_matrix()</code> will return the fastest route
-alternative departing each minute within the specified time window.
-Please note this function can be very memory intensive for large data
-sets and time windows.</p>
+<p>With <code>time_window</code>,
+<code>expanded_travel_time_matrix()</code> returns the fastest route
+departing at each minute of the window, instead of percentiles. It can
+be very memory intensive for large data sets and time windows.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>ettm <span class="ot">&lt;-</span> r5r<span class="sc">::</span><span class="fu">expanded_travel_time_matrix</span>(</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  r5r_network,</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">origins =</span> points[<span class="dv">1</span><span class="sc">:</span><span class="dv">30</span>,],</span>
@@ -589,53 +604,73 @@ sets and time windows.</p>
 <span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>  <span class="at">time_window =</span> <span class="dv">20</span></span>
 <span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  )</span>
 <span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="fu">head</span>(ettm, <span class="at">n =</span> <span class="dv">10</span>)</span></code></pre></div>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="fu">head</span>(ettm, <span class="at">n =</span> <span class="dv">10</span>)</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt;             from_id           to_id departure_time draw_number  routes</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt;              &lt;char&gt;          &lt;char&gt;         &lt;char&gt;       &lt;int&gt;  &lt;char&gt;</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt;  1: 89a8100c603ffff 89a8100c28bffff       14:00:00           1 4491-10</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt;  2: 89a8100c603ffff 89a8100c28bffff       14:00:00           2 4491-10</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt;  3: 89a8100c603ffff 89a8100c28bffff       14:00:00           3 4491-10</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt;  4: 89a8100c603ffff 89a8100c28bffff       14:00:00           4 4491-10</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt;  5: 89a8100c603ffff 89a8100c28bffff       14:00:00           5 4491-10</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt;  6: 89a8100c603ffff 89a8100c28bffff       14:01:00           1 4491-10</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt;  7: 89a8100c603ffff 89a8100c28bffff       14:01:00           2 4491-10</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt;  8: 89a8100c603ffff 89a8100c28bffff       14:01:00           3 4491-10</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt;  9: 89a8100c603ffff 89a8100c28bffff       14:01:00           4 4491-10</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; 10: 89a8100c603ffff 89a8100c28bffff       14:01:00           5 4491-10</span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt;     total_time</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt;          &lt;num&gt;</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt;  1:       41.8</span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt;  2:       44.0</span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt;  3:       44.5</span></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt;  4:       46.1</span></span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt;  5:       51.9</span></span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt;  6:       35.7</span></span>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="co">#&gt;  7:       38.4</span></span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="co">#&gt;  8:       44.0</span></span>
+<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a><span class="co">#&gt;  9:       47.4</span></span>
+<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a><span class="co">#&gt; 10:       52.7</span></span></code></pre></div>
 </div>
 <div id="detailed-itineraries-with-time_window." class="section level3">
 <h3>3.5 Detailed itineraries with <code>time_window</code>.</h3>
-<p>In the <code>detailed_itineraries()</code> function, the number of
-Monte Carlo draws per minute is hardcoded to 1. This means that the
-function simulates only one departure per minute within the
-<code>time_window</code>. So if you set a <code>time_window</code> of 10
-minutes, it would simulate 10 departures, one in each minute. This is
-largely because the <code>time_window</code> behaves slightly
-differently here.</p>
-<p>See, functions like <code>travel_time_matrix()</code> or
-<code>accessibility()</code>, for example, return estimates of travel
-times or accessibility. In these cases, when we use the
-<code>time_window</code> parameter, these functions output selected
-percentiles of those values generated based on the distribution of all
-estimates that result from the multiple trip simulations.</p>
-<p>The <code>detailed_itineraries()</code>, on the other hand, does not
-return travel times or accessibility estimates. It returns alternatives
-of trip journeys. In this case, when we use the <code>time_window</code>
-parameter, the function will return the optimal trip itinerary found
-within the time window. It can also return the optimal route along with
-multiple sub-optimal journey alternatives found within the time window
-if the the user sets <code>shortest_path = FALSE</code>.</p>
-<p><em>obs.</em> Mind you that <code>detailed_itineraries()</code>
-cannot be computed for public transport trips if the the network uses a
-frequencies-based GTFS feed. In these cases, we suggest using
+<p><code>detailed_itineraries()</code> returns itineraries rather than
+travel time or accessibility percentiles. With <code>time_window</code>,
+it returns the fastest itinerary: the shortest travel time measured from
+its own departure, so it may depart and arrive later than others (use
+<code>time_window = 1</code> for the earliest arrival). With
+<code>shortest_path = FALSE</code>, it also returns sub-optimal
+alternatives.</p>
+<p>With the default <code>shortest_path = TRUE</code> and no
+<code>fare_structure</code>, it routes one departure at each minute of
+<code>time_window</code>, as <code>travel_time_matrix()</code> does with
+schedule-based GTFS; ties between equally fast itineraries go to the
+earliest departure.</p>
+<p>With <code>shortest_path = FALSE</code> or a
+<code>fare_structure</code>, it uses the McRaptor algorithm with one
+draw per minute (see Section 2): consecutive departures are 30 to 90
+seconds apart, so a 10-minute <code>time_window</code> simulates about
+10 departures. Each departure is routed separately, and with the default
+<code>suboptimal_minutes = 0</code> only the itineraries arriving
+earliest are kept for each departure, even if a slower one has fewer
+transfers.</p>
+<p><em>obs.</em> <code>detailed_itineraries()</code> cannot route public
+transport trips on frequency-based GTFS feeds; use
 <code>gtfstools::frequencies_to_stop_times()</code> to create a suitable
 feed.</p>
 </div>
 <div id="cleaning-up-after-usage" class="section level3">
 <h3>Cleaning up after usage</h3>
-<p><code>r5r</code> objects are still allocated to any amount of memory
-previously set after they are done with their calculations. In order to
-remove an existing <code>r5r</code> object and reallocate the memory it
-had been using, we use the <code>stop_r5</code> function followed by a
-call to Java’s garbage collector, as follows:</p>
+<p>Stop the network and run Java’s garbage collector to free the memory
+it used:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>r5r<span class="sc">::</span><span class="fu">stop_r5</span>(r5r_network)</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>rJava<span class="sc">::</span><span class="fu">.jgc</span>(<span class="at">R.gc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>rJava<span class="sc">::</span><span class="fu">.jgc</span>(<span class="at">R.gc =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">options</span>(old_options)</span></code></pre></div>
 <p>If you have any suggestions or want to report an error, please visit
-<a href="https://github.com/ipeaGIT/r5r">the package GitHub
-page</a>.</p>
+<a href="https://github.com/ipea/r5r">the package GitHub page</a>.</p>
 </div>
 </div>
 <div id="references" class="section level2 unnumbered">
 <h2 class="unnumbered">References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-conway2018accounting" class="csl-entry">
 Conway, Matthew Wigginton, Andrew Byrd, and Michael van Eggermond. 2018.
 <span>“Accounting for Uncertainty and Variation in Accessibility Metrics
@@ -643,9 +678,9 @@ for Public Transport Sketch Planning.”</span> <em>Journal of Transport
 and Land Use</em> 11 (1). <a href="https://doi.org/10.5198/jtlu.2018.1074">https://doi.org/10.5198/jtlu.2018.1074</a>.
 </div>
 <div id="ref-levinson2020manual" class="csl-entry">
-Levinson, David, and et al. 2020. <span>“Transport Access Manual: A
-Guide for Measuring Connection Between People and Places,”</span>
-January. <a href="https://hdl.handle.net/2123/23733">https://hdl.handle.net/2123/23733</a>.
+<span class="nocase">Levinson, David, and et al.</span> 2020.
+<em>Transport Access Manual: A Guide for Measuring Connection Between
+People and Places</em>. January 1. <a href="https://hdl.handle.net/2123/23733">https://hdl.handle.net/2123/23733</a>.
 </div>
 <div id="ref-pereiramtup2019" class="csl-entry">
 Pereira, Rafael H. M. 2019. <span>“Future Accessibility Impacts of
@@ -664,7 +699,7 @@ Poland.”</span> <em>Journal of Transport Geography</em> 75 (February):
 Stewart, Anson F, and Andrew M Byrd. 2022. <span>“Half-(head)way There:
 Comparing Two Methods to Account for Public Transport Waiting Time in
 Accessibility Indicators.”</span> <em>Environment and Planning B: Urban
-Analytics and City Science</em>, November, 23998083221137077. <a href="https://doi.org/10.1177/23998083221137077">https://doi.org/10.1177/23998083221137077</a>.
+Analytics and City Science</em>, November 30, 23998083221137077. <a href="https://doi.org/10.1177/23998083221137077">https://doi.org/10.1177/23998083221137077</a>.
 </div>
 </div>
 </div>

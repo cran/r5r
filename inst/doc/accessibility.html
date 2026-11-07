@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
-<meta name="date" content="2026-05-19" />
+<meta name="date" content="2026-11-04" />
 
 <title>Accessibility</title>
 
@@ -160,7 +160,6 @@ width: 90%;
 div.csl-bib-body { }
 div.csl-entry {
 clear: both;
-margin-bottom: 0em;
 }
 .hanging div.csl-entry {
 margin-left:2em;
@@ -372,7 +371,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 <h1 class="title toc-ignore">Accessibility</h1>
-<h4 class="date">2026-05-19</h4>
+<h4 class="date">2026-11-04</h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 This vignette shows how to calculate and visualize accessibility in R
@@ -383,46 +382,43 @@ using the <code>r5r</code> package.
 
 <div id="introduction" class="section level1">
 <h1>1. Introduction</h1>
-<p>Accessibility indicators measure the ease with which opportunities,
-such as jobs, can be reached by a traveler from a particular location
-<span class="citation">(Levinson and et al. 2020)</span>. This vignette
-shows how to calculate and visualize accessibility in R using the <a href="https://ipeagit.github.io/r5r/index.html"><code>r5r</code>
-package</a> using a reproducible example. In this example, we will be
-using a sample data set for the city of Porto Alegre (Brazil) included
-in <code>r5r</code>.</p>
-<p>There are two ways to calculate / visualize accessibility using
-<code>r5r</code>. The quick and easy option is using the
-<code>r5r::accessibility()</code> function. The other alternative
-requires one to first calculate a travel time matrix, and then to use
-the <a href="https://ipea.github.io/accessibility/">{accessibility}
-package</a>. This is a more flexible options because the
-<code>{accessibility}</code> package provides a wider range of options
-of accessibility metrics. We will cover both approaches in this
-vignette.</p>
-<p>Before we start, we need to increase Java memory + load a few
-libraries, and to build routable transport network.</p>
+<p>Accessibility indicators measure how easily opportunities, such as
+jobs, can be reached from a given location <span class="citation">(<span class="nocase">Levinson and et al.</span> 2020)</span>. This vignette
+calculates and maps accessibility with the <a href="https://ipea.github.io/r5r/index.html"><code>r5r</code>
+package</a>, using the Porto Alegre (Brazil) sample data included in
+<code>r5r</code>, in two ways:</p>
+<ul>
+<li><strong>quick:</strong> <code>r5r::accessibility()</code>;</li>
+<li><strong>flexible:</strong> an <code>r5r</code> travel time matrix
+passed to the <a href="https://ipea.github.io/accessibility/">{accessibility}
+package</a>, which offers a wider range of metrics.</li>
+</ul>
 </div>
 <div id="build-routable-transport-network-with-build_network" class="section level1">
 <h1>2. Build routable transport network with
 <code>build_network()</code></h1>
 <div id="increase-java-memory-and-load-libraries" class="section level3">
 <h3>Increase Java memory and load libraries</h3>
-<p>First, we need to increase the memory available to Java and load the
-packages used in this vignette. Please note we allocate RAM memory to
-Java <em>before</em> loading our libraries.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">options</span>(<span class="at">java.parameters =</span> <span class="st">&quot;-Xmx2G&quot;</span>)</span>
+<p>Set Java memory before loading the packages (<a href="https://ipea.github.io/r5r/articles/r5r.html#usage">why</a>).</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>old_options <span class="ot">&lt;-</span> <span class="fu">options</span>(<span class="at">java.parameters =</span> <span class="st">&quot;-Xmx2G&quot;</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(r5r)</span>
 <span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(accessibility)</span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
-<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="fu">library</span>(interp)</span>
-<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="fu">library</span>(h3jsr)</span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div>
-<p>To build a routable transport network with <code>r5r</code>, the user
-needs to call <code>build_network()</code> with the path to the
-directory where OpenStreetMap and GTFS data are stored.</p>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;accessibility&#39; was built under R version 4.6.1</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;sf&#39; was built under R version 4.6.1</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;data.table&#39; was built under R version 4.6.1</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;ggplot2&#39; was built under R version 4.6.1</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="fu">library</span>(interp)</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;interp&#39; was built under R version 4.6.1</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="fu">library</span>(h3jsr)</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;h3jsr&#39; was built under R version 4.6.1</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;dplyr&#39; was built under R version 4.6.1</span></span></code></pre></div>
+<p><code>build_network()</code> takes the directory holding the
+OpenStreetMap and GTFS data:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># system.file returns the directory with example data inside the r5r package</span></span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co"># set data path to directory containing your own data if not running this example</span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>data_path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata/poa&quot;</span>, <span class="at">package =</span> <span class="st">&quot;r5r&quot;</span>)</span>
@@ -432,24 +428,16 @@ directory where OpenStreetMap and GTFS data are stored.</p>
 </div>
 <div id="accessibility-quick-and-easy-approach" class="section level1">
 <h1>3. Accessibility: quick and easy approach</h1>
-<p>There are different types of accessibility metrics. One of the
-simplest ones is the cumulative-opportunity metric, which counts the
-number of opportunities accessible from each location considering a
-maximum travel time cutoff. This is what we’ll be calculating in this
-vignette using the parameter <code>decay_function = &quot;step&quot;</code>.</p>
-<p>In this example, we will be calculating the number of schools and
-public healthcare facilities accessible by public transport within a
-travel time of up to 20 minutes. The sample data provided contains
-information on the spatial distribution of schools in Porto Alegre in
-the <code>points$schools</code> column, and healthcare facilities in the
-<code>points$healthcare</code> column.</p>
-<p>With the code below we compute the number of schools and healthcare
-accessible considering median of multiple travel time estimates
-departing every minute over a 60-minute time window, between 2pm and
-3pm. The <code>accessibility()</code> function can calculate access to
-multiple opportunities in a single call, which is much more efficient
-and convenient than producing a travel time matrix of the study area and
-manually computing accessibility.</p>
+<p>One of the simplest accessibility metrics is the
+cumulative-opportunity metric: the number of opportunities reachable
+within a travel time cutoff (<code>decay_function = &quot;step&quot;</code>).</p>
+<p>Here we count the schools (<code>points$schools</code>) and public
+healthcare facilities (<code>points$healthcare</code>) reachable by
+public transport in less than 20 minutes, using the median travel time
+of departures every minute over a 60-minute window (2pm to 3pm).
+<code>accessibility()</code> handles several opportunity types in one
+call, which is much more efficient than computing a travel time matrix
+and aggregating it yourself.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># read all points in the city</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>points <span class="ot">&lt;-</span> <span class="fu">fread</span>(<span class="fu">file.path</span>(data_path, <span class="st">&quot;poa_hexgrid.csv&quot;</span>))</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
@@ -476,23 +464,27 @@ manually computing accessibility.</p>
 <span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>  <span class="at">progress =</span> <span class="cn">FALSE</span></span>
 <span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a>  )</span>
 <span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a></span>
-<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="fu">head</span>(access1)</span></code></pre></div>
-<p>Mind you that the <code>r5r::accessibility()</code> also allow users
-to calculate gravity-based accessibility metrics, which can be
-calculated by setting the <code>decay_function</code> to one of the
-following: <code>&quot;exponential&quot;</code> <code>&quot;fixed_exponential&quot;</code>,
-<code>&quot;linear&quot;</code> or <code>&quot;logistic&quot;</code>. Nonetheless, there are
-several other types of accessibility metrics not implemented in R5,
-including floating catchment area metrics, travel cost to closest N
-opportunities, time interval based cumulative opportunity, etc. This is
-where the <code>{accessibility}</code> package comes in.</p>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="fu">head</span>(access1)</span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="co">#&gt;                 id opportunity percentile cutoff accessibility</span></span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co">#&gt;             &lt;char&gt;      &lt;char&gt;      &lt;int&gt;  &lt;int&gt;         &lt;num&gt;</span></span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a><span class="co">#&gt; 1: 89a901291abffff     schools         50     20             3</span></span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a><span class="co">#&gt; 2: 89a901291abffff  healthcare         50     20             5</span></span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a><span class="co">#&gt; 3: 89a9012a3cfffff     schools         50     20             0</span></span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a><span class="co">#&gt; 4: 89a9012a3cfffff  healthcare         50     20             0</span></span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a><span class="co">#&gt; 5: 89a901295b7ffff     schools         50     20             6</span></span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a><span class="co">#&gt; 6: 89a901295b7ffff  healthcare         50     20             4</span></span></code></pre></div>
+<p><code>r5r::accessibility()</code> also computes gravity-based
+metrics: set <code>decay_function</code> to <code>&quot;exponential&quot;</code>,
+<code>&quot;fixed_exponential&quot;</code>, <code>&quot;linear&quot;</code> or
+<code>&quot;logistic&quot;</code>. Metrics not implemented in R5, such as floating
+catchment area, travel cost to the closest N opportunities or
+time-interval cumulative opportunities, are available in the
+<code>{accessibility}</code> package.</p>
 </div>
 <div id="accessibility-flexible-approach" class="section level1">
 <h1>4. Accessibility: flexible approach</h1>
-<p>The <code>{accessibility}</code> package provides a much more
-flexible approach to calculate accessibility estimates. A key input here
-is a <a href="https://ipeagit.github.io/r5r/articles/travel_time_matrix.html">travel
-time matrix</a>, which we calculate using <code>r5r</code>:</p>
+<p>The <code>{accessibility}</code> package takes a <a href="https://ipea.github.io/r5r/articles/travel_time_matrix.html">travel
+time matrix</a>, which we compute with <code>r5r</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># calculate travel time matrix</span></span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>ttm <span class="ot">&lt;-</span> r5r<span class="sc">::</span><span class="fu">travel_time_matrix</span>(</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  r5r_network,</span>
@@ -505,11 +497,20 @@ time matrix</a>, which we calculate using <code>r5r</code>:</p>
 <span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>  <span class="at">progress =</span> <span class="cn">FALSE</span></span>
 <span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  )</span>
 <span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="fu">head</span>(ttm)</span></code></pre></div>
-<p>Now to calculate a traditional cumulative opportunity metric like we
-did above, we just need to call the
-<code>accessibility::cumulative_cutoff()</code> function, and pass our
-travel time matrix and land use data as input:</p>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="fu">head</span>(ttm)</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt;            from_id           to_id travel_time_p50</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt;             &lt;char&gt;          &lt;char&gt;           &lt;int&gt;</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; 1: 89a901291abffff 89a901291abffff               2</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; 2: 89a901291abffff 89a9012a3cfffff              78</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; 3: 89a901291abffff 89a901295b7ffff              45</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; 4: 89a901291abffff 89a901284a3ffff              60</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt; 5: 89a901291abffff 89a9012809bffff              47</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt; 6: 89a901291abffff 89a901285cfffff              38</span></span></code></pre></div>
+<p><code>accessibility::cumulative_cutoff()</code> computes the same
+cumulative metric from the travel time matrix and land use data. It also
+counts trips that take exactly the cutoff time, while
+<code>r5r::accessibility()</code> counts only trips strictly shorter
+than it, so the two estimates can differ slightly:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># calculate accessibility</span></span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>access_edu <span class="ot">&lt;-</span> accessibility<span class="sc">::</span><span class="fu">cumulative_cutoff</span>(</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">travel_matrix =</span> ttm, </span>
@@ -526,22 +527,38 @@ travel time matrix and land use data as input:</p>
 <span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  <span class="at">travel_cost =</span> <span class="st">&#39;travel_time_p50&#39;</span>,</span>
 <span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>  <span class="at">cutoff =</span> <span class="dv">20</span></span>
 <span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>  )</span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="fu">head</span>(access_edu)</span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="fu">head</span>(access_health)</span></code></pre></div>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; Warning: &#39;land_use_data$healthcare&#39; contains NA values, which may produce NAs</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; in the final output.</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="fu">head</span>(access_edu)</span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; Key: &lt;id&gt;</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt;                 id schools</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt;             &lt;char&gt;   &lt;int&gt;</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; 1: 89a9012124fffff       1</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; 2: 89a9012126bffff       4</span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt; 3: 89a9012127bffff       2</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt; 4: 89a90128003ffff       8</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt; 5: 89a90128007ffff       5</span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt; 6: 89a9012800bffff       8</span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="fu">head</span>(access_health)</span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; Key: &lt;id&gt;</span></span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt;                 id healthcare</span></span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt;             &lt;char&gt;      &lt;int&gt;</span></span>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="co">#&gt; 1: 89a9012124fffff          0</span></span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="co">#&gt; 2: 89a9012126bffff          1</span></span>
+<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a><span class="co">#&gt; 3: 89a9012127bffff          1</span></span>
+<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a><span class="co">#&gt; 4: 89a90128003ffff          3</span></span>
+<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a><span class="co">#&gt; 5: 89a90128007ffff          1</span></span>
+<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a><span class="co">#&gt; 6: 89a9012800bffff          3</span></span></code></pre></div>
 </div>
 <div id="map-accessibility" class="section level1">
 <h1>5. Map Accessibility</h1>
-<p>The final step is mapping the accessibility results calculated
-earlier. We can use at least two different approaches to map our
-accessibility estimates.</p>
+<p>Two ways to map the estimates:</p>
 <div id="choropleth-maps" class="section level2">
 <h2>5.1 Choropleth maps</h2>
-<p>The first approach is to use choropleth maps. In our example, each
-point of reference is the centroid of a H3 hexagonal grid at a fine
-spatial resolution. In this case, we basically need to retrieve the
-polygons of the spatial grid, and merge it with our accessibility
-estimates.</p>
+<p>Each point is the centroid of a fine-resolution H3 hexagon, so we
+retrieve the hexagon polygons and join the accessibility estimates to
+them.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># retrieve polygons of H3 spatial grid</span></span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>grid <span class="ot">&lt;-</span> h3jsr<span class="sc">::</span><span class="fu">cell_to_polygon</span>(points<span class="sc">$</span>id, <span class="at">simple =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
@@ -557,13 +574,12 @@ estimates.</p>
 <span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.title =</span> <span class="fu">element_blank</span>()) <span class="sc">+</span></span>
 <span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>opportunity) <span class="sc">+</span></span>
 <span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div>
+<p><img role="img" aria-label src="data:image/png;base64,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" alt width="100%" /></p>
 </div>
 <div id="spatial-interpolation" class="section level2">
 <h2>5.2 Spatial interpolation</h2>
-<p>An alternative approach is to use our accessibility estimates for
-each reference point and do some spatial interpolation so we can have a
-smoother spatial distribution. The code below demonstrates how to do
-that, producing a prettier map.</p>
+<p>Alternatively, interpolate the point estimates to get a smoother
+surface:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># interpolate estimates to get spatially smooth result</span></span>
 <span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>access_schools <span class="ot">&lt;-</span> access1 <span class="sc">%&gt;%</span> </span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="fu">filter</span>(opportunity <span class="sc">==</span> <span class="st">&quot;schools&quot;</span>) <span class="sc">%&gt;%</span></span>
@@ -603,27 +619,25 @@ that, producing a prettier map.</p>
 <span id="cb7-37"><a href="#cb7-37" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">&quot;Number of</span><span class="sc">\n</span><span class="st">facilities within</span><span class="sc">\n</span><span class="st">20 minutes&quot;</span>) <span class="sc">+</span></span>
 <span id="cb7-38"><a href="#cb7-38" tabindex="-1"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
 <span id="cb7-39"><a href="#cb7-39" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>opportunity)</span></code></pre></div>
+<p><img role="img" aria-label src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAAA/FBMVEUAAAAAADoAAGYAOmYAOpAAZmYAZrYqKi0uLjA6AAA6ADo6AGY6Ojo6OmY6OpA6kNtGMmVKNWhNTVBmAABmADpmAGZmOgBmZgBmkJBmtrZmtttmtv9pVYhxOXd0PHqMjIyNjY2QOgCQOjqQOmaQZgCQkDqQkGaQkLaQtpCQ27aQ29uQ2/+UXJqXl5eZSG+aSHCdS3O2ZgC2Zma225C22/+2/7a2/9u2//+8apK+XVi/XVnCYFzVgjnWgjnZhTzZsUXZsUba3J3a3Z3bkDrb25Db/7bb///ctEne4KDhf3v4pFz81Gj9/7//tmb/25D/27b/29v//7b//9v///8LSloWAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAgAElEQVR4nO1dCXsbR3KlnI0SrRLLie3NwaUlbxJnE1k8sptIIDGY6WbW08S0tJHw//9Lqt6rngME2CNTgPyBU7Z4DIDpntfVdVfzaDXRnXT0uSfwS6cJoAxNAGVoAihDE0AZmgDK0ARQhiaAMjQBlKEJoAxNAGVoAihDE0AZmgDK0ARQhiaAMjQBlKEJoAxNAGVoAihDE0AZmgDK0ARQhiaAMjQBlKEJoAxNAGVoAihDE0AZmgDK0ARQhiaAMjQBlKFDAOj914/129svXm98+d2vX2ZucH30aOtbDgOgo+PVPQB6//Xx9hcPA6B//PKnewB05xsOA6Dji2cACI8qX979+vdPjo6evZMvx/L7D0dHvxIEP3x/dCQgvnv6b0fEUi88Xum7Hm+9+YEA9O7p6wFATwSQa0XlWi7KLx++f7zSf6vrX/307onBkS4+BA5aXT8bAiRShV/SL79+iS2oYD4xkYML6VPb6FAAev/Ny8EWe2miRX95SmCuj0DPWjze6r5L795GhwLQ6vpxFiDFY9WTyQ8LoA+/+2EbQPb9rRk7HUB64aFsMXlSUU3vv34mYvfRGkCtkBaOefuoY5gHJaSFLlSFi8r+p2/WOegH6nHV6sI0HR5U84cP0E5pAihDE0AZmgDK0ARQhg4CoA3xHNo/qp/+/McREaG1N/Y+cAgAbYnn8Cnz4PTevuHNhwDQFgwmgIwYz9GvR8/6xl8vLiTPbcEgvg8c9+F7DSLpzxeP2zf+cMQQkn30+BAAwrrTYf3itboO+nMrg4wx2mAQzGsGPNR7vfgbdU6O0xufWAgphZS+eH0oAP3fT6uBZ74OUBsMetrFZeVncXEFtKevW4CO24/aj4cCkG4W9bRSYHodoBQMWl108VXlnC//9O1rMlYrg7rPHRJA779+1HHKagNAFgxaIQlib7p4/Pbxh+//WWTR4QOE4FcvlnFri/UtpWQXvP3Vvx6vrv/ym5cPASBloCePXvZiPPzfJHYKBoHDEopgu7ca2+/eeKgAqWx59B/yjGtq/qW88DipeUQQj446u/tCsNEg26r3xgMEaKc0AZShCaAMTQBlaAIoQwcBkJh+tP0uWKWwTps8+j//cdy9DwEgFFCpxr5mAmwMjY6CHAJAsJLN1NtaJbRGDwogULLtzI1YqxBqwztm/+HFDTGi23QwAMkWSyEN/XVYIdSFd3q28mpTjOgWHQpA1+pVEaBn+vuwQqgL7/QB2hQjukUHAtD1URI/7RYb1nf0gUnfN8WIbtFhAHTxqI3PfwxAm2JE63QQAF3z4fpabAxAG2NE63QIALUq+6Kzg7YBlCqI3iMysiFGtE6HAJDJkuNVT5hsAyhVEGn0Z3OMaI0OAaCd0gRQhiaAMjQBlKEJoAxNAGVoAihDE0AZOgSA4kb6RDefAMrQBFCGJoAyNAGUoVsAbYw/apEa/v9Eo44ddNynJ4AytG+A/gGhFQtCWt7k6X/Lr3/oXnr0Mr3yt7/RPrZtAcs76C1TLrjZ2qD8hk7moxF33jNAT56hnu3i2er6sfbKduxjL334/li+/cle0WwB3/tx9P7b1/oh3ux/u0G7b3J3e1OGcgBdP1sJ5F0AWgNsX/zP99syYUPauMV0avL8Oj0+SrfFBjuNr6x67x1P+qFV2kdp0G9xM/tms8hTBqB3X2JNO6AvjvvfMrQVoK8tDHmhTD4E6EuuRXpl1b73o0i2qG5U3KwH/Yffvex945sylAFIgFDI23WVW6frI2grQN+2iYJui/U5qHvl47knEffRajsH2Zsyt7kbIIAjy9ByI9bz+L4AdXLAWs87gJRf3z39Q/vKKomOjyL9gAk0u1k7aDe2vSlzq7sBUnD0Hi1AyDoLF90TIKoqFWh/8ZtjwPLFHwYvta8ktfaRdDHQYu2dh1rs4v5aTMEZcBBHP/65AHG4EHpDBedD8E1V1k1VlWXjXYjynw94TX7E/y54p//kB+eVnt/5PP0BonxQBpD7ywAyhHde3xA4QPAcIMpt5X8ZF2O4doA8Bw1k0CcBaDB/pyDUdVnK5PURykoRMAwD0RGSKwqNw8/yyB8DkHy2kgFKHaCRH+QGwZdNkwbwHEDxwVhKYRxACo52PrVaTFnqw7+8/miABndfW18noMj067pWFqobeYKWOHedvbBBSFDJv1sAbR1AuQS3VvZRlGr9BuoN4HFn8I+ONBYgAEE7yJjo2vTzPQAaTF9ZWycPjMpKUJLdhrVUfufK6j/91YUWtNtbbOsI+nbAISjh/1oR0h+rGrfilxDbEXRINxKgZJYI/dfaLvs0AMl6RUy5qrjCutYCjUkEFTkKjv6sOyvwgcJ4DgoqgXjruZDu5Rqj6JAYALtL3hQh5iDj5JeRAKklTfrw793FD2Mt6bD59r3pt+vb6JIWMvtFUQYDyCt/EZfgedGZJLX5ZwcQvnChLhWXopgXRVHOF4uiaggQB9AtjC/Gx7omYznofnSUnT7WCwKCGJX6A1DA/LGxnDO4IHwgkXx4cdf0BwPIByjiKkGmmJe2mSmU6or7WAZQEV7r1pMJyCgvfjEAuVBxe6mEFvkToLZUKtWlswVWdMj6EEFy6flYgDw4VDhH99hiMZf7YiEglTiKQiVfK9t48kI3wG4pC5A+btD5qw6TPQT5GFuhAXFtmke3icdbXE/JZAGSu8l+KkT6YBH0LvJ53c5ySUdoFJGKIyQ5WAX3iwFIlEdVLHSuwi7Rgz9UoZemi8lblS25N73s3Mgt5iBZyuWyKGoTzLUuA1UZR6jJOT1yPS3WbKQ9ASQiRr6IWJ4X4GvlkAAu8aGpyt6ka9pJgdpMZOurcQDJ/WRD1XOwi9xC/g+6UT3MobockBoBTckB4i8EIBGHZTOfLxc1pHGkkFGQgnIPTaOqrsyS1OuqyuJYDhLZq8pRiDwiGCs8su+MKXUZ1DSiIhWAHAf4ZQCk4kYAgG5xZqQJUPJc0D4iH2pjI7N/Q3IMRgIkDytP3VTzYp4UAcxBGZfWYmnLUMLDUenj1TBw/nNvsWAMFFX7zmXlbO+o+FG9ZZxk8kB+USFa1SHp+pFbTG5aU0PVZVNBgcueU0vHA/GEPj1g5U/Y0zr8L4GDYO7o8hY1jVp9/th6FspRFR0jYbSmbvRdznDMaTGugOyVClY6TS35KveSnwS4KsnpGnpNl0bwlN/IQcnQ+pwA6Uo1apyogKh07biMjkENCgPBUBdVAVIWqp1ZRGPUvDJbbOjFCDiN/qA8Vasg9iaEaEYr54ZIrx8A+V8AB4l8ruuF4AMNw20VqOfJJ46+kdo9vjKdUylE8rYxMkg/qlwiGMHmARfJqLCnPGQPPXhPxQmTsqoGA3xOgLzqjfm8USav6uhgBNJyVumNqIyjYagslDxwXh0jg+CG6VaCntJBKlqFilDQuErpOSa0o44nb2lorL8aCZA4q8j0DI41sRBI1me9EyA1RWox/kVXlZBB6pyC14kLRTYYSa+VeD55J0NbIzhIYWUkTj9Ww1pmwEPDBXRmAvdxCM4CQhY4c2M5SMMdw9CGHtq5SqmgTNSjA+i21+1kqs1CGQjiEgYug2HmtMMPU9s6qs+tMUCVJXVNW3tdBoVbIyjnKZdA9DQAqILNUxYVYghqfKpSEJvCRwsMYcdha4+UQYJAyvTYhUe/t1wMwt4/m4N0ezUifRb22KKj6Jl6i/GJ3+HpejCkJRBAUasikivZLWYbBmZmLZ9UDxXBoGpRwF9HCNZiuBFrE2GGco+7cVsMSaSvhy2FSBJYIP/nAgRxOxf+WcwbsL1ahIxumEpBpN21rheIdksF/ZbTYogHmIYvTcWDVC3Qp9BhhwNgiWAlBT9uiykQKdPTByilgj4aIL059Kt6R4tiuViolJDlVd73KXIY1G3Fv5aBxLtwELNqLcbNACEMr5srOroVAEEBqhnpkcUoaFSUDXz3QHhiG5cOGp2q1ZoYx0FtXq2HxH04SENSjUKj/5Zz/S+JUVW+icdhQsIhM/dDd4E6HzWCEtvUPOdetS5oA/lTWhgOklr9GmWjBsa1GESx4x39WW0ucPNIQ7ENSa8B9PNkkN5ZOWde4CtggnppkkmiGDljJEhnU/Y0TYL6HvrAPmziIE4d3MkBSmKffFFIOxVFMIg0/yPrBdcOfrK6GXRxFMmRroYCkTI9fYBSKigHUFgDCFurmBcLtQ/xFLLHLNwTDBjYtKbROHcfI+0hH2gOB7dlizUKoA4BSBgDq1WV8dek6WtsOXnVd+zJ3IB6t7C3RgppIMBMT5s77OygPEB+8ABJ9mjsfL4kSsJFFbYY7ETfqRHTtq0Mom5jdEvAs/kPVqABo2AAMMmihgxKHnttobHKeAjRb8i53gAOzq1s4/QMGYC2pX16+I3lIGwP3VaX5J1LjdJAFiEhTHDgYth8o3lmHkFWekg1oopho6EYSsGa+Cz06auFxTMacg6c1BT1AGKBaR7aonDyAuSV2utjXY2NaZ90KWtJdxwE11zmJNOfzWY3V7PZ5eVC0wzFAisbmFumFc3ssprV0fJhyMuLEK00qt+LiHYWqHpS+uyQbAKR2lgFIgCwhhhKVAQqGBYqyxrEVRAAStlnTBISfT/OagsQOLnGAl/OFKHZ1eUVttocUQeVPS37YFUdI9Yh5Q3xg2IQQi8e1A0QfZUAkvtzHxcwsUoOEIxFy6Tm6gbxH3Mykg1fwW+uyv06q3BwnO7uQjgHEM0ur4R7Cm4DBlkRK1M+CcQj2KyTc6ZOvWhmZLHWLGl5zaJf86sZ7w8NQFeVNgQwgqWje82SqjGkzKEl/WtLy724+9E+MUApE6jJFmGaJQCazXSDLSzsQPlsVS4RLqsaRIFg0Q3RIEVJvbwGkG6+CnZkoXe+IkCqzridSmZkIdREDpUa+3GorvEmiGwFvHqyKv/2ChBcZ2a3zP6ZzVou0nBihbAh2ASbKgAh4ETvjI+hYa4KO2zdF3NlgV0lcudSEZonWkIIlTDTuYnETRaGwgARwTjyqGXlHaOWnS+23EifGKDomJOr4QkBIgJ0M5ur61jWWsgUWm5xIckEuNeM2LgkrX2vvikp+BJiWWT+QvC5mhUYgSYpNL0IZIAO4zylmMCfBJ5fgoUTQi9ovxeArD5BjVr1LkTyLLAHBKAZ1r2QnRMZtrISpuhSLUpnP3oTTOqKDDmoSep9fnUlN72cLRe6hfWCZky4ydoB1C9OLrFVH9naBPNxREinZ9gLQNg/ZbLi5k1dLG0TzC7nNIZKC5lZTCY6K4ZDFo9evigjVgnJq3FoBwlAqtcFk9PTk9NTRenN6TnlEOBn1LLCAGoAERvNZlsOhfUvFpMS66DVU3vaYmAMQ2gxr5OfMV/Kcy0XyJwjFOachVhdbG1bU2LMS0DPiWy9JYNqgD+7Oj09PT+9vDk9kx9OZ8KrhbrFc/gczCJVtIkEI5bjOQu4ehqiNdz+vQNkj4unWComhXLPUtwNfQYEPUqV0Co5Gfhk/stpIYN+tKa0hc3X1Tf1tBjRv5wpQudnb05Pvzs5OZ1dLRA3KBZL6ImGnMQ4UaMBXPimyL4pYhqZgkfSJC22J4BSuKUUQGSyRVMUV7Orq0IlkNUzIaZIdR/aNL3ahprvZAprvjDDONwGCG8sF8vZ6fmZAHR+dvLdV9/9eHY1WyCwIizbWL0Cc5CIvzbMZGhwGm68rJ2wlyzZYu8AGYmQXkDhLIWDVN3IAsuPCI2WLFtwrCSjWKBm15Ayniul0+t1gChSFMKbM9ldb85Oz388+e2JyqMZOQhxxEqjAbbblKEQa61gZgTwKgdQhtsvQPYE8gwapiHTFzdmTFOLVZVn7RRyZM4yhlAqKjQYmIVhDG/plrPKSimRQip7Ts/enJzoFntzdqN2ETRBiXBkKOl7lMxp0D2joxNQJ7SoYVONtYPgrPYjHIlwLdP7MwyYIZUgU60Qz5I1vZxdLhncKsqK3pImPCE6VRhpFQMTriVCshSzKDevNqZ9xJ+fXZ6eCQ+dCP14IoL6zRUtUtUDInw9RQ5tDk28Rt/6GiikAP7KQSPtIIQ7BpkeI1zL9f4MAdINJJb0omrga8ssxGNVLVzM8dRm0Toz+7UII8KnV6FawxJIpUJlMlPWBpBnuzw9f3N2dq4ICQ/JdoPjMUfgiXYCiu7UH0MowFmgTjlWc5ksNyurkRykjz7M9Nh1XMv1/gwAQlmCZuJFmMDdUGtRmX+pHKHqAyrMWW0HiqvQIOAgNeQTbTWG/NsUD1ITcK6OxuXZ+SkBOvnu9FQ2WQFtOTeHg/EyuTP42uxQC9FBUOog4wCyXqR+nL7lraddRmgMQFgtXzERVsNxUnN6USznSDvInGPyx2DNMqGqpknaE1akiyfZxEExIFogok0A+g74nJycn8sFzZ+o11GZ+8vVcOYSW97ZpRwQhHV6hrsBsoBiP9PTByjX+7MWtE/GYmtSUzgsAQ/Mfyv6NVcssmqhLZUjRKg1CBsB0i1CL0/ktKLz1VdfiSJ7c3m5gMVoVb9WzJFWgNZ1PzemazgOIEv7bOMg0B2tLetpHwJEkVsVc7WE1BgqGiugMleLwfoIx7VutXsi1jhszqwGhz12eXmuxuLJV3/9V4LQd2fnl8Wysty+2VjeapGct1qqxEAla4LLcWq+x0HrTT8/HyCHejGtfF8gOFQs1VKEndivgEHQw1GgMgKIQDMXOVVy3wKoVFNUMZJddvrd33311Y8nP569EXsCXk2JKrUYLB+gIV3AHY11PGOuqgbGcVBPBg2aflbdtrur92crQOgOqBi0Vz2GXabVhPSSkjBQowWlDQJTdKyOo/+9pT7IO25eRehqdnYKKSTaXlhosRC/ptDER4VUqkWhA2ttTNU72mGq7Ucainz0nh00zP5ken/WAYItx4SXFrup8bYwjd+ojYvslUb02MPhUAysjXC11b5GywbFLRwEgArVj1eXV8JFZ29mahaJ4Xh1o7G5xRwP35QUds4sichECgIpKFwvm7HOai/tY/Qx2Z8NAMXS4mC618U+bBqNEaENp0Hkj+LaMa4YtcWu1oS1NuD4LlG8dYshqAsLS9WZoCTIXMJYvLks0MdSWllH6trzVYOuvWhlMJa2HglQl/Yx+qjsz4Yt5iy0AHsffZK6iUTXi58Ib7JhrZxIB7VyG75ewsTzrVO3TYuhagF2loh/hWe2WIrsWVzNkGcqaE9zAJQbC0ZI01tJZDCA5MpYgO5FtwBK7UwaY18sNPrQsDpIHHwNNbIsGr4pwuoDBeYsSITtsKU+yJFBNOB6c3YurozIftUFykeQ1HPKe42UMWBv5fxwFLWCMRki+3ZWEweZWSZbTASPVg/U6gJVpQa1lst5k7JWdW2GP1iiURs4hc9Am4U0Cvcr9B4sbmbiyd8sUdKhWe6lsNHNJbMolQ1ABxoLhYxJa6h/LoBSb5b6n2hAEBmDGHxZCzpi8TKNyJIDiuySMT5vMUlnrb2bC6hcyv9oGE4s6qvZcskSIdGUN2pjq1lqm0h2L9kRRcKsezFXvyo/S7ePi6mEQisOS834aMgKVm0NU1eMoqZuGPIBOqwMqxu2dcTK2gG3AsSKT9TTLGfI3i4btjoVxc3Vjbg28yYVkJtpDruwabDbapYTafIwAXSzkXYCUCrWQK2SIrRcwnBDBj40ovGXqmeWqof1CfWhGhaGsSiDSUX6shsBStWqTjt86vnsRiSPBsrYygs1L5y0aOD7ldY+pvVtDDA2BA2BkM8AEHUEKjXYfaHrpscJ6BNrW04JWVGI3gFAC4aKlgv48fooNap4sI82ySDk80sL01aoA7i5mRWixlJ6FbbinANoQJqZRtiraKyrkSBqSp1nkkF7AwjyGXlRFPWizr5E9JxZhaiVS5rfKDj/YmG50Z6jqlkNpPE3AgQLW+xkzRKpR6GBwdm8YM1dbVlLmKVL0QcNC/BTxZvBw80dPgcHsfevYQ0BFpxFTSXL7uiYihlEtlkuWWZVs5MeoTIWHFpN2G2AYGSJCQihpiN4q9ZCMNIjYNCUGr5Xq/Fmif5edQi1CgcjWG1QieTBvjnI9GnNLCCusH89lQ+wcLdB460AtEBphiUfIKccvVX6BOt5MVPZWn2NmgeuQAUvRmWYd5D96v/Nr05PLwWhGcL4VnNmRXmlrglCTmmAfQGUgi+wX83EZ5au8szKm6VW1QWT0eLjN6xLrSJsJ5rJ6muqBXxLSLPSUAFnsDZqV6Ew4WXBSvLUGiZsJQZRAWnNszCsjaNC80aJ1k2ZUHqGvQFkAQzryNBL4tFXCyR7WNUBF8IjsbDQyqEFLZbUMm8FZugf2CCDNMCm5SzcYUCoqpZzUWOmxRqL+CsTyQBLjZ8x3WSpMtbxoxq/E3J73WIeijjw0Bvt1ihRfxd972AOccHKhlXwpcY4HO0k7EuPCsuq3AgQ4yMRZ9+A38TJEo/j/FI4kQKmYS5DxJxmnaDWgoXpkVXS1eHBAuotjwWoS/sMmn54jN8q0/Rz1J8+insDYi+Ol2S15iogWPviyWV1BRXMIBBqxnmCR2BahBXl4XZEEfzHLAi6YAiQcNCNuDQ1zWl6erJ7lzAe0TjEugblLGVqNkb7rp0oB1CX9hnENN5/Y38l++6mnwFAOMnIOi2ZsJDZQkAwBEbzSJsStGOLXdsV67w9D1yiFIOVeYuDUE7HgijIs6gNIVoOM7tCnV9VsvVQ8JkjT5/qbLivFEAIR4tk+rFqvkv7DJp+3j7Ga7mC+yEHRRbiMDoVWZYAoVAjPo+Yve4Aqzq1oKKzCk5AqmEbBv/XhTQ51HEAYC1PLjpds7fzBbRBA52llrTi4ej3lgxCKXuhTIcL6cdyUC/kut70g6PkMi0bR936BvYQqvIKMQVUNZkp82bkIVrnXytPXDqOizF8ay1F9224FTDTyKnnLjMegpMO52JRmDjWCrSiRDsHjHIYlul4pyq0wk6DUekZ7gaoF7Rfb/rRGHWu6adXgufTc7P1InEHq3xZvqRZc31bOk+Mjpt1tHhERiGL0POyBhA3lYWaAa2jayWsUWjDjMo62Oa19gQxKu2tSZXnFpRYvcju3rYhLQNQL+0D6pDgHzEeyUHe2Zlt6i71TiJD8sUOYKBkdba/UqIz1XhTBHN5gdStKteW9TzLtZL4rfXgDs1Xwu1VB8Ne5t0hlWlFM13JU+ViGLfFehw0BIh/k26sDIKAAFKEojs0DBoZh0DpG7wZMT7BZ8hwQwZmoyOkzFBIoyAWA6TeShYMwSwQqbPUWk7RjiyotbMVcFcGz0qWwkCKYYQwEqCeDBo0/djf7Ms1/RhAMoNWUhj7pGJWz45UNLQHsyNd+s9MI+4wbyiy63fN1ShDi5ThCcdVtk8sEfAuCkRWotXOcpW8dd6p7UNY0wB+rAzqp336TT/X9ielMk0/BMjVdd1tBNsvfHyf9KoTZxIlOtH3NlZKXxEsHjUW6Kqs+gC5OqS9bHwXmEBmfHq+aBgCagdI89A0CEMFkPFpgNgNMMoOGtBHp320mFTb4p0V9lryNLn1lvHSZkI70sxhq3iXKgqCNfcGEzSgHkC6Uai5PLVXiZE0kl01lZaIoqu31vSOcW5EzsSMCWSB2Ex0e4BxlnSPPjrtg95+S6yYKnc8zg4mC47E0ZSUhkJgIEEMd+2Y6Utg/f1tgPSWtTUxIIiCw0toNNcaVtLMho8qfmKqXPA0Gto+MWd6ssNnNED3oiM7RxIn3DE1WtU82YBOQ+yKwxsen+Ss5QS6yjLnSYv1e+M7gJRbmrpRNtPW8RotUAw6Vzi7qRDe0eLnKnSF4oE3c3b8ILd1fwH2BpDMv8H5chVCzeYKKhDQJU3Jw4JUv9eWXo7tMQGp2t7RR4lxE0CRTWC1LoPmhxDzZxu1+KWa1xDeVDsy+uSExMQq6RQDhxMJByPsDaDoSuvIVj5qLEuH+IW296l4pezgeSacHTyKaKfk+GB+7jaAnFU4aMQQXb01LcQKJxeohObBHPR6hwPABaL+7Hrz+gDtlI6saIrVLWr7MykYWf8f9UJIBbDiiHlOH0GdmPJ65PwkH7xxVwcQRqjha7GXGdFZpLU1oAonwux2lyxW+HXpGF14gr0BhgC92UifDiAVQgzV8bDfmmf/eXaAR2feswY7GnYTooYg+Ngekhy6PQcr5ZYMEhuBA1RNOmqBp0jWcz0ioIRlwJoRWELgn7QE3lgnpANGQtg7QD5l2C0kk6puXXIxGIyNDXvjzS3lXL3vuN6kxxoHYYC2SK9KlXrqujcIP6ZOJx/pMLNTxvs0QhyOYPJ7nwCFmEKbTTqJlGfQetrOMbn71kNnEezQnou9fkb3ECCV9TUjXVXdroUqM9XzkDzR/FCa4zx1h4rSorO9AcJggD0BVDbpENDSXLDIAlN4GixhCozox7pGtTQlD2uZgx+K6LDOQY0FBdOxyyW7F+Qq87aOjIEVoIzz5pWa5ez9oMXf7w8gD3bhaYgl60vMpLaTSWGOJMGJ2dYp6mNRyNQpGPqr3PliqrlZd9WVZnAz46gpvXkw5UhY2FKEsSgAY1qLboQu7bNrgLBZ2KXOdi07UcHKk0OymzH/0MpJ7gCKcshWP5DVIfQBsm6OdKgw03/NohAW4plW0YzM1ta0KuPICdAs8hsH2ANAHgDpkrJ2QS1eO0iEFeMxnVnqW1EZqNwZgE7uo4lo0ioB5BDAZgkC9xij2Rr4b1rT05YgtLLYOUsUJAcjBWRsK7Z5sd0DpKUu3ALmwwMhzs95UyIWUOtYnKyWwvUdcnicvgwCQFRatZVnNPyuFbNuqKW6AWLrCKcVMN6Kph3GAiTOaj/Fky7btWy3DyZR2ekitlzm9iDMZVrVhETwtNlCMhLNdutsFJNHHUDYseCdmkcyap2RWom159ENlM7Rkq3GkqFDiON2A9gajAXo3Zc/raV4QHYt2+2DxsruqGPGMgK/0apNW8bm1+4IOzmIIjR2wikMtTDe1ZTGQWyE1dbVPm4AAAZbSURBVAKg0iWOtNsnbd5mkMyA93ZmZyuc/HCAHEDy6GspHpBdy3b7sEy7TH+ggX/hIJLv+zLRXIzQequ0AhgjG8x/DaBkRVA0y05WJtL2IWPEVi8lDuoNwBMKEhMNBhjNQekvD/VSPC3pHxLKdfs4S+V0npB3dq5LsGQX19WF1sNOUoLWkhtebPnNlAyNhsZaFFTwaKOVSJ/IVFsnk0NrhHeaiiVpfRmXRvAjAbKAYj/Fk0ivZbt9LJTAoEs68BL12iHtda6r94MpGkJxYPx0zyFvtxFQbcY+5hDQdlYj7hE66WOsORwgiewQetd7QHVpn7sBYtpnkOJJ/PN1CjXe1cwSkiSxJjDKXW8hsdAKzL7+4h+IYMYjdsCF4dd0AlVg8sIObWOZKpqeGBjjER0x9qIZgY1EjKUMbIseQGMNRXDQMMVjLzxpMckAxPNGzThksDxJFsyE4sf3AUrbAFB2ciGEkM6hbo8J1OJP/s0bNLtbkot95S0efSmWVoMaIvqeWhsM0P5lk7wMWkvx9PHJdvvQW4844C7yXBJG3zu27tmBwdM1CVaxEFPGtJMa64ZuiAwzVaxOoK1Yp0/3PmW7NlqYMliulpWfPTMrbTE30pKWRx+meIZpn1y3j7OWNQRYmXhiWrm/50PoMzmNX2duh0umTPS90IQ8QBLSeqindkUTJNb3VIPoaegApoXlA/O3trm9Wes+KXm+MyUOMwDdM+3j2WMUeCaiD3aYUd8pjN0e8p2SihYys5OhOuY3qdtWdzhkfCL2WcNoR+16LkXoPhZCKn+wPK4FiHwrrroPxJFb7L5pH6RxLCPT1iz04u9mg5itzN+86/gppBhyj+jp2/ydq5CyL1Hdwj8dUvZiF67nyAUbr9X+g196AwDK/TirlEDOjtyKjq1yLNlgZ3OPjaJZ1unpzJntVtVmH3tFnHayqZ22ydi9s6pGBpi6z7M+j3vV4PPmCw4HCB/DQfcDiKllF6xskFFWnH1D9d2air3d01M36zsltnsnVZjRJHBlbcejNFU6ZiJ5XO0KbBqAYns4gMV49wNQZL+st6gUjwxjvzGCClashBm1mq0/fxcHF80GiO1pxoBYq19r/tUE+6sAwQqh0EaYQPC3BvAURP2LtiW76o6d0tHzV69Wz1/Il1erF/IN/169eC5f5BX5CpI34h2JXrziz/qtnaa9/OoFX7G34L24l973xSv+9+r5ixer5zrcCmPYvZ6vD7DqX0wjPLeh08g/bqRPBdAnus/npAmgDE0AZWgCKEMTQBmaAMrQBFCGJoAylAOoS/sMun3eHqU/TX5nt8+uZ78HygDUpX0GMQ2NCl0/zv6JnwcAUJf2Gf6JnxVAylba727ee6O7AeqlfW51+wjrZHs1djnzPdHdAPXSPmvdPu+ePHqZ7/bZ9ez3QHcD1Ev7gNa6DicO6qV9QAMkRnQc7mza+6O8DFpL8azSL8I62W6f3c9/55TXYsMUj+UOLd+T6/bZxxPsmDIA3TPt8+nm+dkoA9A90z6fcKKfi3IA3YsmgDI0AZShQwBopzQBlKFDAOi3G+kT3XwCKEMTQBmaAMrQBFCGJoAyNAGUoYcAkDir/RRPumzXct0+O578PigD0Lsvf1pL8fAyr2W7fXY8+X1QBiB79F6KpyX5Jdvts7Np74/uBiilfXopnpbkWrbbZ5cz3xPdDRADioMUT3pFr2W7fXY+/d3T3QDZIW/b+sXw/a5mlt3Ne280hoNWtzoO7Vr69nABUlTWUjwgu5bt9tnDA+yaRmixQYpnmPbJdfvs4wl2TBmAprRPBqAp7ZMD6F40AZShCaAMHQJAO6UJoAwdAkB/v5E+0c0ngDI0AZShCaAMTQBlaAIoQxNAGXoIAHVpn0G3zwpZjtUD6PbJANSlfdZjGteCykPo9skA1KV91rp93v3tb47zf1djd/PeG90NUC/tM+z2+fC7/xTueQi9GncD1Ev7DLt9rp/p9noI3T53A9RL++B7QkKA+zBx0GqQ9ul/s/6NZ5MM6qV9Bt0+K6r5h9DtM0KLDVI8be6ws4MeNEBT2icD0JT2yQF0L5oAytAEUIYOAaCd0gRQhiaAMjQBlKEJoAxNAGVoAihDE0AZmgDK0ARQhiaAMjQBlKEJoAxNAGVoAihDE0AZmgDK0ARQhiaAMjQBlKH/B8Pe8FTEkeJ0AAAAAElFTkSuQmCC" alt width="100%" /></p>
 <div id="cleaning-up-after-usage" class="section level3">
 <h3>Cleaning up after usage</h3>
-<p><code>r5r</code> objects are still allocated to any amount of memory
-previously set after they are done with their calculations. In order to
-remove an existing <code>r5r</code> object and reallocate the memory it
-had been using, we use the <code>stop_r5</code> function followed by a
-call to Java’s garbage collector, as follows:</p>
+<p>Stop the network and run Java’s garbage collector to free the memory
+it used:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>r5r<span class="sc">::</span><span class="fu">stop_r5</span>(r5r_network)</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>rJava<span class="sc">::</span><span class="fu">.jgc</span>(<span class="at">R.gc =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>rJava<span class="sc">::</span><span class="fu">.jgc</span>(<span class="at">R.gc =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">options</span>(old_options)</span></code></pre></div>
 <p>If you have any suggestions or want to report an error, please visit
-<a href="https://github.com/ipeaGIT/r5r">the package GitHub
-page</a>.</p>
+<a href="https://github.com/ipea/r5r">the package GitHub page</a>.</p>
 </div>
 </div>
 <div id="references" class="section level2 unnumbered">
 <h2 class="unnumbered">References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-levinson2020manual" class="csl-entry">
-Levinson, David, and et al. 2020. <span>“Transport Access Manual: A
-Guide for Measuring Connection Between People and Places,”</span>
-January. <a href="https://hdl.handle.net/2123/23733">https://hdl.handle.net/2123/23733</a>.
+<span class="nocase">Levinson, David, and et al.</span> 2020.
+<em>Transport Access Manual: A Guide for Measuring Connection Between
+People and Places</em>. January 1. <a href="https://hdl.handle.net/2123/23733">https://hdl.handle.net/2123/23733</a>.
 </div>
 </div>
 </div>
